@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex">
+  <title>Módulo 2.6 · Handoff e prime: o ciclo diário | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'blue' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'blue');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['blue'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por que separar o cérebro do modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "O vocabulário: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Os três níveis de migração", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomia de um workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Donos da informação", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Mão na massa", "modules": [
+        { "id": "2-1", "title": "Diagnóstico do ambiente", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar o núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canônicas com polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: provar em sessão nova", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff e prime: o ciclo diário", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projetos", "modules": [
+        { "id": "3-1", "title": "Projeto 1: migrar seu primeiro projeto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Projeto 2: MCP e hooks entre Claude e Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Projeto 3: memória curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Projeto 4: terceiro executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Projeto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Projeto 6: a mentalidade", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Pular para o conteúdo</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a>
+        </div>
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-400 bg-blue-500/10"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Mão na massa</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projetos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Minha jornada"><span aria-hidden="true">◷</span><span class="hidden md:inline">Jornada</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Aparência"><span aria-hidden="true">◑</span><span class="hidden md:inline">Aparência</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Escuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sépia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Foco</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fonte</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Leitura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamanho</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Entrelinha</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Confortável</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/escuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-blue-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-blue-400">Início</a><span>/</span>
+          <a href="index.html" class="hover:text-blue-400">Trilha 2</a><span>/</span>
+          <span class="text-blue-400">Módulo 2.6</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full mb-4">MÓDULO 2.6</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🔁 Handoff e prime: o ciclo diário</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">O readback prova que o núcleo funciona uma vez. O ciclo diário é o que mantém ele funcionando todo dia: <strong class="text-neutral-100">sessão → handoff → Markdown → prime → nova sessão</strong>. Neste módulo você escreve o handoff, monta o <code>latest.md</code>, aprende o prompt de prime e faz Claude e Codex se revezarem no mesmo trabalho sem perder nada no caminho.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">6</div><div class="text-xs text-neutral-400">Tópicos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">~30</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Intermed.</div><div class="text-xs text-neutral-400">Nível</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Prática</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice da página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Seção <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">1. O que entra num handoff</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">2. O template de latest.md</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">3. Prime: ler antes de agir</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">4. Cross-runtime</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">5. JSONL é histórico</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">6. Regra de ouro</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:2-6" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso do módulo 2.6">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-blue-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TÓPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-2-6#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">📦 O que entra num handoff</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t1-p1">O <strong class="text-blue-400">handoff</strong> é o bilhete que a sessão que está terminando deixa para a sessão que ainda não começou. Ele não é um relatório para humano, não é um changelog e não é um resumo bonito: é o mínimo de informação que faz um agente sem memória nenhuma retomar o trabalho no ponto exato onde você parou. O critério é brutalmente simples — se o próximo agente precisa perguntar alguma coisa para começar, faltou algo no handoff.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t1-p2">O fluxo que a documentação do kit descreve tem cinco itens obrigatórios, e eles vieram da prática, não da teoria: <strong class="text-neutral-100">decisões tomadas</strong>, <strong class="text-neutral-100">tarefas inacabadas</strong>, <strong class="text-neutral-100">próximos passos</strong>, <strong class="text-neutral-100">caminhos de arquivos</strong> e <strong class="text-neutral-100">checks rodados com resultado</strong>. Os quatro primeiros são o que o comando <code class="text-blue-400">/handoff</code> procura numa sessão; o quinto é o que o módulo 2.5 ensinou a produzir e é o que impede que o próximo agente comemore uma migração que ninguém testou.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Ciclo circular do dia de trabalho: a sessão termina, o handoff é escrito, vira o arquivo latest.md em Markdown no centro, o prime lê esse arquivo e alimenta a nova sessão, que fecha o ciclo">
+                <defs>
+                  <linearGradient id="m26-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m26-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m26-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m26-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m26-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m26-grid)"/>
+                <circle cx="500" cy="150" r="118" fill="none" stroke="#3b82f6" stroke-width="1.4" stroke-dasharray="7 9" opacity="0.35"/>
+                <g font-family="Inter,sans-serif" font-size="13" font-weight="600">
+                  <g class="wf-a"><rect x="370" y="10" width="260" height="40" rx="11" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="500" y="35" text-anchor="middle" fill="#bfdbfe">1 · sessão de trabalho termina</text></g>
+                  <g class="wf-a"><rect x="700" y="128" width="250" height="44" rx="11" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="825" y="147" text-anchor="middle" fill="#bfdbfe">2 · /handoff escreve</text><text x="825" y="164" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="400">decisões · pendências · próximos passos</text></g>
+                  <g class="wf-a"><rect x="370" y="250" width="260" height="40" rx="11" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="500" y="275" text-anchor="middle" fill="#9ad6ff">3 · handoffs/latest.md (Markdown)</text></g>
+                  <g class="wf-a"><rect x="50" y="128" width="250" height="44" rx="11" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="175" y="147" text-anchor="middle" fill="#bfdbfe">4 · /prime lê antes de agir</text><text x="175" y="164" text-anchor="middle" fill="#93c5fd" font-size="11" font-weight="400">latest.md + tasks/current.md</text></g>
+                </g>
+                <g fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.6">
+                  <path d="M630,30 C720,30 760,70 790,124" marker-end="url(#m26-ah)"/>
+                  <path d="M790,176 C760,232 720,270 634,270" marker-end="url(#m26-ah)"/>
+                </g>
+                <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6">
+                  <path d="M366,270 C280,270 240,232 210,176" marker-end="url(#m26-ahc)"/>
+                  <path d="M210,124 C240,70 280,30 366,30" marker-end="url(#m26-ahc)"/>
+                </g>
+                <g filter="url(#m26-glow)"><rect x="405" y="122" width="190" height="56" rx="14" fill="#0e1622" stroke="url(#m26-grad)" stroke-width="2.5"/></g>
+                <text x="500" y="146" text-anchor="middle" fill="#60a5fa" font-family="Inter,sans-serif" font-size="15" font-weight="600">o ciclo diário</text>
+                <text x="500" y="165" text-anchor="middle" fill="#bfdbfe" font-family="Inter,sans-serif" font-size="11">o arquivo é a memória, não o chat</text>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">O ciclo gira sempre no mesmo sentido: a <span class="text-blue-400">sessão que fecha</span> produz um arquivo, e a <span class="text-sky-400">sessão que abre</span> lê esse arquivo. Nenhuma seta passa por dentro do chat — é por isso que o ciclo sobrevive a um <code>/clear</code>, a um reboot e a uma troca de runtime.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">🧭</span> Novo aqui? Quatro palavras deste módulo</h3>
+              <ul class="space-y-2 text-sm text-neutral-300">
+                <li><strong class="text-neutral-100">Sessão</strong> — uma conversa contínua com o agente, do primeiro prompt até você fechar ou dar <code>/clear</code>. Quando ela acaba, o agente esquece tudo.</li>
+                <li><strong class="text-neutral-100">Handoff</strong> — o arquivo Markdown que a sessão deixa escrito antes de morrer, com o estado do trabalho.</li>
+                <li><strong class="text-neutral-100">Prime</strong> — o ato de mandar a sessão nova ler esse arquivo <em>antes</em> de tocar em qualquer coisa. "Primar" é carregar o contexto na largada.</li>
+                <li><strong class="text-neutral-100">JSONL</strong> — o formato em que os runtimes gravam o histórico bruto das conversas, uma linha JSON por evento. É log de máquina, não é documento.</li>
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Entra no handoff</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Decisões aceitas, com o que foi descartado junto ("escolhemos X, abandonamos Y").</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Tarefas inacabadas, com o ponto exato em que pararam.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Caminhos de arquivo absolutos ou relativos à raiz do projeto, nunca "aquele script".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Checks rodados com o resultado: passou, falhou ou não rodado.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Perguntas abertas que dependem do dono humano responder.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Fica de fora</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Narrativa da sessão ("primeiro tentei isso, depois aquilo"). O próximo agente não precisa da viagem.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Buscas que falharam, caminhos descartados, ruído de exploração.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Credenciais, tokens, chaves de API — nunca, em hipótese alguma.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Promessa de que algo não commitado "está disponível em outro worktree".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Falha não resolvida apagada para o handoff parecer limpo.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Handoff</span><p class="text-sm text-neutral-400 mt-1">Bilhete estruturado da sessão que fecha para a sessão que abre.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Audiência</span><p class="text-sm text-neutral-400 mt-1">Uma futura instância do agente, não um gerente. Escreva para quem vai executar.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Cinco itens</span><p class="text-sm text-neutral-400 mt-1">Decisões, pendências, próximos passos, caminhos, checks com resultado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Falha preservada</span><p class="text-sm text-neutral-400 mt-1">Erro não resolvido continua no handoff até alguém resolver de verdade.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-2-6#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">📄 O template de handoffs/latest.md</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t2-p1">O kit resolve a questão do formato com um template de sete seções em <code class="text-blue-400">template/handoffs/latest.md</code>. Ele é propositalmente vazio: a estabilidade da estrutura é o valor. Se toda sessão escreve nas mesmas sete seções, na mesma ordem, o agente que lê sabe onde procurar sem interpretar nada. Quando uma seção não tem o que dizer, você escreve "nenhuma" — nunca apaga a seção.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Objetivo:</strong> criar a pasta de handoffs do seu projeto a partir do template do kit.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>mkdir -p ~/projetos/&lt;seu-projeto&gt;/handoffs
+cp ~/projetos/agente-claude-codex/template/handoffs/latest.md \
+   ~/projetos/&lt;seu-projeto&gt;/handoffs/latest.md
+cat ~/projetos/&lt;seu-projeto&gt;/handoffs/latest.md
+# → # Handoff — AAAA-MM-DD
+#   ## Projeto e escopo
+#   ## Objetivo atual
+#   ## Estado aceito
+#   ## Arquivos alterados
+#   ## Checks rodados e resultado (passou / falhou / não rodado)
+#   ## Perguntas abertas
+#   ## Próxima ação exata</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Como verificar:</strong> o <code>cat</code> mostra as sete seções e nada mais. Troque <code>&lt;seu-projeto&gt;</code> pela pasta real. Se o seu projeto já tem <code>handoffs/latest.md</code>, não sobrescreva: compare os títulos das seções e acrescente as que faltarem.</p>
+            </div>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t2-p2">O template sozinho não ensina muito. O que ensina é ver o arquivo <strong>preenchido de verdade</strong>. Abaixo está o <code>handoffs/latest.md</code> real do kit, escrito ao final da sessão de 13 de setembro de 2026 — a mesma sessão cujo readback você estudou no módulo anterior. Repare no que ele faz e no que ele não faz: nenhuma frase sobre como a sessão foi, todas as seções presentes, dois checks marcados como não rodado, e uma próxima ação que é literalmente um comando colável.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Arquivo real:</strong> <code>handoffs/latest.md</code> do kit (trecho, com as seções na ordem do template).</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># Handoff — 2026-09-13
+## Projeto e escopo
+agente-claude-codex: kit de migração / workspace agnóstico. Escopo desta
+sessão: criar o repo, plano, prompts, scripts, template e primeira evidência.
+## Objetivo atual
+Ver tasks/current.md: validar piloto (session-handoff no Codex + readback
+nos dois runtimes).
+## Estado aceito
+Repo criado, 2 commits, branch main, sem remote. Auditoria rodada
+(relatorios/auditoria-2026-09-13.md). Readback aprovado no Codex e no Claude.
+Nada em ~/.claude ou ~/.codex alterado.
+## Arquivos alterados
+PLANO.md, README.md, AGENTS.md, CLAUDE.md, prompts/*, scripts/*, template/*,
+context/*, tasks/current.md, .gitignore, este arquivo.
+## Checks rodados e resultado
+- scripts/audit.sh — passou (89 skills só no Claude).
+- template/scripts/check.sh — passou.
+- scripts/readback-test.sh . codex — passou na 2ª rodada.
+- scripts/sync-skills.sh — não rodado (aguarda escolha do piloto).
+- Cópia isolada + check.sh — não rodado.
+## Perguntas abertas
+- Qual projeto real é o piloto? (default: este repo)
+- Publicar em inematds/agente-claude-codex?
+## Próxima ação exata
+`scripts/sync-skills.sh import session-handoff &amp;&amp; scripts/sync-skills.sh build`,
+depois `install session-handoff --codex` e `drift`.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Como verificar o seu:</strong> leia só a última seção e pergunte "eu conseguiria executar isso agora, sem abrir mais nada?". Se a resposta for não, a seção está escrita como intenção ("continuar a migração") e não como ação ("rodar tal comando em tal pasta").</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Dica prática: por que o arquivo se chama <code>latest</code></h3>
+              <p class="text-sm text-neutral-300">O nome fixo é o que torna o prime automatizável. Você pode guardar um histórico datado ao lado (<code>handoffs/2026-09-13.md</code>), mas <code>latest.md</code> tem que apontar sempre para o mais recente, porque é esse nome que entra no prompt de prime, nos scripts e no <code>AGENTS.md</code>. Nome variável obriga o agente a adivinhar qual arquivo ler — e adivinhar é exatamente o que o núcleo portátil existe para eliminar.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Sete seções fixas</span><p class="text-sm text-neutral-400 mt-1">Escopo, objetivo, estado aceito, arquivos, checks, perguntas, próxima ação.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Estrutura estável</span><p class="text-sm text-neutral-400 mt-1">Seção vazia vira "nenhuma"; nunca se apaga uma seção.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">latest.md</span><p class="text-sm text-neutral-400 mt-1">Nome fixo, conteúdo mais recente. É o que o prime procura.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Próxima ação exata</span><p class="text-sm text-neutral-400 mt-1">Comando colável, não intenção. É a seção que mais economiza tempo.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-2-6#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🚀 Prime: a nova sessão lê antes de agir</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t3-p1">Escrever o handoff é metade do ciclo. A outra metade é garantir que alguém <strong class="text-blue-400">leia</strong>. Um agente novo, deixado à própria sorte, começa a agir: abre arquivos aleatórios, deduz o objetivo pelo README, propõe uma refatoração que ninguém pediu. O prime inverte a ordem — primeiro ler, depois falar, só então agir. É uma mudança de uma frase no seu primeiro prompt do dia, e é a diferença entre retomar o trabalho e recomeçá-lo.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Objetivo:</strong> abrir o dia em qualquer runtime sem o agente sair executando. Cole este texto como primeira mensagem da sessão, dentro da pasta do projeto.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>Leia handoffs/latest.md e tasks/current.md antes de agir e me diga a próxima
+ação exata, citando o arquivo.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Como verificar:</strong> a resposta é curta, nomeia os dois arquivos e devolve uma ação, não um plano. Se o agente responder com uma proposta de refatoração, ou se não citar nenhum arquivo, ele não leu — e a primeira coisa a investigar é a ordem de leitura do <code>AGENTS.md</code>, não o prompt.</p>
+            </div>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t3-p2">Repare em cada pedaço da frase, porque cada um está lá por um motivo. <strong>"Leia … antes de agir"</strong> bloqueia a edição prematura. <strong>"a próxima ação exata"</strong> pede uma coisa só, executável, e não um roteiro de dez passos. <strong>"citando o arquivo"</strong> é o mesmo truque do readback: obriga o agente a mostrar a fonte, o que torna a mentira visível. Dois arquivos, uma ação, uma citação — é o prime inteiro.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Você abre a sessão na pasta do projeto</h4><p class="text-sm text-neutral-400">Sem isso o agente lê os arquivos de outro lugar, ou de lugar nenhum. A pasta é o escopo.</p></div></div>
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Cola o prompt de prime</h4><p class="text-sm text-neutral-400">Uma frase. O agente lê <code>handoffs/latest.md</code> e <code>tasks/current.md</code> e nada é modificado ainda.</p></div></div>
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Ele devolve a próxima ação, citando a fonte</h4><p class="text-sm text-neutral-400">Você compara com o que lembra. Bateu, segue. Não bateu, o handoff está desatualizado — corrija o arquivo antes de trabalhar.</p></div></div>
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Só então você autoriza a execução</h4><p class="text-sm text-neutral-400">O trabalho do dia começa com o contexto carregado e alinhado, não com uma suposição.</p></div></div>
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">5</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">No fim do dia, o handoff fecha o ciclo</h4><p class="text-sm text-neutral-400">A sessão reescreve <code>handoffs/latest.md</code> e a roda volta ao começo, com o estado atualizado.</p></div></div>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📋</span> Prime e readback não são a mesma coisa</h3>
+              <p class="text-neutral-300 text-sm">O <strong>readback</strong> é um teste: você roda de vez em quando, com cinco perguntas, para provar que o núcleo funciona, e não deixa o agente editar nada. O <strong>prime</strong> é rotina: você roda todo dia, com uma pergunta, para carregar o contexto e começar a trabalhar. Mesmo princípio — ler os arquivos e citar a fonte — em duas doses diferentes.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Prime</span><p class="text-sm text-neutral-400 mt-1">Carregar o contexto do arquivo na largada da sessão, antes de qualquer ação.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Antes de agir</span><p class="text-sm text-neutral-400 mt-1">Trava a edição prematura, que é o erro mais comum de sessão nova.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Uma ação, não um plano</span><p class="text-sm text-neutral-400 mt-1">Pedir "a próxima ação exata" evita roteiros especulativos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Divergência = sinal</span><p class="text-sm text-neutral-400 mt-1">Se a resposta não bate com sua memória, o handoff envelheceu. Corrija o arquivo.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-2-6#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🔀 Cross-runtime: Claude escreve, Codex retoma</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t4-p1">Aqui o ciclo diário paga a promessa do curso inteiro. Como o handoff é um arquivo Markdown na pasta do projeto, e não um estado interno de um runtime, <strong class="text-blue-400">quem escreve e quem lê não precisam ser o mesmo programa</strong>. Você fecha a tarde no Claude, abre a noite no Codex, e o trabalho continua. Ou o contrário. O arquivo é o ponto de encontro; os executores se revezam ao redor dele.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 260" class="w-full h-auto" role="img" aria-label="Diagrama cross-runtime: o Claude Code escreve o arquivo handoffs/latest.md no centro e o Codex CLI lê o mesmo arquivo; as setas funcionam nos dois sentidos, e o histórico JSONL de cada runtime fica isolado do outro">
+                <defs>
+                  <linearGradient id="m26b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m26b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m26b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m26b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m26b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="260" fill="url(#m26b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="40" y="70" width="230" height="76" rx="13" fill="#0e1622" stroke="#60a5fa" stroke-width="2.2"/>
+                  <text x="155" y="100" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">Claude Code</text>
+                  <text x="155" y="122" text-anchor="middle" fill="#bfdbfe" font-size="12">claude -p "..."</text>
+                  <rect x="40" y="176" width="230" height="46" rx="11" fill="#1a1410" stroke="#9ca3af" stroke-width="1.6" stroke-dasharray="6 6"/>
+                  <text x="155" y="196" text-anchor="middle" fill="#d1d5db" font-size="12" font-weight="600">~/.claude/projects/*.jsonl</text>
+                  <text x="155" y="213" text-anchor="middle" fill="#9ca3af" font-size="11">histórico privado · 6.859 arquivos</text>
+
+                  <rect x="730" y="70" width="230" height="76" rx="13" fill="#0e1b26" stroke="#38bdf8" stroke-width="2.2"/>
+                  <text x="845" y="100" text-anchor="middle" fill="#38bdf8" font-size="15" font-weight="600">Codex CLI</text>
+                  <text x="845" y="122" text-anchor="middle" fill="#bfe6ff" font-size="12">codex exec "..."</text>
+                  <rect x="730" y="176" width="230" height="46" rx="11" fill="#1a1410" stroke="#9ca3af" stroke-width="1.6" stroke-dasharray="6 6"/>
+                  <text x="845" y="196" text-anchor="middle" fill="#d1d5db" font-size="12" font-weight="600">~/.codex/sessions/*.jsonl</text>
+                  <text x="845" y="213" text-anchor="middle" fill="#9ca3af" font-size="11">histórico privado · 209 arquivos</text>
+
+                  <g filter="url(#m26b-glow)"><rect x="370" y="62" width="260" height="92" rx="16" fill="#0e1622" stroke="url(#m26b-grad)" stroke-width="2.8"/></g>
+                  <text x="500" y="92" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">handoffs/latest.md</text>
+                  <text x="500" y="114" text-anchor="middle" fill="#bfdbfe" font-size="12">Markdown, na pasta do projeto</text>
+                  <text x="500" y="136" text-anchor="middle" fill="#a7f3d0" font-size="12" font-weight="600">os dois leem e escrevem</text>
+                </g>
+                <g fill="none" stroke="#60a5fa" stroke-width="2.2" opacity="0.7">
+                  <path d="M270,96 L364,96" marker-end="url(#m26b-ah)"/>
+                  <path d="M630,130 L726,130" marker-end="url(#m26b-ah)"/>
+                </g>
+                <g fill="none" stroke="#38bdf8" stroke-width="2.2" opacity="0.7">
+                  <path d="M730,96 L636,96" marker-end="url(#m26b-ahc)"/>
+                  <path d="M370,130 L274,130" marker-end="url(#m26b-ahc)"/>
+                </g>
+                <g stroke="#f87171" stroke-width="2.2" opacity="0.8">
+                  <path d="M280,199 L720,199" stroke-dasharray="5 7" fill="none" opacity="0.4"/>
+                  <path d="M486,186 L514,212" /><path d="M514,186 L486,212" />
+                </g>
+                <text x="500" y="234" text-anchor="middle" fill="#fecaca" font-family="Inter,sans-serif" font-size="12" font-weight="600">nenhum runtime lê o histórico do outro</text>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Setas <span class="text-blue-400">azuis</span> e <span class="text-sky-400">cianas</span> convergem no mesmo arquivo: <code>handoffs/latest.md</code> é a única coisa compartilhada. Embaixo, o caminho cortado mostra o que <strong>não</strong> atravessa: os históricos JSONL de cada runtime são ilhas, e é por isso que o Markdown existe.</p>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Objetivo:</strong> provar o revezamento na prática — primar o Claude e o Codex contra o mesmo handoff e comparar as respostas.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/&lt;seu-projeto&gt;
+
+claude -p "Leia handoffs/latest.md e tasks/current.md antes de agir e me diga \
+a próxima ação exata, citando o arquivo."
+
+codex exec --skip-git-repo-check "Leia handoffs/latest.md e tasks/current.md \
+antes de agir e me diga a próxima ação exata, citando o arquivo."</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Como verificar:</strong> as duas respostas apontam a <em>mesma</em> próxima ação e citam os <em>mesmos</em> arquivos. Divergência de estilo é normal e esperada; divergência de conteúdo significa que o handoff está ambíguo, e a correção é no arquivo, não no prompt. O <code>--skip-git-repo-check</code> evita que o Codex se recuse a rodar quando a pasta não é um repositório git.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Atravessa os runtimes</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>handoffs/latest.md</code> — texto puro, lido por qualquer agente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>tasks/current.md</code> e <code>context/decisions/</code> — mesmo princípio.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>AGENTS.md</code>, que os dois runtimes tratam como instrução do projeto.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>O prompt de prime, que é uma frase e não depende de comando embutido.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Não atravessa</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>O histórico JSONL de cada runtime, que fica na home e é ilegível para o outro.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>O comando <code>/handoff</code> em si: o gesto muda, o arquivo produzido é o mesmo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Memória de sessão, contexto carregado, "a gente combinou ontem".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Estado de ferramentas do harness (processos em background, servidores abertos).</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Cross-runtime</span><p class="text-sm text-neutral-400 mt-1">Um escreve, o outro retoma, nos dois sentidos, pelo mesmo arquivo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Ponto de encontro</span><p class="text-sm text-neutral-400 mt-1">O Markdown do projeto, não o runtime nem a conta.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">--skip-git-repo-check</span><p class="text-sm text-neutral-400 mt-1">Deixa o <code>codex exec</code> rodar em pasta que não é repositório git.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Divergência de conteúdo</span><p class="text-sm text-neutral-400 mt-1">Sintoma de handoff ambíguo. Conserta-se o arquivo, não o agente.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-2-6#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🗃️ Sessões JSONL são histórico, não fonte</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t5-p1">Os dois runtimes gravam tudo o que acontece numa sessão em arquivos <strong class="text-blue-400">JSONL</strong> — uma linha JSON por evento — dentro da sua home. É um registro fiel e completo, e é justamente por isso que ele <strong>não</strong> serve como memória de trabalho: ele guarda tudo, inclusive o que deu errado, o que foi descartado e o que você mudou de ideia três vezes. Um handoff de vinte linhas curadas vale mais que trezentos megabytes de transcrição fiel.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Objetivo:</strong> ver com os próprios olhos o tamanho do histórico bruto na sua máquina, e onde ele mora em cada runtime.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>find ~/.claude/projects -name '*.jsonl' | wc -l
+du -sh ~/.claude/projects
+
+find ~/.codex/sessions -name '*.jsonl' | wc -l
+du -sh ~/.codex/sessions
+
+# nesta máquina, em 14/09/2026:
+#   Claude: 6.859 arquivos .jsonl · 2,3 GB
+#   Codex:    209 arquivos .jsonl · 601 MB</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Como verificar:</strong> os números da sua máquina vão ser outros, e não importa quais sejam — o que importa é notar que são <em>dois</em> acervos, em pastas diferentes, e que nenhum runtime lê o do outro. Se o caminho não existir, o runtime não está instalado ou guarda em outro lugar; nenhum dos dois casos muda a conclusão.</p>
+            </div>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t5-p2">É tentador pensar em ferramentas que leiam esse histórico e reconstruam o contexto automaticamente. Elas existem, e são úteis para auditoria e para análise de comportamento. Mas repare no que acontece quando você depende delas: o contexto do projeto passa a morar num formato proprietário, dentro da home de uma conta, preso a um runtime. É exatamente a dependência que o curso inteiro está desmontando. O JSONL é a caixa-preta do voo; o handoff é o plano de voo do próximo.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Para que o JSONL serve</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Auditar o que realmente aconteceu quando algo deu muito errado.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Recuperar um trecho específico que você esqueceu de registrar no handoff.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Analisar padrões de comportamento do modelo ao longo de muitas sessões.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Prova forense de que um check foi executado numa data.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Para que não serve</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Ser a fonte de verdade do projeto: mora na home, não na pasta do trabalho.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Passar contexto entre runtimes: o formato e o caminho são de cada um.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Ser lido por um humano: gigabytes de eventos, sem curadoria.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Entrar no git do projeto: tem ruído, tamanho e, às vezes, segredo.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Repare:</strong> a diferença entre 6.859 e 209 arquivos não diz que um runtime é melhor. Diz que o acervo de histórico cresce com o uso e é totalmente local a cada ferramenta. Quem apostou a memória do trabalho nesse acervo fica preso ao runtime que o produziu — e recomeça do zero ao trocar de ferramenta, de máquina ou de conta.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">JSONL</span><p class="text-sm text-neutral-400 mt-1">Uma linha JSON por evento. Log de máquina, fiel e volumoso.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Histórico ≠ fonte</span><p class="text-sm text-neutral-400 mt-1">Registro do que houve, não declaração do que vale agora.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Home vs projeto</span><p class="text-sm text-neutral-400 mt-1">O que mora na home não viaja com o repositório.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Curadoria</span><p class="text-sm text-neutral-400 mt-1">Vinte linhas escolhidas valem mais que gigabytes de transcrição.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-2-6#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🏅 Regra de ouro: handoff antes de fechar, sempre</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t6-p1">Uma regra só, e ela não tem exceção: <strong class="text-blue-400">nenhuma sessão fecha sem handoff escrito</strong>. Nem a sessão de cinco minutos, nem a que "não mudou nada", nem a que terminou no meio de um comando. A sessão curta é justamente a que você vai esquecer, e a interrompida é a que mais precisa do bilhete. O custo é um minuto; o custo de não fazer é a meia hora que a próxima sessão gasta redescobrindo onde estava.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-6-t6-p2">Para escrever esse handoff sem depender de disciplina sua, existe um prompt pronto na prompt library do kit, guardado em <code class="text-blue-400">prompts/03-readback-handoff.md</code> sob o título "Continuation handoff". Ele é o par exato do readback que você viu no módulo 2.5: aquele lê e prova, este escreve e preserva. Note as proibições no meio do texto — elas estão ali porque são os três jeitos mais comuns de um handoff mentir.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Objetivo:</strong> mandar a sessão que está acabando escrever o próprio handoff. Cole como última mensagem, em qualquer runtime.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>Create a concise continuation handoff for a fresh agent. Include the project and scope,
+current objective, accepted state, changed files, checks actually run and their results, open
+questions, and exact next action. Cite source paths and relevant revisions. Preserve
+unresolved failures. Do not include credentials or claim that uncommitted changes are
+available in another worktree. Update the current task/state only where the evidence
+supports it.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Como verificar:</strong> a saída cobre as sete seções do template, cita caminhos de arquivo reais, mantém as falhas não resolvidas e termina com um comando executável. Salve em <code>handoffs/latest.md</code> e releia: se alguma seção descreve a conversa em vez do estado, reescreva aquela seção na mão antes de fechar.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">"Preserve unresolved failures"</h4><p class="text-sm text-neutral-400">A falha que não foi resolvida continua no handoff. Handoff limpo demais é handoff que apagou o problema.</p></div></div>
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">"Do not include credentials"</h4><p class="text-sm text-neutral-400">O handoff costuma ir para o git. Chave de API em Markdown versionado é vazamento, não contexto.</p></div></div>
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">"Checks actually run"</h4><p class="text-sm text-neutral-400">Os três estados do módulo 2.5 entram aqui: passou, falhou ou não rodado. Nada de "deve estar funcionando".</p></div></div>
+
+              <div class="flex items-start space-x-4"><div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div><div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">"Only where the evidence supports it"</h4><p class="text-sm text-neutral-400">O agente atualiza <code>tasks/current.md</code> até onde a evidência alcança, e para. O resto vira pergunta aberta.</p></div></div>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> O erro a evitar</h3>
+              <p class="text-neutral-300 text-sm">Fechar a sessão pensando "amanhã eu lembro". Amanhã você lembra da metade, e o agente não lembra de nada — a memória dele acabou no instante em que a sessão fechou. O handoff não é para você: é para o executor que vai chegar sem nenhum contexto, seja ele Claude, Codex ou o terceiro runtime que ainda nem existe.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Sem exceção</span><p class="text-sm text-neutral-400 mt-1">Sessão curta, sessão interrompida, sessão "sem novidade": todas escrevem.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Continuation handoff</span><p class="text-sm text-neutral-400 mt-1">Prompt pronto em <code>prompts/03-readback-handoff.md</code>. Par do readback.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Sem credenciais</span><p class="text-sm text-neutral-400 mt-1">O arquivo vai para o git; segredo nunca entra nele.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Evidência limita</span><p class="text-sm text-neutral-400 mt-1">Atualize o estado só até onde houver prova; o resto é pergunta aberta.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-2-6#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Auto-checagem (opcional): você trabalhou a tarde no Claude e quer continuar à noite no Codex. O que precisa atravessar para o trabalho continuar?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">O histórico JSONL da sessão do Claude, apontado para o Codex ler.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">O <code>handoffs/latest.md</code> atualizado na pasta do projeto, mais o prompt de prime na abertura.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Nada: basta abrir o Codex na mesma pasta, ele descobre sozinho onde o trabalho parou.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-blue-900/40 via-dark-800 to-dark-800 rounded-xl border border-blue-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumo do módulo</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Cinco itens no handoff</strong><span class="text-neutral-400"> — decisões, tarefas inacabadas, próximos passos, caminhos de arquivo e checks rodados com resultado.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Template de sete seções</strong><span class="text-neutral-400"> — <code>handoffs/latest.md</code> com nome fixo, estrutura estável e próxima ação exata como comando colável.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Prime em uma frase</strong><span class="text-neutral-400"> — ler latest.md e tasks/current.md antes de agir, e devolver a próxima ação citando o arquivo.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Cross-runtime pelo arquivo</strong><span class="text-neutral-400"> — Claude escreve, Codex retoma e vice-versa; o Markdown é o único ponto de encontro.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">JSONL é caixa-preta</strong><span class="text-neutral-400"> — histórico local e volumoso de cada runtime, útil para auditoria, inútil como fonte de verdade.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Regra de ouro</strong><span class="text-neutral-400"> — handoff antes de fechar, sempre, com as falhas preservadas e sem credenciais.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-400 mb-2">Próximo:</h3>
+                <p class="text-neutral-300">Trilha 3 · Projeto 3.1 — migrar seu primeiro projeto real</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Voltar para a Trilha</a>
+                <a href="../trilha3/modulo-3-1.html" class="flex-1 text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors">Trilha 3 · Projeto 3.1 →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migre ou fique agnóstico</p>
+      <p>Módulo 2.6 · Trilha 2 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-2-6#q1', {
+          answer: 1,
+          explain: {
+            0: 'Não dá. O JSONL do Claude fica em ~/.claude/projects, num formato que o Codex não lê. Histórico é caixa-preta, não fonte de contexto.',
+            1: 'Isso. O arquivo Markdown na pasta do projeto é o único ponto de encontro, e o prime é o que garante que o Codex leia antes de agir.',
+            2: 'Não. Sem handoff atualizado, o Codex começa do zero: deduz o objetivo pelo README e provavelmente propõe algo que ninguém pediu.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

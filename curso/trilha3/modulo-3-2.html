@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex">
+  <title>Projeto 3.2 · MCP e hooks entre Claude e Codex | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por que separar o cérebro do modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "O vocabulário: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Os três níveis de migração", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomia de um workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Donos da informação", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Mão na massa", "modules": [
+        { "id": "2-1", "title": "Diagnóstico do ambiente", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar o núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canônicas com polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: provar em sessão nova", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff e prime: o ciclo diário", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projetos", "modules": [
+        { "id": "3-1", "title": "Projeto 1: migrar seu primeiro projeto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Projeto 2: MCP e hooks entre Claude e Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Projeto 3: memória curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Projeto 4: terceiro executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Projeto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Projeto 6: a mentalidade", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Pular para o conteúdo</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a>
+        </div>
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Mão na massa</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projetos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Minha jornada"><span aria-hidden="true">◷</span><span class="hidden md:inline">Jornada</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Aparência"><span aria-hidden="true">◑</span><span class="hidden md:inline">Aparência</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Escuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sépia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Foco</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fonte</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Leitura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamanho</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Entrelinha</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Confortável</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/escuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Início</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Trilha 3</a><span>/</span>
+          <span class="text-purple-400">Projeto 3.2</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROJETO 3.2</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🔌 Projeto 2: MCP e hooks entre Claude e Codex</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Ferramentas viajam, eventos não. Este projeto registra no Codex os MCP que hoje só o Claude enxerga (magnific, metricool, klingai, cerebro-vip), destrava as 15 skills de adaptador que dependiam deles, e depois encara a parte que <em>não</em> tem equivalente: os hooks. O Codex tem PostToolUse e Stop, mas não tem SessionStart — e é justamente no SessionStart que mora o fable-mindset. O que não vira evento vira texto lido, e os 7 subagentes viram skills de papel.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Tópicos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~45</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Médio</div><div class="text-xs text-neutral-400">Nível</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Projeto</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice da página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Seção <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. Inventário de MCP</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. codex mcp add sem segredo</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. As 15 de adaptador</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. Hooks: o que existe</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. fable-mindset vira texto</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Subagentes viram papéis</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso do módulo 3.2">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> O projeto em uma tela</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Objetivo</span><span class="text-neutral-400">O Codex passa a ter as mesmas ferramentas externas que o Claude (MCP), e o comportamento que o Claude obtinha por hook passa a existir no Codex como texto lido e skill de papel.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Você sai com</span><span class="text-neutral-400">MCP registrados no Codex sem nenhum segredo copiado, as 15 skills de adaptador liberadas para portar, uma seção "regra de ritmo" no <code>~/.codex/AGENTS.md</code> e 7 skills de papel em <code>.agents/skills/</code>.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Critério de aceite</span><span class="text-neutral-400"><code>codex mcp list</code> mostra os servidores; uma skill de adaptador roda no Codex; <code>grep -R 'sk-' ~/.codex</code> não acha nada; e uma sessão nova do Codex consegue assumir um dos 7 papéis citando o arquivo.</span></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-2#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧾 Inventário: quem tem qual ferramenta</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t1-p1">Antes de mexer em qualquer coisa, o inventário. O diagnóstico de 2026-09-14 mediu os dois runtimes lado a lado e o resultado para MCP é curto e brutal: o <strong class="text-purple-400">Claude tem <code>magnific</code> e <code>metricool</code> globais</strong>, mais dois MCP registrados por projeto — <code>wifi → klingai</code> e <code>2cerebrox → cerebro-vip</code>. O <strong class="text-purple-400">Codex tem nenhum</strong>. Não é "tem menos": é zero. Toda skill sua que chama uma dessas ferramentas simplesmente não existe do lado do Codex, por mais bem escrita que ela esteja.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t1-p2">Vale separar dois eixos que as pessoas costumam confundir. <strong>MCP é ferramenta</strong>: um processo externo que o agente chama para fazer algo no mundo (gerar imagem, agendar post, consultar métrica). <strong>Hook é evento</strong>: um gancho do harness que dispara sozinho em um momento do ciclo de vida da sessão. O primeiro é um contrato de protocolo e por isso viaja entre runtimes. O segundo é um detalhe de implementação do harness e por isso <em>não</em> viaja — e quando não viaja, a única saída é transformar o efeito do hook em algo que o agente lê.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Dois painéis. À esquerda, MCP viaja: um mesmo servidor de ferramenta é alcançado por Claude e por Codex através do protocolo. À direita, hooks não viajam: os ganchos de evento ficam presos dentro de cada harness e não têm ponte entre eles.">
+                <defs>
+                  <linearGradient id="m32-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m32-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m32-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m32-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                  <marker id="m32-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m32-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="20" y="16" width="450" height="268" rx="18" fill="#150f25" stroke="#a855f7" stroke-width="1.6" opacity="0.55"/>
+                  <text x="245" y="44" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="700">MCP · ferramentas VIAJAM</text>
+
+                  <rect x="50" y="70" width="150" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="125" y="95" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">Claude Code</text>
+                  <text x="125" y="113" text-anchor="middle" fill="#bfe6ff" font-size="11">2 globais + 2 por projeto</text>
+
+                  <rect x="50" y="180" width="150" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="125" y="205" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">Codex CLI</text>
+                  <text x="125" y="223" text-anchor="middle" fill="#bfe6ff" font-size="11">hoje: nenhum</text>
+
+                  <g filter="url(#m32-glow)"><rect x="290" y="118" width="150" height="66" rx="14" fill="#1a1230" stroke="url(#m32-grad)" stroke-width="2.5"/></g>
+                  <text x="365" y="145" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">servidor MCP</text>
+                  <text x="365" y="165" text-anchor="middle" fill="#e9d5ff" font-size="11">magnific · metricool</text>
+
+                  <g class="wf-a"><path d="M200,96 C250,96 250,140 290,145" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#m32-ah)"/></g>
+                  <g class="wf-a"><path d="M200,206 C250,206 250,166 290,158" fill="none" stroke="#c084fc" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#m32-ah)"/></g>
+                  <text x="245" y="258" text-anchor="middle" fill="#e9d5ff" font-size="11">o mesmo processo atende os dois: é protocolo</text>
+
+                  <rect x="530" y="16" width="450" height="268" rx="18" fill="#221018" stroke="#f87171" stroke-width="1.6" opacity="0.55"/>
+                  <text x="755" y="44" text-anchor="middle" fill="#fca5a5" font-size="15" font-weight="700">HOOKS · eventos NÃO VIAJAM</text>
+
+                  <rect x="560" y="70" width="180" height="94" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="650" y="94" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">harness Claude</text>
+                  <text x="650" y="116" text-anchor="middle" fill="#bfe6ff" font-size="11">SessionStart ×2</text>
+                  <text x="650" y="134" text-anchor="middle" fill="#bfe6ff" font-size="11">context-mode</text>
+                  <text x="650" y="152" text-anchor="middle" fill="#bfe6ff" font-size="11">fable-mindset</text>
+
+                  <rect x="770" y="70" width="180" height="94" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="860" y="94" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">harness Codex</text>
+                  <text x="860" y="116" text-anchor="middle" fill="#bfe6ff" font-size="11">PostToolUse</text>
+                  <text x="860" y="134" text-anchor="middle" fill="#bfe6ff" font-size="11">Stop</text>
+                  <text x="860" y="152" text-anchor="middle" fill="#fca5a5" font-size="11">sem SessionStart</text>
+
+                  <path d="M745,117 L765,117" fill="none" stroke="#f87171" stroke-width="2.4"/>
+                  <path d="M744,104 L766,130 M766,104 L744,130" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
+                  <text x="755" y="196" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="600">não há ponte entre harnesses</text>
+
+                  <g filter="url(#m32-glow)"><rect x="600" y="212" width="310" height="52" rx="12" fill="#1a1230" stroke="url(#m32-grad)" stroke-width="2.5"/></g>
+                  <text x="755" y="235" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">saída: evento vira TEXTO no AGENTS.md</text>
+                  <text x="755" y="254" text-anchor="middle" fill="#e9d5ff" font-size="11">lido no início da sessão, por instrução</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">O painel da esquerda é a boa notícia: MCP é um <span class="text-purple-400">protocolo</span>, então o mesmo servidor atende Claude e Codex sem duplicar nada. O da direita é a má: hook é <span class="text-red-400">implementação do harness</span>, morre na fronteira. O bloco roxo de baixo é a saída deste projeto — o que não pode ser evento tem que virar leitura obrigatória.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> O inventário medido</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-neutral-400 border-b border-dark-600"><tr><th class="py-2 pr-4">Escopo</th><th class="py-2 pr-4">Claude Code</th><th class="py-2">Codex CLI</th></tr></thead>
+                  <tbody class="text-neutral-300 divide-y divide-dark-600">
+                    <tr><td class="py-2 pr-4">MCP global</td><td class="py-2 pr-4"><code>magnific</code>, <code>metricool</code></td><td class="py-2 text-red-400">nenhum</td></tr>
+                    <tr><td class="py-2 pr-4">MCP por projeto</td><td class="py-2 pr-4"><code>wifi → klingai</code>, <code>2cerebrox → cerebro-vip</code></td><td class="py-2 text-red-400">nenhum</td></tr>
+                    <tr><td class="py-2 pr-4">Hooks</td><td class="py-2 pr-4">2 SessionStart (context-mode, fable-mindset)</td><td class="py-2">PostToolUse + Stop (impeccable)</td></tr>
+                    <tr><td class="py-2 pr-4">Subagentes</td><td class="py-2 pr-4">7 em <code>~/.claude/agents</code></td><td class="py-2 text-red-400">sem equivalente</td></tr>
+                    <tr><td class="py-2 pr-4">Skills bloqueadas por isso</td><td class="py-2 pr-4">—</td><td class="py-2">15 de adaptador + 2 nativas</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> reproduzir o inventário na sua máquina antes de mudar qualquer coisa, para ter linha de base.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># MCP que o Claude enxerga (global + por projeto)</span>
+claude mcp list
+<span class="text-neutral-500"># esperado nesta máquina: magnific, metricool</span>
+
+<span class="text-neutral-500"># MCP por projeto ficam no .mcp.json de cada repo</span>
+ls ~/projetos/wifi/.mcp.json ~/projetos/2cerebrox/.mcp.json 2&gt;/dev/null
+
+<span class="text-neutral-500"># MCP que o Codex enxerga</span>
+codex mcp list
+<span class="text-neutral-500"># esperado HOJE: lista vazia — este é o gap do projeto</span>
+
+<span class="text-neutral-500"># hooks dos dois lados</span>
+grep -o '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.claude/settings.json | sort | uniq -c
+grep -o '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.codex/hooks.json | sort | uniq -c</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> anote as duas listas em <code>context/overview.md</code> do projeto onde você está trabalhando. No fim deste módulo, <code>codex mcp list</code> tem que deixar de ser vazio — e essa é a única métrica que importa no tópico 2.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Regra de ouro do inventário:</strong> não confie na memória. Um MCP "que você jurava ter registrado" e não aparece no <code>list</code> é um MCP que não existe para o agente. O mesmo vale para hook: se não está no arquivo de settings, não dispara — e você vai passar uma hora depurando comportamento que nunca foi ligado.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">MCP</span><p class="text-sm text-neutral-400 mt-1">Ferramenta externa falada por protocolo; qualquer runtime que fale o protocolo a usa.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Hook</span><p class="text-sm text-neutral-400 mt-1">Gancho de evento do harness; não é protocolo, é implementação local.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Escopo global vs projeto</span><p class="text-sm text-neutral-400 mt-1">Um MCP pode valer em toda a máquina ou só dentro de um repo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Linha de base</span><p class="text-sm text-neutral-400 mt-1">O estado medido antes da mudança; sem ele não existe "melhorou".</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-2#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🔑 <code>codex mcp add</code> sem copiar um único segredo</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t2-p1">O comando é simples: <code>codex mcp add &lt;nome&gt; -- &lt;comando&gt;</code>. O que exige cuidado é o que vai junto. A regra global desta máquina é explícita: as API keys <strong class="text-purple-400">sempre moram em <code>~/projetos/openpcbotv2/.env</code> ou <code>~/projetos/wifi/.env</code></strong>, são carregadas em runtime e nunca duplicadas em outro lugar. Registrar um MCP colando a key no argumento do comando viola isso duas vezes: cria uma segunda cópia do segredo e a grava num arquivo de configuração que você vai acabar sincronizando, versionando ou colando num chat.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t2-p2">A saída é indireta: o comando registrado não é o servidor, é um <strong>wrapper</strong> de três linhas que carrega o <code>.env</code> e só então exec-uta o servidor. O padrão do carregamento é <code>set -a; source .env; set +a</code> — o <code>set -a</code> faz toda variável atribuída virar variável de ambiente exportada, o <code>source</code> lê o arquivo, o <code>set +a</code> desliga. O segredo passa pela memória do processo e nunca encosta na configuração do Codex.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Descobrir o comando real</h4><p class="text-sm text-neutral-400">No Claude, cada MCP já tem um comando de inicialização. Copie o comando, não a key.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Escrever o wrapper</h4><p class="text-sm text-neutral-400">Um <code>.sh</code> por servidor em <code>~/.local/bin/</code>, com <code>set -a; source ...; set +a</code> e <code>exec</code> no fim.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Registrar apontando para o wrapper</h4><p class="text-sm text-neutral-400"><code>codex mcp add magnific -- ~/.local/bin/mcp-magnific.sh</code>. A configuração guarda um caminho, não um segredo.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Provar que não vazou</h4><p class="text-sm text-neutral-400">Um <code>grep</code> na árvore <code>~/.codex</code> procurando prefixos de key. Zero resultado é o aceite.</p></div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> registrar <code>magnific</code> e <code>metricool</code> no Codex referenciando as keys do <code>.env</code>, sem gravar valor nenhum.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># 1. wrapper que carrega o .env em runtime e passa o bastão pro servidor</span>
+mkdir -p ~/.local/bin
+cat &gt; ~/.local/bin/mcp-magnific.sh &lt;&lt;'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+set -a; . "$HOME/projetos/openpcbotv2/.env"; set +a   <span class="text-neutral-500"># carrega, não copia</span>
+exec npx -y @magnific/mcp-server                      <span class="text-neutral-500"># troque pelo comando real do seu MCP</span>
+SH
+chmod 700 ~/.local/bin/mcp-magnific.sh
+
+<span class="text-neutral-500"># 2. registrar no Codex: a config guarda um CAMINHO, nunca uma key</span>
+codex mcp add magnific  -- "$HOME/.local/bin/mcp-magnific.sh"
+codex mcp add metricool -- "$HOME/.local/bin/mcp-metricool.sh"
+
+<span class="text-neutral-500"># 3. conferir</span>
+codex mcp list</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> <code>codex mcp list</code> deixa de vir vazio e mostra os dois nomes. Depois abra <code>codex</code> numa pasta qualquer e peça "liste as ferramentas de MCP disponíveis" — os nomes têm que aparecer na resposta, não só no arquivo.</p>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> provar que nenhum segredo foi parar na configuração — este é o teste que fecha o tópico.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># procura prefixos típicos de key dentro da config do Codex</span>
+grep -rIl -e 'sk-' -e 'API_KEY=' -e 'TOKEN=' ~/.codex 2&gt;/dev/null
+<span class="text-neutral-500"># esperado: NENHUMA linha de saída</span>
+
+<span class="text-neutral-500"># confere que o wrapper não é legível por outros usuários</span>
+stat -c '%a %n' ~/.local/bin/mcp-*.sh
+<span class="text-neutral-500"># esperado: 700 em todos</span>
+
+<span class="text-neutral-500"># confere que o .env continua sendo a fonte única</span>
+grep -c '=' ~/projetos/openpcbotv2/.env   <span class="text-neutral-500"># só a contagem; nunca imprima o conteúdo</span></code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> o primeiro comando tem que sair mudo. Se ele imprimir qualquer caminho, pare tudo: alguma key foi copiada. Remova o registro com <code>codex mcp remove &lt;nome&gt;</code>, rotacione a key, e refaça pelo wrapper.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Jeito certo de levar a key</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>O wrapper faz <code>source</code> do <code>.env</code> em runtime, a cada inicialização.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>A configuração do Codex guarda só o caminho do wrapper.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Rotacionar a key é editar um arquivo só; nada mais precisa mudar.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>chmod 700</code> no wrapper e <code>.env</code> fora de qualquer repo publicado.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Jeito que cria dívida</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Colar a key no <code>codex mcp add ... --env KEY=sk-...</code>: vira texto em disco.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Duplicar o <code>.env</code> para dentro de <code>~/.codex</code> "só para facilitar".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Exportar a key no <code>.bashrc</code>: passa a vazar para todo processo da máquina.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Imprimir o valor para "conferir se está certo" — o terminal fica no histórico e no log da sessão.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Os dois MCP por projeto:</strong> <code>klingai</code> (no <code>wifi</code>) e <code>cerebro-vip</code> (no <code>2cerebrox</code>) seguem exatamente o mesmo padrão, mas registrados de dentro do repo, para continuarem com escopo local. A pergunta que decide o escopo é simples: "outro projeto qualquer vai querer chamar isso?" Se a resposta for não, mantenha por projeto — MCP global é superfície de ataque e ruído de contexto em toda sessão.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Wrapper de inicialização</span><p class="text-sm text-neutral-400 mt-1">Script curto que carrega ambiente e faz <code>exec</code> no servidor real.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm"><code>set -a</code></span><p class="text-sm text-neutral-400 mt-1">Faz o <code>source</code> exportar tudo; <code>set +a</code> desliga logo em seguida.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Referência vs cópia</span><p class="text-sm text-neutral-400 mt-1">Apontar para a fonte do segredo; nunca criar uma segunda fonte.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Prova negativa</span><p class="text-sm text-neutral-400 mt-1">O aceite é um <code>grep</code> que não acha nada — ausência verificada.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-2#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🔓 As 15 skills de adaptador destravam depois</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t3-p1">A auditoria de skills classificou 89 skills que só existem no Claude em quatro classes. <strong>72 são reutilizáveis</strong> — Markdown e scripts comuns, portam sem alteração. <strong>15 são de adaptador</strong>: dependem de um MCP ou de um plugin do Claude e por isso só fazem sentido no Codex <em>depois</em> que a ferramenta correspondente estiver registrada. Duas são nativas (dependem de hook SessionStart) e uma está sem <code>SKILL.md</code>.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t3-p2">É por isso que este projeto vem antes da migração em lote de skills. Portar uma skill de adaptador com o MCP ausente produz o pior resultado possível: ela é descoberta, é escolhida, e falha no meio da execução — o agente já prometeu ao usuário que ia gerar o vídeo. <strong class="text-purple-400">Ferramenta primeiro, skill depois.</strong> A ordem não é preferência, é o que separa "não instalado" de "instalado e quebrado".</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🧩</span> As 15 de adaptador, por dependência</h3>
+              <p class="text-neutral-300 text-sm mb-3">Oito delas são variantes do <code>printing-press</code>, que contam como uma dependência só. Resolver três MCP (heygen, comfy e o do espiona-ads) libera o bloco inteiro.</p>
+              <div class="flex flex-wrap gap-2 text-xs">
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">avatar-heygen-nei</span>
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">heygen-cli</span>
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">heygen-mcp</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">espiona-ads</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">ugc-seedance25</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">website-intelligence</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">comfy-relay</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">printing-press (8 variantes)</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Pronta para portar agora</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Só lê e escreve arquivos, ou chama binários que já existem na máquina.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>O <code>SKILL.md</code> não cita nenhum <code>mcp__…</code> no corpo das instruções.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Os scripts auxiliares são bash ou node sem dependência de plugin.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Dá para rodar o caminho feliz inteiro sem rede.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Espera o MCP correspondente</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>O <code>SKILL.md</code> manda "chame <code>mcp__magnific__images_generate</code>".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Depende de um plugin do Claude (superpowers, context-mode, claude-mem).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Depende de subagente: "despache para o <code>analista-neutro</code>".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Assume <code>AskUserQuestion</code> ou outro recurso de UI só do Claude.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> classificar automaticamente as suas skills entre "reutilizável" e "adaptador", para saber o que portar hoje.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># adaptador = o SKILL.md menciona MCP, plugin ou subagente</span>
+cd ~/.claude/skills
+for d in */; do
+  s="${d%/}"
+  if grep -qE 'mcp__|AskUserQuestion|subagent_type|superpowers:|context-mode:' "$s/SKILL.md" 2&gt;/dev/null; then
+    echo "ADAPTADOR  $s"
+  else
+    echo "portavel   $s"
+  fi
+done | sort | tee ~/classificacao-skills.txt | awk '{print $1}' | uniq -c
+
+<span class="text-neutral-500"># ver só as travadas, e por qual dependência</span>
+grep '^ADAPTADOR' ~/classificacao-skills.txt | awk '{print $2}' | while read s; do
+  echo "== $s"; grep -ohE 'mcp__[a-z0-9_]+' "$s/SKILL.md" | sort -u
+done</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> a contagem deve bater com a ordem de grandeza do diagnóstico — dezenas de portáveis contra cerca de 15 adaptadores. Se der 80 adaptadores, seu <code>grep</code> está pegando menção em exemplo; ajuste para olhar só as linhas de instrução.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Dica de sequenciamento:</strong> depois de registrar magnific e metricool no tópico 2, volte a esta lista e mova para "portável" só as skills cuja <em>única</em> dependência era um desses dois. As de heygen e comfy continuam travadas até você registrar os MCP correspondentes — e isso é uma tarefa de outra sessão, não uma exceção a abrir agora.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Skill de adaptador</span><p class="text-sm text-neutral-400 mt-1">Skill cujo valor depende de uma ferramenta externa registrada.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Falha no meio</span><p class="text-sm text-neutral-400 mt-1">Pior que não ter: a skill é escolhida e quebra depois da promessa.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Ferramenta antes da skill</span><p class="text-sm text-neutral-400 mt-1">A ordem que evita instalar algo quebrado no Codex.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Bloco por dependência</span><p class="text-sm text-neutral-400 mt-1">8 variantes do printing-press destravam com um MCP só.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-2#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🪝 Hooks: o mapeamento real entre os dois</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t4-p1">Aqui a notícia é mista. O Claude tem <strong class="text-purple-400">dois hooks de SessionStart</strong> — <code>context-mode</code> e <code>fable-mindset</code> — e é deles que vem boa parte do comportamento que você considera "o jeito do Claude trabalhar". O Codex tem hooks também, mas de outros momentos: o <code>~/.codex/hooks.json</code> desta máquina registra um <strong class="text-purple-400">PostToolUse</strong> (matcher <code>Edit|Write|apply_patch</code>, timeout 5s) e um <strong class="text-purple-400">Stop</strong> (timeout 30s), os dois chamando o mesmo <code>hook.mjs</code> do <code>impeccable</code>. O que não existe é o gancho de abertura: <strong>SessionStart não tem equivalente no Codex</strong>.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Mapeamento de hooks entre Claude e Codex ao longo do ciclo de vida de uma sessão: SessionStart existe só no Claude e não tem equivalente, PostToolUse existe nos dois, Stop existe nos dois. O SessionStart é substituído por leitura de texto no AGENTS.md.">
+                <defs>
+                  <linearGradient id="m32b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m32b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m32b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m32b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m32b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <path d="M120,150 L940,150" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.45" marker-end="url(#m32b-ah)"/>
+                  <text x="60" y="155" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">sessão</text>
+                  <text x="930" y="176" text-anchor="end" fill="#9ad6ff" font-size="11">tempo</text>
+
+                  <circle cx="230" cy="150" r="9" fill="#a855f7"/>
+                  <circle cx="540" cy="150" r="9" fill="#38bdf8"/>
+                  <circle cx="850" cy="150" r="9" fill="#38bdf8"/>
+
+                  <g filter="url(#m32b-glow)"><rect x="120" y="40" width="230" height="78" rx="14" fill="#1a1230" stroke="url(#m32b-grad)" stroke-width="2.5"/></g>
+                  <text x="235" y="66" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">SessionStart</text>
+                  <text x="235" y="88" text-anchor="middle" fill="#e9d5ff" font-size="11">Claude: context-mode + fable-mindset</text>
+                  <text x="235" y="107" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">Codex: ✗ não existe</text>
+
+                  <rect x="425" y="40" width="230" height="78" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="540" y="66" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="700">PostToolUse</text>
+                  <text x="540" y="88" text-anchor="middle" fill="#bfe6ff" font-size="11">matcher Edit|Write|apply_patch</text>
+                  <text x="540" y="107" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Codex: ✓ existe (5s)</text>
+
+                  <rect x="735" y="40" width="230" height="78" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="850" y="66" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="700">Stop</text>
+                  <text x="850" y="88" text-anchor="middle" fill="#bfe6ff" font-size="11">impeccable · design deep pass</text>
+                  <text x="850" y="107" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Codex: ✓ existe (30s)</text>
+
+                  <path d="M235,118 L235,141" stroke="#c084fc" stroke-width="2"/>
+                  <path d="M540,118 L540,141" stroke="#38bdf8" stroke-width="2"/>
+                  <path d="M850,118 L850,141" stroke="#38bdf8" stroke-width="2"/>
+
+                  <g filter="url(#m32b-glow)"><rect x="120" y="196" width="230" height="72" rx="14" fill="#1a1230" stroke="url(#m32b-grad)" stroke-width="2.5"/></g>
+                  <text x="235" y="222" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">substituto portátil</text>
+                  <text x="235" y="242" text-anchor="middle" fill="#e9d5ff" font-size="11">seção no AGENTS.md +</text>
+                  <text x="235" y="259" text-anchor="middle" fill="#e9d5ff" font-size="11">skill de prime lida no começo</text>
+                  <path d="M235,159 L235,194" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#m32b-ah)"/>
+
+                  <rect x="425" y="200" width="540" height="64" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.6" opacity="0.8"/>
+                  <text x="695" y="226" text-anchor="middle" fill="#bfe6ff" font-size="12">estes dois já são equivalentes: o mesmo hook.mjs do impeccable roda nos dois runtimes</text>
+                  <text x="695" y="248" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">nada a migrar aqui — só conferir os timeouts</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">A linha é o ciclo de vida de uma sessão. Os dois pontos ciano (<span class="text-sky-400">PostToolUse</span> e <span class="text-sky-400">Stop</span>) já existem nos dois runtimes e não dão trabalho. O ponto roxo (<span class="text-purple-400">SessionStart</span>) só existe no Claude — e a seta tracejada para baixo é a única resposta possível: trocar o evento automático por leitura obrigatória no começo da sessão.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🗺️</span> A tabela de mapeamento</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-neutral-400 border-b border-dark-600"><tr><th class="py-2 pr-4">Evento</th><th class="py-2 pr-4">Claude</th><th class="py-2 pr-4">Codex</th><th class="py-2">O que fazer</th></tr></thead>
+                  <tbody class="text-neutral-300 divide-y divide-dark-600">
+                    <tr><td class="py-2 pr-4"><code>SessionStart</code></td><td class="py-2 pr-4 text-emerald-400">✓ 2 hooks</td><td class="py-2 pr-4 text-red-400">✗ não existe</td><td class="py-2">Virar texto no AGENTS.md + skill de prime</td></tr>
+                    <tr><td class="py-2 pr-4"><code>PostToolUse</code></td><td class="py-2 pr-4 text-emerald-400">✓</td><td class="py-2 pr-4 text-emerald-400">✓ impeccable</td><td class="py-2">Nada; conferir o matcher</td></tr>
+                    <tr><td class="py-2 pr-4"><code>Stop</code></td><td class="py-2 pr-4 text-emerald-400">✓</td><td class="py-2 pr-4 text-emerald-400">✓ impeccable</td><td class="py-2">Nada; conferir o timeout de 30s</td></tr>
+                    <tr><td class="py-2 pr-4">Plugins</td><td class="py-2 pr-4 text-emerald-400">✓ 7</td><td class="py-2 pr-4 text-red-400">✗ 1 (github)</td><td class="py-2">Resíduo Claude; não migra</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> ler o que está de fato registrado nos dois lados, em vez de supor.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># quais eventos o Codex tem registrados nesta máquina</span>
+python3 -c "import json;print(list(json.load(open('$HOME/.codex/hooks.json'))['hooks']))"
+<span class="text-neutral-500"># esperado: ['PostToolUse', 'Stop']</span>
+
+<span class="text-neutral-500"># o matcher e o timeout de cada um</span>
+grep -E '"matcher"|"timeout"|"statusMessage"' ~/.codex/hooks.json
+
+<span class="text-neutral-500"># o alvo dos dois hooks existe? (o hook é escrito para falhar em silêncio se não existir)</span>
+ls -l ~/.agents/skills/impeccable/scripts/hook.mjs
+
+<span class="text-neutral-500"># o que o Claude dispara no SessionStart — este é o que NÃO tem par</span>
+grep -A4 '"SessionStart"' ~/.claude/settings.json</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> a lista do Codex sai com dois nomes e nenhum deles é <code>SessionStart</code>. Se o <code>ls</code> do <code>hook.mjs</code> falhar, os hooks do Codex estão registrados mas inertes — o <code>[ ! -f ... ] ||</code> no começo do comando faz eles saírem calados.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Por que o hook falha em silêncio de propósito:</strong> repare no formato <code>[ ! -f "…/hook.mjs" ] || node "…/hook.mjs"</code>. Se o arquivo sumir, o comando devolve sucesso e a sessão segue. Isso é desejável para um hook cosmético como o do <code>impeccable</code>, e péssimo para um hook que carrega contexto: você acharia que leu o AGENTS.md e não leu. É mais um argumento para não depender de evento em coisa que precisa ser garantida.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">SessionStart</span><p class="text-sm text-neutral-400 mt-1">Gancho de abertura; existe só no Claude, e é o que mais dói perder.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Matcher</span><p class="text-sm text-neutral-400 mt-1">Filtro de quais ferramentas disparam o PostToolUse.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Falha silenciosa</span><p class="text-sm text-neutral-400 mt-1">Hook escrito para não quebrar a sessão quando o alvo some.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Evento → leitura</span><p class="text-sm text-neutral-400 mt-1">A única tradução possível quando o gancho não existe do outro lado.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-2#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">📝 fable-mindset vira seção de texto no AGENTS.md</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t5-p1">O <code>fable-mindset</code> é uma das duas skills classificadas como <strong>nativas</strong>: ele existe como hook de SessionStart, que injeta um playbook de comportamento no começo de toda sessão do Claude. Como o Codex não tem SessionStart, não há para onde portar o mecanismo. Mas o <em>conteúdo</em> do playbook é só texto — e texto é a coisa mais portátil que existe. A conversão é direta: <strong class="text-purple-400">o que era injetado por evento passa a ser uma seção do <code>~/.codex/AGENTS.md</code></strong>, lida porque o arquivo é lido.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t5-p2">O playbook destilado dessa análise cabe em poucas linhas, e o núcleo dele é o que dá para chamar de <strong>regra de ritmo</strong>: <em>pense antes de agir, feche o loop verificando</em>. Duas metades que se seguram. A primeira evita a sessão que sai editando arquivos antes de entender o problema; a segunda evita a sessão que declara "pronto" sem rodar nada. Escrito assim, sem jargão de harness, funciona em qualquer runtime — inclusive no dsh do próximo projeto, que não tem hook nenhum.</p>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> acrescentar a regra de ritmo ao <code>~/.codex/AGENTS.md</code>, substituindo o hook por leitura.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># backup antes de tocar na base global (Projeto 1 criou este arquivo)</span>
+cp ~/.codex/AGENTS.md ~/.codex/AGENTS.md.bak-$(date +%Y%m%d)
+
+cat &gt;&gt; ~/.codex/AGENTS.md &lt;&lt;'MD'
+
+## Regra de ritmo (era o hook fable-mindset no Claude)
+
+- **Pense antes de agir.** Antes da primeira edição, diga em uma frase
+  qual é o problema e qual é a menor mudança que o resolve. Se não
+  souber, leia mais; não comece a editar para descobrir.
+- **Feche o loop verificando.** Toda mudança termina com um comando que
+  prova o resultado (teste, `grep`, `status`, readback) e com a saída
+  colada na resposta. "Deve funcionar" não fecha o loop.
+- **Uma correção por vez.** Se a resposta foi reescrever tudo,
+  provavelmente faltava uma proteção — registre isso no FALHAS.md.
+MD
+
+<span class="text-neutral-500"># conferir que entrou e que o arquivo continua curto</span>
+tail -14 ~/.codex/AGENTS.md
+wc -l ~/.codex/AGENTS.md</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> rode <code>codex exec "Antes de editar qualquer arquivo, o que você deve dizer primeiro? Cite a fonte."</code> a partir de <code>~</code>. A resposta tem que mencionar a frase sobre o problema e a menor mudança, <em>citando o AGENTS.md</em>. Se ele responder bem sem citar a fonte, é coincidência do modelo, não leitura — e não conta como aceite.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Vira texto bem</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Playbook de comportamento: ritmo, ordem de trabalho, o que fazer antes de declarar pronto.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Proibições duras e preferências de estilo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Ordem de leitura de arquivos no começo da sessão.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Critérios de aceite e formato de handoff.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Não vira texto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>O que o hook <em>calcula</em>: minerar 2,3 GB de JSONL para gerar o playbook.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Bloqueio real de ação — texto pede, hook impede.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Injeção garantida: texto pode ser podado do contexto numa sessão longa.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Roteamento automático de chamadas para um subagente.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">O custo honesto da conversão:</strong> hook é garantia, texto é pedido. Ao trocar um pelo outro você perde determinismo — e é exatamente por isso que a regra de ritmo tem que ser <em>curta</em>. Três bullets que o modelo lê todo começo de sessão valem mais do que quarenta linhas que ele vai atravessar sem ler. A mesma lógica se aplica ao <code>silver-platter</code>, a outra skill nativa.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Skill nativa</span><p class="text-sm text-neutral-400 mt-1">Depende de um recurso do harness; só o conteúdo migra.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Regra de ritmo</span><p class="text-sm text-neutral-400 mt-1">Pense antes de agir; feche o loop verificando.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Garantia vs pedido</span><p class="text-sm text-neutral-400 mt-1">Hook executa sempre; texto depende de ser lido e obedecido.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Curto vence</span><p class="text-sm text-neutral-400 mt-1">Instrução longa não é mais forte, é mais ignorada.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-2#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🎭 Os 7 subagentes viram skills de papel</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t6-p1">O Claude tem <strong class="text-purple-400">7 subagentes</strong> em <code>~/.claude/agents</code>: <code>advogado-do-diabo</code>, <code>analista-neutro</code>, <code>estrategista-otimista</code>, <code>mestre-do-conselho</code>, <code>diretor-ecossistema</code>, <code>web-research-assistant</code> e <code>triple-x-responder</code>. O Codex não tem equivalente — o diagnóstico é categórico, subagentes ficam como resíduo Claude. Mas cada um desses arquivos é, no fundo, <strong>um papel descrito em prosa</strong>: o que o agente assume, o que ele procura, o formato da saída. Isso vira skill.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t6-p2">O destino é <code>.agents/skills/</code> — a mesma pasta que o Codex já varre e que o <code>sync-skills.sh</code> espelha na instalação. O que se perde é o <em>paralelismo</em>: no Claude, três membros do conselho rodam ao mesmo tempo em contextos separados. Com skill de papel, o mesmo agente assume os papéis em sequência, no mesmo contexto — mais barato, mais lento e com contaminação entre as vozes. É uma perda real, e vale dizer isso na descrição da skill em vez de fingir equivalência.</p>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> converter os 7 subagentes em skills de papel, preservando o corpo do prompt e trocando só o cabeçalho.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>mkdir -p ~/.agents/skills
+for a in advogado-do-diabo analista-neutro estrategista-otimista \
+         mestre-do-conselho diretor-ecossistema web-research-assistant \
+         triple-x-responder; do
+  src=~/.claude/agents/$a.md
+  [ -f "$src" ] || { echo "faltou: $a"; continue; }
+  mkdir -p ~/.agents/skills/papel-$a
+  {
+    echo "---"
+    echo "name: papel-$a"
+    echo "description: Assume o papel do $a. Use quando a tarefa pedir essa voz explicitamente."
+    echo "---"
+    echo
+    echo "&gt; Papel derivado do subagente \`$a\` do Claude Code."
+    echo "&gt; Aqui NÃO há execução paralela: assuma o papel no contexto atual e"
+    echo "&gt; deixe claro na resposta quando estiver falando por ele."
+    echo
+    sed '1{/^---$/!q}; 1,/^---$/d' "$src"   <span class="text-neutral-500"># tira só o front-matter antigo</span>
+  } &gt; ~/.agents/skills/papel-$a/SKILL.md
+  echo "papel-$a"
+done</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> <code>ls ~/.agents/skills | grep -c '^papel-'</code> devolve <code>7</code>. Depois, <code>codex exec "Use o papel-advogado-do-diabo para atacar esta decisão: migrar tudo de uma vez."</code> — a resposta tem que citar o arquivo da skill e sustentar a voz do contraditório do começo ao fim.</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-purple-400 mb-3 flex items-center"><span class="mr-2">✅</span> Critérios de aceite (marque com evidência)</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span><code>codex mcp list</code> mostra magnific e metricool. <em>Evidência:</em> saída do comando.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span><code>grep -rIl -e 'sk-' -e 'API_KEY=' ~/.codex</code> não devolve nada. <em>Evidência:</em> saída vazia colada no handoff.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Uma skill de adaptador que dependia só de magnific roda no Codex de ponta a ponta. <em>Evidência:</em> o artefato gerado.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>A regra de ritmo está no <code>~/.codex/AGENTS.md</code> e é citada num <code>codex exec</code>. <em>Evidência:</em> a resposta com a citação.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>7 skills <code>papel-*</code> em <code>~/.agents/skills</code>, e uma delas foi exercitada. <em>Evidência:</em> <code>ls</code> + a resposta do papel.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Nada quebrou no Claude: <code>claude mcp list</code> e os hooks de SessionStart continuam iguais. <em>Evidência:</em> comparação com a linha de base do tópico 1.</span></li>
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">⚠️ Riscos deste projeto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Key copiada para dentro de <code>~/.codex</code> por pressa — o risco mais caro da página.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>MCP registrado global quando devia ser por projeto: ruído de contexto em toda sessão.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Skill de adaptador portada antes do MCP: falha no meio da execução.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Achar que skill de papel é igual a subagente: perde o paralelismo e o isolamento de contexto.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Servidor MCP baixado por <code>npx</code> sem versão fixa mudando debaixo de você.</span></li>
+                </ul>
+              </div>
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">↩️ Rollback em um comando</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>MCP: <code>codex mcp remove magnific</code> (e metricool) devolve a lista vazia.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Wrappers: <code>rm ~/.local/bin/mcp-*.sh</code>; o <code>.env</code> nunca foi tocado.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>AGENTS.md: <code>mv ~/.codex/AGENTS.md.bak-AAAAMMDD ~/.codex/AGENTS.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Papéis: <code>rm -rf ~/.agents/skills/papel-*</code>; os originais em <code>~/.claude/agents</code> ficam intactos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Se uma key vazou, rollback não basta: rotacione a key antes de qualquer outra coisa.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Skill de papel</span><p class="text-sm text-neutral-400 mt-1">O prompt do subagente virando instrução que o agente assume.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Perda de paralelismo</span><p class="text-sm text-neutral-400 mt-1">Papéis em sequência no mesmo contexto, não em contextos separados.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm"><code>.agents/skills/</code></span><p class="text-sm text-neutral-400 mt-1">Pasta que o Codex varre e o sync-skills espelha.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Equivalência honesta</span><p class="text-sm text-neutral-400 mt-1">Documentar o que se perde vale mais que fingir paridade.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-3-2#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Auto-checagem (opcional): você quer que o Codex registre o MCP <code>magnific</code>, que precisa de uma API key guardada em <code>~/projetos/openpcbotv2/.env</code>. Qual é o caminho certo?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Abro o <code>.env</code>, copio o valor da key e passo em <code>codex mcp add magnific --env MAGNIFIC_KEY=&lt;valor&gt;</code>.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Crio um wrapper que faz <code>set -a; . ~/projetos/openpcbotv2/.env; set +a</code> e <code>exec</code> no servidor, e registro o caminho do wrapper.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Copio o <code>.env</code> inteiro para <code>~/.codex/.env</code>, assim o Codex acha sozinho.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumo do projeto</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Ferramentas viajam</strong><span class="text-neutral-400"> — MCP é protocolo: magnific, metricool, klingai e cerebro-vip passam a existir também no Codex.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Segredo fica na fonte</strong><span class="text-neutral-400"> — wrapper com <code>set -a; source .env; set +a</code>; a configuração guarda caminho, nunca key.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Eventos não viajam</strong><span class="text-neutral-400"> — PostToolUse e Stop já existem nos dois; SessionStart não existe no Codex e vira texto lido.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Comportamento vira conteúdo</strong><span class="text-neutral-400"> — fable-mindset vira a regra de ritmo no AGENTS.md; os 7 subagentes viram skills de papel.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Próximo projeto:</h3>
+                <p class="text-neutral-300">3.3 — Memória curada: o agente propõe, você aprova</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Voltar para a Trilha</a>
+                <a href="modulo-3-3.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Próximo projeto →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migre ou fique agnóstico</p>
+      <p>Projeto 3.2 · Trilha 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-2#q1', {
+          answer: 1,
+          explain: {
+            0: 'Não: a key vira texto em disco na configuração do Codex, criando uma segunda cópia do segredo. A regra é referenciar, nunca copiar.',
+            1: 'Isso. O wrapper carrega o .env em runtime e faz exec no servidor; a configuração guarda só um caminho. Rotacionar a key passa a ser editar um arquivo só.',
+            2: 'Não: duplicar o .env é exatamente criar a segunda fonte que a regra proíbe — e agora você tem dois arquivos para rotacionar e esquecer.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

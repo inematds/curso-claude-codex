@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex">
+  <title>Módulo 2.4 · Skills canônicas com polyskill | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'blue' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'blue');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['blue'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por que separar o cérebro do modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "O vocabulário: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Os três níveis de migração", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomia de um workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Donos da informação", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Mão na massa", "modules": [
+        { "id": "2-1", "title": "Diagnóstico do ambiente", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar o núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canônicas com polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: provar em sessão nova", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff e prime: o ciclo diário", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projetos", "modules": [
+        { "id": "3-1", "title": "Projeto 1: migrar seu primeiro projeto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Projeto 2: MCP e hooks entre Claude e Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Projeto 3: memória curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Projeto 4: terceiro executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Projeto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Projeto 6: a mentalidade", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Pular para o conteúdo</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a>
+        </div>
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-400 bg-blue-500/10"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Mão na massa</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projetos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Minha jornada"><span aria-hidden="true">◷</span><span class="hidden md:inline">Jornada</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Aparência"><span aria-hidden="true">◑</span><span class="hidden md:inline">Aparência</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Escuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sépia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Foco</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fonte</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Leitura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamanho</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Entrelinha</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Confortável</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/escuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-blue-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-blue-400">Início</a><span>/</span>
+          <a href="index.html" class="hover:text-blue-400">Trilha 2</a><span>/</span>
+          <span class="text-blue-400">Módulo 2.4</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full mb-4">MÓDULO 2.4</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🧩 Skills canônicas com polyskill</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Uma fonte, N runtimes. Copiar uma skill à mão pro segundo executor funciona no primeiro dia e apodrece no segundo mês. Aqui você transforma um <code class="text-blue-400">SKILL.md</code> numa definição portátil, gera as cópias por build, instala nos dois runtimes com backup ao lado e mede o <code class="text-blue-400">drift</code> — a distância entre o que você escreveu e o que está instalado.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">6</div><div class="text-xs text-neutral-400">Tópicos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">~30</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Interm.</div><div class="text-xs text-neutral-400">Nível</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Prática</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice da página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Seção <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">1. Por que cópias divergem</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">2. import</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">3. build</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">4. install --both</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">5. drift</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">6. Skills de adaptador</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:2-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progresso do módulo 2.4">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-blue-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TÓPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-2-4#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧬 Por que cópias manuais divergem</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t1-p1">O caso é real e está documentado nesta máquina. Pra dar skills ao <strong class="text-blue-400">dsh-sandbox</strong> (um terceiro executor, com modelo rodando em container), três skills foram copiadas à mão pra <code>~/projetos/dsh-skills</code>: <code>formato-curso-v2</code>, <code>formato-curso-v5</code> e <code>capa-inema</code>, que é dependência das outras duas. A documentação avisa em letras claras: <em>"São CÓPIAS — o Claude segue usando os originais em <code>~/projetos/formato-curso-inema</code> via symlink em <code>~/.claude/skills/</code>"</em>. Duas pastas, duas verdades, nenhum mecanismo ligando as duas.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t1-p2">No dia da cópia, os dois lados são idênticos. Depois você corrige um erro de prompt no original — a skill do Claude melhora, a cópia do dsh não. Aí você ajusta um caminho na cópia porque dentro do container <code>~/projetos</code> resolve diferente — agora a cópia tem uma correção que o original não tem. Duas semanas depois ninguém sabe qual das duas está certa, e "certa" virou uma pergunta sem resposta. Isso é <strong class="text-blue-400">drift</strong>: divergência silenciosa entre cópias que deveriam ser a mesma coisa.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Duas linhas do tempo comparadas: em cima, uma cópia manual que se separa do original a cada edição; embaixo, uma fonte canônica que é regenerada por build e mantém os runtimes idênticos">
+                <defs>
+                  <linearGradient id="m24-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m24-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m24-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m24-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m24-ahr" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#f87171"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m24-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <text x="30" y="30" fill="#f87171" font-size="14" font-weight="700">cópia manual</text>
+                  <text x="30" y="48" fill="#9ca3af" font-size="11">o tempo separa as duas pastas</text>
+                  <circle cx="150" cy="95" r="10" fill="#0e1622" stroke="#60a5fa" stroke-width="2.5"/>
+                  <text x="150" y="72" text-anchor="middle" fill="#bfdbfe" font-size="11">dia 0 · iguais</text>
+                  <path d="M160,92 C300,75 420,60 560,52" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+                  <path d="M160,98 C300,118 420,140 560,150" fill="none" stroke="#f87171" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#m24-ahr)"/>
+                  <circle cx="330" cy="66" r="6" fill="#60a5fa"/><text x="330" y="52" text-anchor="middle" fill="#bfdbfe" font-size="10">fix de prompt</text>
+                  <circle cx="380" cy="130" r="6" fill="#f87171"/><text x="380" y="152" text-anchor="middle" fill="#fecaca" font-size="10">ajuste de caminho</text>
+                  <text x="600" y="56" fill="#bfdbfe" font-size="12">original (Claude)</text>
+                  <text x="600" y="156" fill="#fecaca" font-size="12">cópia (dsh) · divergiu</text>
+                  <text x="600" y="176" fill="#9ca3af" font-size="10">qual está certa?</text>
+
+                  <line x1="30" y1="196" x2="970" y2="196" stroke="#374151" stroke-width="1.5"/>
+
+                  <text x="30" y="224" fill="#60a5fa" font-size="14" font-weight="700">fonte canônica + build</text>
+                  <g filter="url(#m24-glow)"><rect x="150" y="242" width="150" height="44" rx="12" fill="#0e1622" stroke="url(#m24-grad)" stroke-width="2.5"/></g>
+                  <text x="225" y="270" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="600">definition.md</text>
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.65">
+                    <path d="M300,258 C380,258 390,246 450,246" marker-end="url(#m24-ah)"/>
+                    <path d="M300,264 L450,264" marker-end="url(#m24-ah)"/>
+                    <path d="M300,270 C380,270 390,282 450,282" marker-end="url(#m24-ah)"/>
+                  </g>
+                  <g class="wf-a"><rect x="455" y="232" width="140" height="28" rx="8" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="525" y="251" text-anchor="middle" fill="#bfe6ff" font-size="12" font-weight="600">dist/claude</text></g>
+                  <g class="wf-a"><rect x="455" y="268" width="140" height="28" rx="8" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="525" y="287" text-anchor="middle" fill="#bfe6ff" font-size="12" font-weight="600">dist/codex</text></g>
+                  <text x="650" y="252" fill="#bfdbfe" font-size="12">regenerar é barato</text>
+                  <text x="650" y="272" fill="#bfdbfe" font-size="12">a divergência não tem onde nascer</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Compare as duas metades. Em cima, as linhas <span class="text-blue-400">azul</span> e <span class="text-red-400">vermelha tracejada</span> partem do mesmo ponto e se afastam a cada edição — ninguém programou isso, é só o tempo passando. Embaixo, tudo sai de um bloco só: a saída é descartável e refeita a qualquer momento.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Novo aqui?</h3>
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Skill</strong> é uma pasta com um <code>SKILL.md</code> dentro: instruções que o agente carrega sob demanda pra executar um tipo de tarefa. <strong class="text-primary">Runtime</strong> é o programa que executa o agente (Claude Code, Codex CLI, dsh-sandbox). <strong class="text-primary">Fonte canônica</strong> é o único lugar onde você edita — todo o resto é gerado a partir dela. <strong class="text-primary">Drift</strong> é quando uma cópia deixou de ser igual à fonte. <strong class="text-primary">MCP</strong> (Model Context Protocol) é o padrão pelo qual um agente ganha ferramentas externas: gerar imagem, publicar post, consultar uma API.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Cópia manual</span><p class="text-sm text-neutral-400 mt-1">Funciona hoje, diverge amanhã, sem aviso.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Fonte canônica</span><p class="text-sm text-neutral-400 mt-1">O único arquivo que você edita à mão.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Saída gerada</span><p class="text-sm text-neutral-400 mt-1"><code>dist/</code> é descartável: apagar e refazer é grátis.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Caso real</span><p class="text-sm text-neutral-400 mt-1">Três skills copiadas à mão em <code>~/projetos/dsh-skills</code>.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-2-4#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">📥 import: SKILL.md vira definição portátil</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t2-p1">O <code>sync-skills.sh</code> do kit é uma casca fina em volta do <strong class="text-blue-400">polyskill</strong>. O comando <code>import</code> pega uma skill que já existe em <code>~/.claude/skills/&lt;nome&gt;</code> e a traduz pro formato portátil dentro de <code>skills/&lt;nome&gt;/</code>, no repositório do kit. O que sai de lá são dois arquivos: <code>definition.md</code>, com frontmatter YAML e o corpo em Markdown, e <code>polyskill.yaml</code>, que diz quais runtimes esta skill deve atender.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t2-p2">Duas garantias importam aqui. A primeira: o import <strong>nunca copia <code>~/.claude</code> ou <code>~/.codex</code> em massa</strong> — você nomeia skill por skill, de propósito, porque migrar 117 skills de uma vez é como migrar um armário inteiro sem abrir as gavetas. A segunda: o round-trip é sem perdas para o núcleo da especificação (<code>name</code>, <code>description</code>, corpo, <code>scripts/</code>, <code>references/</code>, <code>assets/</code>) e com aviso para as extensões de cada runtime. Se algo não sobrevive à tradução, o polyskill diz.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Importar a primeira skill</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Objetivo:</strong> transformar a skill <code>session-handoff</code> — a mesma do piloto registrado em <code>tasks/current.md</code> — numa fonte canônica dentro do kit.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># pré-requisito, uma vez só nesta máquina</span>
+npm i -g polyskill
+polyskill --version   <span class="text-neutral-500"># 0.1.0</span>
+
+cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># importa do Claude para o formato portátil</span>
+scripts/sync-skills.sh import session-handoff
+<span class="text-neutral-500"># importada: skills/session-handoff</span>
+
+<span class="text-neutral-500"># o que nasceu</span>
+ls skills/session-handoff/
+<span class="text-neutral-500"># definition.md  polyskill.yaml</span>
+
+<span class="text-neutral-500"># troque pelo nome de qualquer skill sua</span>
+scripts/sync-skills.sh import <span class="text-primary">&lt;sua-skill&gt;</span></code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">Como verificar:</strong> <code>head -12 skills/session-handoff/definition.md</code> mostra o frontmatter com <code>name</code> e <code>description</code> iguais aos do <code>SKILL.md</code> original. Se o script responder <code>skip &lt;nome&gt;: não existe em ~/.claude/skills</code>, confira a grafia — o nome é o da pasta, não o do slash command.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Boas candidatas a importar</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Skills classificadas como <strong>reutilizável</strong> no audit do módulo 2.1.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>As que você usa toda semana — o retorno aparece rápido.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>As que já estão copiadas à mão em algum lugar (pare o sangramento primeiro).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Skills pequenas, pra aprender o ciclo antes de encarar as grandes.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Deixe pra depois</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Skills de <strong>adaptador</strong>: sem o MCP no destino, elas não rodam (tópico 6).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Skills classificadas como <strong>nativo</strong>: dependem de hook que o Codex não tem.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Pastas sem <code>SKILL.md</code>: não há o que importar; resolva à mão.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Lotes de 50: importe de 5 em 5 e rode o drift entre os lotes.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">definition.md</span><p class="text-sm text-neutral-400 mt-1">Frontmatter YAML + corpo Markdown. A fonte.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">polyskill.yaml</span><p class="text-sm text-neutral-400 mt-1">Quais runtimes esta skill atende.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Round-trip</span><p class="text-sm text-neutral-400 mt-1">Sem perda no núcleo; com aviso nas extensões.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Skill por skill</span><p class="text-sm text-neutral-400 mt-1">Nunca copia as pastas de runtime em massa.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-2-4#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🏗️ build: dist/claude e dist/codex</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t3-p1">O <code>build</code> percorre todas as pastas em <code>skills/</code> e, pra cada uma, pede ao polyskill que emita a versão otimizada de cada runtime configurado. O resultado vai pra <code>skills/&lt;nome&gt;/dist/claude/&lt;nome&gt;/</code> e <code>skills/&lt;nome&gt;/dist/codex/&lt;nome&gt;/</code>. Duas saídas, uma fonte. A regra de ouro do módulo inteiro cabe em uma frase: <strong class="text-blue-400">você edita <code>definition.md</code>; nunca edita nada dentro de <code>dist/</code></strong>.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Fan-out da fonte canônica: definition.md e polyskill.yaml passam por adaptadores e geram as cópias instaladas no Claude Code, no Codex CLI e no dsh-sandbox">
+                <defs>
+                  <linearGradient id="m24b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m24b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m24b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m24b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m24b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m24b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m24b-glow)"><rect x="30" y="105" width="210" height="90" rx="16" fill="#0e1622" stroke="url(#m24b-grad)" stroke-width="3"/></g>
+                  <text x="135" y="136" text-anchor="middle" fill="#60a5fa" font-size="16" font-weight="700">skills/&lt;nome&gt;/</text>
+                  <text x="135" y="158" text-anchor="middle" fill="#bfdbfe" font-size="12">definition.md</text>
+                  <text x="135" y="178" text-anchor="middle" fill="#bfdbfe" font-size="12">polyskill.yaml</text>
+                  <text x="135" y="215" text-anchor="middle" fill="#9ca3af" font-size="11">fonte canônica · você edita aqui</text>
+
+                  <path d="M240,150 L330,150" fill="none" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#m24b-ah)"/>
+                  <rect x="335" y="118" width="150" height="64" rx="14" fill="#0e1622" stroke="#60a5fa" stroke-width="2.5"/>
+                  <text x="410" y="146" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">build</text>
+                  <text x="410" y="166" text-anchor="middle" fill="#bfdbfe" font-size="11">adaptadores por runtime</text>
+
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6">
+                    <path d="M485,135 C570,135 580,55 660,55" marker-end="url(#m24b-ahc)"/>
+                    <path d="M485,150 L660,150" marker-end="url(#m24b-ahc)"/>
+                    <path d="M485,165 C570,165 580,245 660,245" marker-end="url(#m24b-ahc)"/>
+                  </g>
+
+                  <g class="wf-a"><rect x="665" y="28" width="305" height="56" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="817" y="52" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">dist/claude → ~/.claude/skills</text><text x="817" y="72" text-anchor="middle" fill="#7dd3fc" font-size="11">Claude Code</text></g>
+                  <g class="wf-a"><rect x="665" y="122" width="305" height="56" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="817" y="146" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">dist/codex → ~/.codex/skills</text><text x="817" y="166" text-anchor="middle" fill="#7dd3fc" font-size="11">Codex CLI · espelho em ~/.agents/skills</text></g>
+                  <g class="wf-a"><rect x="665" y="218" width="305" height="56" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 5"/><text x="817" y="242" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">--dsh → ~/projetos/dsh-skills</text><text x="817" y="262" text-anchor="middle" fill="#7dd3fc" font-size="11">terceiro executor · destino a acrescentar</text></g>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Repare que só há <span class="text-blue-400">um bloco à esquerda</span>. As três caixas da direita são saídas: apagar qualquer uma delas não perde nada, porque o <code>build</code> refaz. A terceira aparece tracejada porque o destino <code>--dsh</code> ainda é um item planejado no <code>tasks/current.md</code> do kit, não uma opção pronta.</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Gerar as cópias dos dois runtimes</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Objetivo:</strong> produzir <code>dist/claude</code> e <code>dist/codex</code> a partir da definição importada, sem tocar em nenhuma pasta de runtime ainda.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+scripts/sync-skills.sh build
+<span class="text-neutral-500"># build: skills/session-handoff/</span>
+
+<span class="text-neutral-500"># confira o que foi emitido</span>
+find skills/<span class="text-primary">&lt;sua-skill&gt;</span>/dist -maxdepth 3 -type d
+<span class="text-neutral-500"># skills/&lt;sua-skill&gt;/dist/claude/&lt;sua-skill&gt;
+# skills/&lt;sua-skill&gt;/dist/codex/&lt;sua-skill&gt;</span>
+
+<span class="text-neutral-500"># se um arquivo de dist/ foi editado à mão, o build recusa;</span>
+<span class="text-neutral-500"># FORCE=1 manda regenerar por cima (polyskill build --force)</span>
+FORCE=1 scripts/sync-skills.sh build</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">Como verificar:</strong> as duas pastas existem e cada uma contém o arquivo de skill no formato do seu runtime. Rode o <code>build</code> duas vezes seguidas sem editar nada: a segunda vez não deve mudar arquivo nenhum — build é determinístico, e isso é o que torna o <code>drift</code> confiável.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Dica prática</h3>
+              <p class="text-sm text-neutral-300">Versione <code>skills/</code> no git e ignore <code>dist/</code>. A fonte merece histórico; a saída, não. Quando alguém clonar o kit, um <code>build</code> reconstrói tudo — e o diff do repositório volta a mostrar só o que você realmente escreveu, em vez de centenas de linhas geradas.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Adaptador de runtime</span><p class="text-sm text-neutral-400 mt-1">Quem sabe traduzir a definição pro formato de cada executor.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">dist/</span><p class="text-sm text-neutral-400 mt-1">Saída gerada. Nunca edite; sempre regenere.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">--force</span><p class="text-sm text-neutral-400 mt-1">Sobrescreve saída que alguém editou à mão.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Determinismo</span><p class="text-sm text-neutral-400 mt-1">Mesma fonte, mesma saída — a base do drift.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-2-4#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">📦 install --both, com backup ao lado</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t4-p1">O <code>install</code> é o único comando do módulo que escreve fora do repositório do kit. Ele copia <code>skills/&lt;nome&gt;/dist/&lt;runtime&gt;/&lt;nome&gt;/</code> pra <code>~/.claude/skills/&lt;nome&gt;</code> ou <code>~/.codex/skills/&lt;nome&gt;</code>, conforme o destino que você pedir: <code>--claude</code>, <code>--codex</code> ou <code>--both</code>. Antes de sobrescrever qualquer pasta que já exista, ele copia o que estava lá pra <code>.&lt;nome&gt;.bak-&lt;timestamp&gt;</code>, na mesma pasta. Você nunca perde a versão anterior sem ter como voltar.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t4-p2">Tem um detalhe específico do Codex que o script resolve por você: além de <code>~/.codex/skills</code>, o Codex também descobre skills em <code>~/.agents/skills</code>. Quando o destino inclui o Codex e essa pasta existe, o script <strong class="text-blue-400">espelha</strong> a instalação lá também. É a razão de o doctor do módulo 2.1 reportar duas contagens diferentes nesta máquina — 27 skills em <code>~/.codex/skills</code> e 29 em <code>~/.agents/skills</code>.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Instalar nos dois runtimes</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Objetivo:</strong> colocar a mesma skill gerada nos dois executores e confirmar que o backup existe.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># só no Codex, se quiser ir devagar</span>
+scripts/sync-skills.sh install session-handoff --codex
+
+<span class="text-neutral-500"># nos dois de uma vez</span>
+scripts/sync-skills.sh install session-handoff --both
+<span class="text-neutral-500"># instalada: /home/&lt;usuario&gt;/.claude/skills/session-handoff (backup ao lado se já existia)
+# instalada: /home/&lt;usuario&gt;/.codex/skills/session-handoff (backup ao lado se já existia)
+# espelhada: ~/.agents/skills/session-handoff</span>
+
+<span class="text-neutral-500"># os backups ficam ocultos, na mesma pasta</span>
+ls -d ~/.claude/skills/.session-handoff.bak-*
+
+<span class="text-neutral-500"># voltar atrás, se precisar</span>
+rm -rf ~/.claude/skills/session-handoff
+cp -a ~/.claude/skills/.session-handoff.bak-<span class="text-primary">&lt;timestamp&gt;</span> \
+      ~/.claude/skills/session-handoff</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">Como verificar:</strong> abra uma sessão nova em cada runtime e peça pra listar as skills disponíveis; o nome tem que aparecer nos dois. Se o script disser <code>rode build antes: skills/&lt;nome&gt;/dist/&lt;runtime&gt;/&lt;nome&gt;</code>, é porque você pulou o tópico 3.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Confere a saída</h4><p class="text-sm text-neutral-400">Se <code>dist/&lt;runtime&gt;/&lt;nome&gt;</code> não existe, o script para com mensagem e código 1. Não inventa conteúdo.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Faz o backup</h4><p class="text-sm text-neutral-400">Se o destino já existia, ele vira <code>.&lt;nome&gt;.bak-&lt;timestamp&gt;</code> ao lado. Um por instalação, com hora no nome.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Copia</h4><p class="text-sm text-neutral-400"><code>cp -a</code> preserva permissões e estrutura — scripts da skill continuam executáveis.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Espelha no Codex</h4><p class="text-sm text-neutral-400">Se o destino é o Codex e <code>~/.agents/skills</code> existe, a mesma pasta é copiada pra lá.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">5</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Registra</h4><p class="text-sm text-neutral-400">Imprime cada caminho instalado. Cole essa saída no <code>handoffs/latest.md</code>: é a evidência de que o passo rodou.</p></div>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">--both</span><p class="text-sm text-neutral-400 mt-1">Instala em Claude e Codex na mesma execução.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">.bak-&lt;timestamp&gt;</span><p class="text-sm text-neutral-400 mt-1">Backup oculto ao lado; reversão é um <code>cp -a</code>.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">~/.agents/skills</span><p class="text-sm text-neutral-400 mt-1">Segunda pasta onde o Codex descobre skills.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Falha ruidosa</span><p class="text-sm text-neutral-400 mt-1">Sem build, o install para e diz o que falta.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-2-4#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">📡 drift: [ok] ou [DRIFT] por runtime</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t5-p1">O <code>drift</code> é o comando mais curto e o mais importante. Pra cada skill em <code>skills/</code> e pra cada runtime, ele compara a saída gerada com o que está instalado, usando <code>diff -rq</code>. Três respostas possíveis por linha: <code>[ok]</code> quando são idênticos, <code>[DRIFT]</code> quando divergiram, e <code>[não instalada]</code> quando falta a pasta de um lado ou do outro. E ele sai com código 1 se qualquer linha deu DRIFT — ou seja, dá pra pendurar isso num <code>check.sh</code> ou numa rotina semanal e ser avisado em vez de descobrir por acidente.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Medir e resolver um drift</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Objetivo:</strong> provocar um DRIFT de propósito, vê-lo aparecer e resolvê-lo pela fonte — não pela cópia.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># 1. estado limpo</span>
+scripts/sync-skills.sh drift; echo "exit=$?"
+<span class="text-neutral-500"># [ok] session-handoff → claude
+# [ok] session-handoff → codex
+# exit=0</span>
+
+<span class="text-neutral-500"># 2. alguém edita a cópia instalada (é assim que começa)</span>
+echo "# anotação solta" &gt;&gt; ~/.codex/skills/session-handoff/SKILL.md
+
+<span class="text-neutral-500"># 3. o drift acusa</span>
+scripts/sync-skills.sh drift; echo "exit=$?"
+<span class="text-neutral-500"># [ok]    session-handoff → claude
+# [DRIFT] session-handoff → codex
+# exit=1</span>
+
+<span class="text-neutral-500"># 4. decida: a edição era boa? leve pra fonte e regenere</span>
+$EDITOR skills/session-handoff/definition.md
+scripts/sync-skills.sh build
+scripts/sync-skills.sh install session-handoff --both
+scripts/sync-skills.sh drift; echo "exit=$?"   <span class="text-neutral-500"># volta a exit=0</span></code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">Como verificar:</strong> o <code>exit=1</code> do passo 3 e o <code>exit=0</code> do passo 4. Se aparecer <code>[não instalada]</code>, a skill existe na fonte mas nunca foi instalada naquele runtime — rode o <code>install</code>. Troque <code>session-handoff</code> por <code>&lt;sua-skill&gt;</code> pra repetir com a sua.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Como resolver um DRIFT</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Ler o <code>diff</code> antes de decidir: a edição da cópia pode ser boa.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Se for boa, levá-la pro <code>definition.md</code> e regenerar.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Se não for, reinstalar por cima — o backup guarda a versão anterior.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Rodar o drift depois de cada lote de instalação, não só no fim.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ O que transforma drift em dívida</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Editar direto em <code>~/.codex/skills</code> "só desta vez".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Rodar <code>FORCE=1</code> sem ler o que vai ser sobrescrito.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Deixar <code>[DRIFT]</code> na tela por semanas: ele deixa de ser sinal e vira ruído.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Tratar <code>[não instalada]</code> como erro: muitas vezes é escolha consciente.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">[ok]</span><p class="text-sm text-neutral-400 mt-1">Gerado e instalado são byte a byte iguais.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">[DRIFT]</span><p class="text-sm text-neutral-400 mt-1">Divergiram; alguém editou a cópia. Código de saída 1.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">[não instalada]</span><p class="text-sm text-neutral-400 mt-1">Falta a pasta num dos lados; não é falha.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Resolver pela fonte</span><p class="text-sm text-neutral-400 mt-1">Conserta-se o <code>definition.md</code>, nunca o <code>dist/</code>.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-2-4#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🔌 Skills de adaptador: só depois do MCP</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t6-p1">O audit do módulo 2.1 marcou 15 skills como <strong class="text-blue-400">adaptador</strong> — <code>heygen</code>, <code>magnific</code>, as oito variantes de <code>printing-press</code>, e outras. Elas não dependem do Claude por capricho: dependem de <strong>ferramentas MCP</strong> que hoje só estão registradas no Claude. O doctor é explícito nesse ponto: <em>"nenhum MCP no Codex: skills marcadas 'adaptador' só funcionam após <code>codex mcp add</code>"</em>. Portar o Markdown delas antes de registrar o servidor gera uma skill que carrega, tenta chamar uma ferramenta inexistente e falha no meio — pior que não ter portado.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t6-p2">A ordem, então, é: primeiro <code>codex mcp add</code> no destino, depois <code>import</code>, <code>build</code>, <code>install</code>, <code>drift</code>. E o registro do MCP nunca copia o segredo: a chave continua onde sempre esteve, num <code>.env</code> referenciado por variável de ambiente. O relatório do audit segue essa mesma regra — ele lista nomes de servidores MCP e jamais valores.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Destravar uma skill de adaptador</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Objetivo:</strong> registrar o MCP no Codex sem copiar chave, e só então portar a skill que depende dele.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># 1. o que já existe no Codex hoje</span>
+codex mcp list
+
+<span class="text-neutral-500"># 2. registrar, referenciando a variável — nunca o valor da chave</span>
+codex mcp add <span class="text-primary">&lt;nome-do-servidor&gt;</span> \
+  --env API_KEY="$<span class="text-primary">&lt;VARIAVEL_DO_SEU_ENV&gt;</span>" \
+  -- <span class="text-primary">&lt;comando-do-servidor&gt;</span>
+
+<span class="text-neutral-500"># 3. confirmar que apareceu</span>
+codex mcp list | grep <span class="text-primary">&lt;nome-do-servidor&gt;</span>
+
+<span class="text-neutral-500"># 4. agora sim, o ciclo do módulo</span>
+cd ~/projetos/agente-claude-codex
+scripts/sync-skills.sh import <span class="text-primary">&lt;skill-de-adaptador&gt;</span>
+scripts/sync-skills.sh build
+scripts/sync-skills.sh install <span class="text-primary">&lt;skill-de-adaptador&gt;</span> --codex
+scripts/sync-skills.sh drift</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">Como verificar:</strong> rode <code>scripts/doctor.sh</code> de novo — a linha <code>[aviso] nenhum MCP no Codex</code> tem que sumir. Depois peça ao Codex, numa sessão nova, pra executar a skill numa tarefa mínima. Se a ferramenta não aparecer, o servidor foi registrado mas não está subindo; o problema é o comando do passo 2, não a skill.</p>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> Honestidade sobre o estado deste passo</h3>
+              <p class="text-neutral-300 text-sm mb-3">Em <strong>2026-09-14</strong>, no README do kit, a linha do <code>sync-skills.sh</code> estava marcada como <strong>"não rodado"</strong> — ao contrário do <code>adapt-instructions.sh</code>, que já tinha passado em dry-run com os 71/7 do módulo 2.2. O comando existe, foi lido e revisado, mas ninguém tinha executado o ciclo completo <code>import → build → install → drift</code> numa skill de verdade. Isso não é defeito do material: é a diferença entre <em>escrito</em> e <em>provado</em>, que este curso insiste em não confundir.</p>
+              <p class="text-neutral-300 text-sm">Quando você rodar, você vira a evidência. Anote o resultado — passou, falhou ou parcial — e em qual runtime. Um parágrafo em <code>handoffs/latest.md</code> muda o status do kit de "não rodado" pra "rodado em tal data, com tal saída".</p>
+            </div>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code><span class="text-neutral-500"># handoffs/latest.md — o registro que fecha o módulo</span>
+## Sessão 2026-09-14 · polyskill
+
+- Rodado: `sync-skills.sh import session-handoff` → `build` → `install --both` → `drift`.
+- Resultado: `[ok] session-handoff → claude`, `[ok] session-handoff → codex`, exit=0.
+- Evidência: saída colada abaixo; backups em `~/.claude/skills/.session-handoff.bak-*`.
+- Ainda não rodado: skills de adaptador (dependem de `codex mcp add`, nenhum MCP no Codex).
+- Próxima ação: registrar o primeiro MCP no Codex e repetir o ciclo com uma skill de adaptador.</code></pre>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Dica prática</h3>
+              <p class="text-sm text-neutral-300">"Não rodado" é um estado legítimo e merece ficar escrito. O que corrompe um projeto não é admitir que um passo ainda não foi executado — é o silêncio, que faz todo mundo assumir que foi. Se algo quebrar durante o ciclo, registre também em <code>FALHAS.md</code>: uma linha com data, o que quebrou, a menor correção possível e se a causa era prompt ou infraestrutura.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceitos-chave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Skill de adaptador</span><p class="text-sm text-neutral-400 mt-1">Depende de ferramenta MCP no runtime de destino.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">codex mcp add</span><p class="text-sm text-neutral-400 mt-1">Registra o servidor antes de portar a skill.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Chave por referência</span><p class="text-sm text-neutral-400 mt-1">Variável de ambiente, nunca o valor no comando.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Não rodado</span><p class="text-sm text-neutral-400 mt-1">Estado honesto; vira evidência quando você executa.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-2-4#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Auto-checagem (opcional): o <code>drift</code> respondeu <code>[DRIFT] minha-skill → codex</code>. Qual é a primeira ação correta?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Editar o arquivo em <code>dist/codex/</code> até ele ficar igual ao instalado.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Ler o <code>diff</code>: se a edição da cópia é boa, levá-la para o <code>definition.md</code> e regenerar; se não é, reinstalar por cima (o backup guarda a versão anterior).</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Apagar a skill do Codex e parar de portá-la: DRIFT significa que ela é incompatível.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como lido</span><span class="inema-label-done">Lido ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-blue-900/40 via-dark-800 to-dark-800 rounded-xl border border-blue-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumo do módulo</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Cópia manual diverge</strong><span class="text-neutral-400"> — as três skills copiadas à mão em <code>~/projetos/dsh-skills</code> mostram como duas pastas viram duas verdades.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">import → build → install</strong><span class="text-neutral-400"> — <code>SKILL.md</code> vira <code>definition.md</code> + <code>polyskill.yaml</code>; o build emite <code>dist/claude</code> e <code>dist/codex</code>; o install copia com backup ao lado e espelha em <code>~/.agents/skills</code>.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">drift</strong><span class="text-neutral-400"> — <code>[ok]</code>, <code>[DRIFT]</code> ou <code>[não instalada]</code> por runtime, com código de saída 1 no DRIFT. Resolva sempre pela fonte.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Adaptador só depois do MCP</strong><span class="text-neutral-400"> — <code>codex mcp add</code> primeiro; e em 2026-09-14 este passo ainda constava como "não rodado" no kit. Rode e registre em <code>handoffs/latest.md</code>.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-400 mb-2">Próximo módulo:</h3>
+                <p class="text-neutral-300">2.5 — Readback: provar em sessão nova, cinco perguntas e dois runtimes</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Voltar para a Trilha</a>
+                <a href="modulo-2-5.html" class="flex-1 text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors">Próximo módulo →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migre ou fique agnóstico</p>
+      <p>Módulo 2.4 · Trilha 2 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-2-4#q1', {
+          answer: 1,
+          explain: {
+            0: 'Não. Nada em dist/ deve ser editado à mão: é saída gerada, e o próximo build apaga o que você escreveu lá.',
+            1: 'Isso. O diff é a informação; a correção sempre volta pro definition.md, e o backup .bak-<timestamp> cobre o caso de reinstalar por cima.',
+            2: 'Não. DRIFT só diz que a cópia instalada difere da gerada — normalmente porque alguém editou a cópia. Não é veredito de incompatibilidade.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>
