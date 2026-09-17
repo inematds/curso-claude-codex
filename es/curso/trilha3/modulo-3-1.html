@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Proyecto 3.1 · Migrar tu primer proyecto real | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/modulo-3-1.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/modulo-3-1.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/modulo-3-1.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Púrpura"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Ruta 3</a><span>/</span>
+          <span class="text-purple-400">Proyecto 3.1</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROYECTO 3.1</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🚀 Proyecto 1: migrar tu primer proyecto real</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Hasta aquí entendiste la filosofía (Ruta 1) y practicaste cada script por separado (Ruta 2). Ahora toca la Fase 0 y la Fase 2 del plan de verdad: darle a Codex una base global, elegir un proyecto que Codex hoy abre "a ciegas", hacer la limpieza del CLAUDE.md, ejecutar los cinco scripts en orden y comprobarlo con readback en los dos runtimes. Al final, un handoff que cualquiera de los dos puede retomar.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~40</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Intermedio</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Proyecto</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. Elegir el piloto</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. Base global de Codex</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. Limpieza del CLAUDE.md</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. Los 5 scripts en orden</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. Readback en los dos</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Aceptación y handoff</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-1" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.1">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> El proyecto en una pantalla</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Objetivo</span><span class="text-neutral-400">Un proyecto real tuyo pasa a ser leído por igual por Claude Code y por Codex CLI, y Codex gana una base global de instrucciones.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Terminas con</span><span class="text-neutral-400"><code>~/.codex/AGENTS.md</code>, un proyecto con AGENTS.md compacto + <code>context/</code> + <code>tasks/</code> + <code>handoffs/</code>, dos informes de readback y un handoff.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Criterio de aceptación</span><span class="text-neutral-400">Una sesión nueva en cada runtime responde las 5 preguntas citando AGENTS.md, tasks/current.md y handoffs/latest.md. La configuración de Claude sigue funcionando.</span></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-1#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🎯 Elegir el piloto</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-1-t1-p1">El diagnóstico del 2026-09-14 encontró <strong class="text-purple-400">13 proyectos marcados como trusted en Codex que no tienen AGENTS.md</strong>. Eso significa que Codex entra en ellos sin ninguna instrucción: cada sesión empieza desde cero. Son los candidatos naturales a piloto, porque la ganancia es inmediata y medible. Aquí aplica la regla del Prompt B: <strong>el piloto más pequeño que conserve una tarea representativa</strong>. No empieces por el más grande; empieza por el que más usas.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 250" class="w-full h-auto" role="img" aria-label="Escalera de fases: Fase 0 base global de Codex, Fase 1 skill piloto, Fase 2 proyectos trusted sin AGENTS.md. Este proyecto cubre los peldaños 0 y 2.">
+                <defs>
+                  <linearGradient id="m31-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m31-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m31-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m31-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="250" fill="url(#m31-grid)"/>
+                <path d="M60,215 L940,45" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-dasharray="9 9" opacity="0.4"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m31-glow)"><rect x="60" y="150" width="200" height="66" rx="14" fill="#1a1230" stroke="url(#m31-grad)" stroke-width="2.5"/></g>
+                  <text x="160" y="178" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="600">Fase 0 · base global</text>
+                  <text x="160" y="198" text-anchor="middle" fill="#e9d5ff" font-size="12">~/.codex/AGENTS.md + MCP</text>
+
+                  <rect x="300" y="110" width="200" height="66" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="400" y="138" text-anchor="middle" fill="#9ad6ff" font-size="15" font-weight="600">Fase 1 · skill piloto</text>
+                  <text x="400" y="158" text-anchor="middle" fill="#bfe6ff" font-size="12">session-handoff (Ruta 2)</text>
+
+                  <g filter="url(#m31-glow)"><rect x="540" y="70" width="200" height="66" rx="14" fill="#1a1230" stroke="url(#m31-grad)" stroke-width="2.5"/></g>
+                  <text x="640" y="98" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="600">Fase 2 · 13 proyectos</text>
+                  <text x="640" y="118" text-anchor="middle" fill="#e9d5ff" font-size="12">trusted sin AGENTS.md</text>
+
+                  <rect x="780" y="30" width="180" height="66" rx="14" fill="#26201a" stroke="#9ca3af" stroke-width="2" opacity="0.7"/>
+                  <text x="870" y="58" text-anchor="middle" fill="#e5e7eb" font-size="15" font-weight="600">Fases 3–6</text>
+                  <text x="870" y="78" text-anchor="middle" fill="#d1d5db" font-size="12">próximos proyectos</text>
+
+                  <path d="M260,183 L300,143" fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.6" marker-end="url(#m31-ah)"/>
+                  <path d="M500,143 L540,103" fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.6" marker-end="url(#m31-ah)"/>
+                  <path d="M740,103 L780,63" fill="none" stroke="#9ca3af" stroke-width="1.8" opacity="0.5" marker-end="url(#m31-ah)"/>
+                  <text x="160" y="240" text-anchor="middle" fill="#c084fc" font-size="12" font-weight="600">ESTE PROYECTO</text>
+                  <text x="640" y="160" text-anchor="middle" fill="#c084fc" font-size="12" font-weight="600">ESTE PROYECTO</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Léela como una escalera: los peldaños con brillo son los que sube este proyecto. La <span class="text-purple-400">Fase 0</span> le da a Codex una base global; la <span class="text-purple-400">Fase 2</span> aplica el núcleo portátil a uno de los 13 proyectos que hoy abre sin instrucciones. La Fase 1 (skill piloto) ya la hiciste en la Ruta 2.</p>
+           </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> Los 13 candidatos, por orden de uso</h3>
+              <p class="text-neutral-300 text-sm mb-3">Orden sugerido por el diagnóstico, del más usado al menos usado. Cuantas más sesiones recibe el proyecto, antes se amortiza el AGENTS.md.</p>
+              <div class="flex flex-wrap gap-2 text-xs">
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">wifi</span>
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">portal</span>
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">inemapro-mono</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">timesmkt2</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">timesmkt3</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">inemacert</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">promoavatar2</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">skool-roast</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">imkt4</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">iccmonit</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">ATIA</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">claude-session-kit</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">agentes-fronteiros</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Un buen piloto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Lo abres cada semana, en los dos runtimes.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Tiene un CLAUDE.md que ya dice algo útil (reglas, rutas, autor de commit).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Tiene una tarea representativa clara: "publicar en el portal", "ejecutar el backup", "generar el informe".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Working tree limpia en el momento de empezar.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Un mal piloto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>El CLAUDE.md más grande de la máquina (ruflo, 1.391 líneas) solo porque "es el más completo".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Un proyecto que otra sesión está editando ahora (las ediciones se pisan, ya pasó en el portal).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Un proyecto de cliente mezclado con conocimiento personal (eso es el Proyecto 5).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Un proyecto que nadie abre hace meses: sin uso, sin evidencia.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Sugerencia concreta:</strong> empieza por <code>wifi</code>. Es el hub de monitoreo, tiene su propio CLAUDE.md, recibe sesiones casi todos los días y ya guarda el diagnóstico de este curso. Si prefieres algo más pequeño y aislado, <code>skool-roast</code> o <code>iccmonit</code>.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Trusted sin AGENTS.md</span><p class="text-sm text-neutral-400 mt-1">Codex confía en la carpeta pero no recibe ninguna instrucción de ella.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Piloto mínimo</span><p class="text-sm text-neutral-400 mt-1">El que preserva una tarea real con el mínimo de archivos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Tarea representativa</span><p class="text-sm text-neutral-400 mt-1">El flujo que tiene que seguir funcionando después de la migración.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Un dueño por repo</span><p class="text-sm text-neutral-400 mt-1">Dos sesiones en el mismo repo corrompen la working tree.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-1#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🌐 Base global: ~/.codex/AGENTS.md</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-1-t2-p1">Esta es la Fase 0. Claude tiene un <code>~/.claude/CLAUDE.md</code> global de 72 líneas con reglas que valen para todos los proyectos: cuenta de autor por repo, dónde están las API keys, versionado, modelo de imagen por defecto. Codex <strong class="text-purple-400">no tiene nada equivalente</strong>: el archivo <code>~/.codex/AGENTS.md</code> no existe. Derivar uno del otro es el paso más barato de toda la migración, y es lo que hace que Codex deje de ignorar reglas que consideras obvias.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Generar las propuestas</h4><p class="text-sm text-neutral-400">El script lee el CLAUDE.md global y separa lo portátil del residuo de Claude, sin tocar el original.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Revisar los dos archivos</h4><p class="text-sm text-neutral-400">Lees <code>AGENTS.proposto.md</code> y <code>CLAUDE.proposto.md</code>. Nada entra sin que lo revises tú.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Grabar en Codex y activar el import en Claude</h4><p class="text-sm text-neutral-400">Lo portátil se convierte en <code>~/.codex/AGENTS.md</code>. El CLAUDE.md global pasa a empezar con <code>@AGENTS.md</code> apuntando a una copia local.</p></div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> crear el <code>~/.codex/AGENTS.md</code> a partir del CLAUDE.md global, con revisión humana en medio.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># 1. generar las propuestas (no sobrescribe nada)</span>
+cd ~/projetos/agente-claude-codex
+scripts/adapt-instructions.sh ~/.claude
+<span class="text-neutral-500"># salida esperada: ~/.claude/AGENTS.proposto.md (71 líneas) y ~/.claude/CLAUDE.proposto.md (7 líneas)</span>
+
+<span class="text-neutral-500"># 2. revisar (abre los dos, corrige lo que el grep hizo mal)</span>
+less ~/.claude/AGENTS.proposto.md
+less ~/.claude/CLAUDE.proposto.md
+
+<span class="text-neutral-500"># 3. grabar: lo portátil va a Codex Y queda junto al CLAUDE.md para ser importado</span>
+cp ~/.claude/AGENTS.proposto.md ~/.codex/AGENTS.md
+cp ~/.claude/AGENTS.proposto.md ~/.claude/AGENTS.md
+cp ~/.claude/CLAUDE.md ~/.claude/CLAUDE.md.bak-$(date +%Y%m%d)   <span class="text-neutral-500"># backup antes de reemplazar</span>
+cp ~/.claude/CLAUDE.proposto.md ~/.claude/CLAUDE.md
+rm ~/.claude/*.proposto.md</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> <code>head -1 ~/.claude/CLAUDE.md</code> muestra <code>@AGENTS.md</code>; <code>wc -l ~/.codex/AGENTS.md</code> da alrededor de 71.</p>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> La trampa del rename</h3>
+              <p class="text-neutral-300 text-sm">El script cambia toda mención a <code>CLAUDE.md</code> por <code>AGENTS.md</code> en la parte portátil. Tu CLAUDE.md global habla de <em>otros</em> proyectos ("ver el CLAUDE.md de él", "cada proyecto puede tener su propio CLAUDE.md"). Esas frases también se renombran, y el sentido cambia. En la revisión del paso 2, busca <code>AGENTS.md dele</code> y devuelve el nombre correcto donde sea referencia a otro proyecto.</p>
+            </div>
+<div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Prueba de 30 segundos:</strong> después de guardar, ejecuta <code>codex exec "¿Qué cuenta de autor debo usar en un commit para un repo de la cuenta inematds? Cita la fuente."</code> desde <code>~</code>. Si responde <code>inematds &lt;inematds@gmail.com&gt;</code> citando el AGENTS.md, la Fase 0 pasó.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Instrucción global</span><p class="text-sm text-neutral-400 mt-1">Reglas que valen en cualquier carpeta: autor, keys, versionado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">@AGENTS.md</span><p class="text-sm text-neutral-400 mt-1">Claude importa lo portátil; el residuo queda solo en el CLAUDE.md.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">.proposto.md</span><p class="text-sm text-neutral-400 mt-1">Salida del script que espera revisión; nunca se aplica sola.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Backup fechado</span><p class="text-sm text-neutral-400 mt-1">Antes de reemplazar el original, una copia con la fecha en el nombre.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-1#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🧹 Limpieza: un CLAUDE.md inflado se convierte en AGENTS.md compacto + context/</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-1-t3-p1">La newsletter insiste: la mayor parte de la migración es <strong>limpieza</strong>. El diagnóstico encontró CLAUDE.md de 1.391 líneas (ruflo), 542 (rAgentic-cs), 427 (timesmkt2), 401 (ruview). Un archivo de ese tamaño no es instrucción, es un depósito: reglas mezcladas con historial, decisiones antiguas, runbooks y "lessons" que ya se volvieron código. Migrar eso en crudo solo transporta ruido a Codex. <strong class="text-purple-400">La regla es: AGENTS.md tiene solo instrucción estable; el resto va al lugar que tiene dueño.</strong></p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 250" class="w-full h-auto" role="img" aria-label="Un CLAUDE.md inflado de cientos de líneas se abre en abanico: AGENTS.md compacto con reglas estables, context/overview.md con hechos, context/decisions con decisiones, context/sources con runbooks, y un residuo CLAUDE.md pequeño">
+                <defs>
+                  <linearGradient id="m31b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m31b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m31b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m31b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                  <marker id="m31b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="250" fill="url(#m31b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="40" y="40" width="190" height="170" rx="14" fill="#26201a" stroke="#9ca3af" stroke-width="2"/>
+                  <text x="135" y="72" text-anchor="middle" fill="#e5e7eb" font-size="15" font-weight="600">CLAUDE.md</text>
+                  <text x="135" y="94" text-anchor="middle" fill="#9ca3af" font-size="12">1.391 líneas</text>
+                  <g fill="#9ca3af" opacity="0.5"><rect x="60" y="110" width="150" height="5" rx="2"/><rect x="60" y="122" width="120" height="5" rx="2"/><rect x="60" y="134" width="140" height="5" rx="2"/><rect x="60" y="146" width="100" height="5" rx="2"/><rect x="60" y="158" width="150" height="5" rx="2"/><rect x="60" y="170" width="130" height="5" rx="2"/><rect x="60" y="182" width="110" height="5" rx="2"/></g>
+                  <g fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.6">
+                    <path d="M230,125 C330,125 340,45 440,45" marker-end="url(#m31b-ah)"/>
+                    <path d="M230,125 C330,125 340,95 440,95" marker-end="url(#m31b-ahc)"/>
+                    <path d="M230,125 C330,125 340,145 440,145" marker-end="url(#m31b-ahc)"/>
+                    <path d="M230,125 C330,125 340,195 440,195" marker-end="url(#m31b-ahc)"/>
+                  </g>
+                  <g filter="url(#m31b-glow)"><rect x="440" y="28" width="220" height="36" rx="10" fill="#1a1230" stroke="url(#m31b-grad)" stroke-width="2.5"/></g>
+                  <text x="550" y="51" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="600">AGENTS.md · ~60 líneas</text>
+                  <g class="wf-a"><rect x="440" y="78" width="220" height="34" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="550" y="100" text-anchor="middle" fill="#bfe6ff" font-size="13" font-weight="600">context/overview.md</text></g>
+                  <g class="wf-a"><rect x="440" y="128" width="220" height="34" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="550" y="150" text-anchor="middle" fill="#bfe6ff" font-size="13" font-weight="600">context/decisions/</text></g>
+                  <g class="wf-a"><rect x="440" y="178" width="220" height="34" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="550" y="200" text-anchor="middle" fill="#bfe6ff" font-size="13" font-weight="600">context/sources.md</text></g>
+                  <rect x="720" y="100" width="230" height="56" rx="12" fill="#26201a" stroke="#9ca3af" stroke-width="2" opacity="0.8"/>
+                  <text x="835" y="123" text-anchor="middle" fill="#e5e7eb" font-size="13" font-weight="600">CLAUDE.md (residuo)</text>
+                  <text x="835" y="143" text-anchor="middle" fill="#9ca3af" font-size="11">@AGENTS.md + 5 líneas</text>
+                  <path d="M660,46 C700,46 700,128 720,128" fill="none" stroke="#9ca3af" stroke-width="1.8" opacity="0.5" marker-end="url(#m31b-ah)"/>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">El archivo inflado de la izquierda se abre en abanico: las <span class="text-purple-400">reglas estables</span> quedan en el AGENTS.md compacto; <span class="text-sky-400">hechos, decisiones y runbooks</span> van a <code>context/</code>, cada uno con dueño. El CLAUDE.md queda pequeño, importando el AGENTS.md.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Se queda en el AGENTS.md</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Orden de lectura (AGENTS → context/overview → tasks/current → handoffs/latest).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Reglas de git: remote, autor, "publicar = push".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Cómo ejecutar, probar y reiniciar (3 a 5 comandos).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Prohibiciones estrictas: "nunca generar medios pagos sin confirmar".</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Sale del AGENTS.md (y va a…)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Historial de fases y qué se hizo cuándo → <code>context/current-state.md</code> y CHANGELOG.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Lessons" y correcciones puntuales → <code>FALHAS.md</code> (una línea por falla).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Decisiones de arquitectura con contexto → <code>context/decisions/AAAA-MM-DD-*.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Runbooks largos, URLs, de dónde vienen las credenciales → <code>context/sources.md</code>.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> medir el CLAUDE.md del piloto y separar lo que es instrucción de lo que es depósito, antes de ejecutar el adaptador.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>P=~/projetos/&lt;seu-piloto&gt;
+wc -l $P/CLAUDE.md
+<span class="text-neutral-500"># encabezados: el mapa de lo que hay adentro</span>
+grep -nE '^#{1,3} ' $P/CLAUDE.md
+<span class="text-neutral-500"># candidatos a salir: historial, lessons, decisiones, fechas</span>
+grep -cniE 'lesson|corrigido em|decidi|fase [0-9]|20[0-9]{2}-[0-9]{2}' $P/CLAUDE.md</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> si el segundo grep devuelve decenas de líneas, tienes un depósito. Meta después de la limpieza: AGENTS.md por debajo de 100 líneas, y cada sección eliminada con un destino nombrado en <code>context/</code>.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">No borres, mueve.</strong> La limpieza no es eliminar. Es sacar del archivo que todo agente lee al arrancar y ponerlo en el archivo que el agente lee solo cuando lo necesita. El contenido sigue en el repo, versionado; solo cambia de capa.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Depósito vs instrucción</span><p class="text-sm text-neutral-400 mt-1">Instrucción es lo que cambia el comportamiento hoy; depósito es lo que explica el pasado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Briefing de arranque</span><p class="text-sm text-neutral-400 mt-1">Lo que el agente lee siempre tiene que ser corto; el resto se recupera bajo demanda.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Destino nombrado</span><p class="text-sm text-neutral-400 mt-1">Toda sección eliminada recibe un archivo con dueño en context/.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Mover, no borrar</span><p class="text-sm text-neutral-400 mt-1">La limpieza es un cambio de capa, no una pérdida de información.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+         </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-1#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🛠️ Los cinco scripts en orden</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-1-t4-p1">En la Trilha 2 ejecutaste cada script por separado. Aquí se ejecutan en secuencia sobre el piloto, y el orden importa: primero el diagnóstico (solo lectura), después las instrucciones, luego el núcleo, después las skills y la prueba al final. <strong class="text-purple-400">Cada paso es reversible</strong>: nada en <code>~/.claude</code> se borra, el adaptador guarda <code>.proposto.md</code>, el núcleo no sobrescribe y el install hace un backup al lado.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">doctor.sh + audit.sh</h4><p class="text-sm text-neutral-400">Confirma que los dos runtimes están listos y genera el informe de inventario. Si ya lo ejecutaste hoy, sáltalo.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">adapt-instructions.sh en el piloto</h4><p class="text-sm text-neutral-400">Genera los <code>.proposto.md</code> del proyecto. Aplicas la limpieza del tema 3 en la revisión y renombras.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">init-core.sh</h4><p class="text-sm text-neutral-400">Copia la plantilla sin sobrescribir. Completa <code>context/overview.md</code> y <code>tasks/current.md</code> con la tarea representativa.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">sync-skills.sh (solo si el piloto usa una skill propia)</h4><p class="text-sm text-neutral-400">La mayoría de los proyectos usa skills globales. Si el piloto tiene <code>.claude/skills/</code> local, impórtala e instálala en ambos.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">5</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">readback-test.sh</h4><p class="text-sm text-neutral-400">La prueba. Tema 5.</p></div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> aplicar el kit completo en el piloto, en una sesión, sin sobrescribir nada.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>K=~/projetos/agente-claude-codex
+P=~/projetos/&lt;seu-piloto&gt;
+cd $K
+
+<span class="text-neutral-500"># 1. diagnóstico (solo lectura)</span>
+scripts/doctor.sh && scripts/audit.sh
+
+<span class="text-neutral-500"># 2. instrucciones: genera *.proposto.md junto al CLAUDE.md del piloto</span>
+scripts/adapt-instructions.sh $P
+<span class="text-neutral-500">#    ... revisar + limpieza (tema 3) ...</span>
+mv $P/AGENTS.proposto.md $P/AGENTS.md
+cp $P/CLAUDE.md $P/CLAUDE.md.bak-$(date +%Y%m%d) && mv $P/CLAUDE.proposto.md $P/CLAUDE.md
+
+<span class="text-neutral-500"># 3. núcleo portátil (lista [criado] y [mantido])</span>
+scripts/init-core.sh $P
+<span class="text-neutral-500">#    completar: $P/context/overview.md, $P/tasks/current.md</span>
+
+<span class="text-neutral-500"># 4. solo si hay una skill local en el piloto</span>
+ls $P/.claude/skills 2&gt;/dev/null
+
+<span class="text-neutral-500"># 5. verificación mínima del núcleo</span>
+bash $P/scripts/check.sh</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> <code>check.sh</code> imprime <code>[ok]</code> para los 7 archivos obligatorios. <code>head -1 $P/CLAUDE.md</code> muestra <code>@AGENTS.md</code>. El <code>.bak</code> existe.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📋</span> Qué completar en tasks/current.md</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Objetivo:</strong> la tarea representativa, en una frase. Ej.: "publicar el ítem X en el portal".</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Responsable:</strong> tú. El agente ejecuta.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Criterio de terminado:</strong> algo verificable. "El push entró en origin" es verificable; "quedó bien" no lo es.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Próxima acción concreta:</strong> el primer comando o archivo a tocar.</span></li>
+              </ul>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">El orden importa</span><p class="text-sm text-neutral-400 mt-1">Diagnóstico → instrucciones → núcleo → skills → prueba.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Reversible</span><p class="text-sm text-neutral-400 mt-1">Cada paso deja el original o un backup al lado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">[criado] / [mantido]</span><p class="text-sm text-neutral-400 mt-1">El init-core dice lo que hizo; nunca sobrescribe.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">check.sh</span><p class="text-sm text-neutral-400 mt-1">Siete archivos obligatorios, no vacíos. Es el mínimo, no la prueba.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-1#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">✅ Readback en los dos runtimes</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-1-t5-p1">Que el archivo exista no es prueba. La prueba es una <strong class="text-purple-400">sesión nueva</strong>, en cada runtime, respondiendo cinco preguntas sin depender de una conversación anterior: cuál es el objetivo y el criterio de terminado, una regla importante con su archivo de origen, la última decisión aceptada, la próxima acción concreta, y conflictos o accesos faltantes. El script ejecuta <code>claude -p</code> y <code>codex exec</code> dentro del piloto y guarda el texto en bruto. El veredicto es tuyo, leyendo.</p>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> obtener las dos respuestas y juzgar si citan los archivos correctos.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+scripts/readback-test.sh ~/projetos/&lt;seu-piloto&gt; both
+<span class="text-neutral-500"># guarda: relatorios/readback-claude-AAAA-MM-DD.md y readback-codex-AAAA-MM-DD.md</span>
+
+<span class="text-neutral-500"># qué buscar en las respuestas</span>
+grep -cE 'AGENTS.md|tasks/current|handoffs/latest|context/' relatorios/readback-*-$(date +%F).md</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> las dos respuestas citan AGENTS.md, tasks/current.md y handoffs/latest.md, y la "próxima acción" coincide con lo que escribiste en tasks/current.md. Si un runtime responde de memoria genérica sin citar ningún archivo, falló.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Respuesta que pasa</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>"Objetivo: publicar X. Criterio: push en origin. Fuente: tasks/current.md."</span></li>
+                 <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>"Regla: autor inematds. Fuente exacta: AGENTS.md, sección Git."</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Separa lo que dicen los archivos de lo que él infiere.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Señala una inconsistencia real entre dos archivos, si la hay.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Respuesta que falla</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"El objetivo parece ser mejorar el proyecto" (sin fuente).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Cita el CLAUDE.md antiguo en lugar del AGENTS.md (el import no funcionó).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"No pude leer los archivos" (sandbox: ver abajo).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Inventa una "última decisión" que no está en context/decisions/.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> La falla real que ya ocurrió</h3>
+              <p class="text-neutral-300 text-sm">En la primera ronda del readback en el propio kit, Codex respondió "no pude leer los archivos: <code>bwrap: loopback: Failed RTM_NEWADDR</code>". El script forzaba <code>-s read-only</code>, y en esta máquina AppArmor restringe los user namespaces, así que el sandbox bwrap de Codex no arranca. La corrección mínima: quitar el flag y respetar el <code>sandbox_mode</code> de <code>~/.codex/config.toml</code>. Está registrado en <code>FALHAS.md</code> como <em>prompt | infra</em>. Si ves ese error, el problema es el sandbox, no tu AGENTS.md.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Aprovecha lo que devuelve el readback.</strong> En la segunda ronda, Codex leyó todo y señaló tres inconsistencias reales en el kit: handoff ausente, una suma errónea en el informe y una frase contradictoria. Un buen readback no solo pasa: audita. Corrige lo que encuentre antes de darlo por terminado.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Sesión nueva</span><p class="text-sm text-neutral-400 mt-1">Sin historial de conversación; solo lo que está en los archivos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Citar la fuente</span><p class="text-sm text-neutral-400 mt-1">Una respuesta sin ruta de archivo no cuenta como evidencia.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Sandbox vs contenido</span><p class="text-sm text-neutral-400 mt-1">"No lo leí" puede ser infra; distínguelo antes de tocar los archivos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">El readback audita</span><p class="text-sm text-neutral-400 mt-1">Las inconsistencias que señala son trabajo para ti, no ruido.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-1#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🏁 Aceptación, handoff, riesgos y rollback</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-1-t6-p1">El proyecto termina cuando los criterios de aceptación están marcados con evidencia, no cuando "parece listo". Y termina con un <strong class="text-purple-400">handoff</strong>: el próximo agente, en cualquier runtime, necesita saber qué se hizo, qué se verificó y cuál es la próxima acción exacta. Sin eso, la semana que viene empieza de cero otra vez y vuelves a depender de los JSONL.</p>
+
+            <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-purple-400 mb-3 flex items-center"><span class="mr-2">✅</span> Criterios de aceptación (márcalos con evidencia)</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span><code>~/.codex/AGENTS.md</code> existe y <code>codex exec</code> en <code>~</code> cita la regla de autor. <em>Evidencia:</em> salida del comando.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>El piloto tiene AGENTS.md con menos de 100 líneas, CLAUDE.md que empieza con <code>@AGENTS.md</code>, y <code>context/</code>, <code>tasks/</code>, <code>handoffs/</code> completos. <em>Evidencia:</em> <code>check.sh</code>.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>El readback pasó en los dos runtimes. <em>Evidencia:</em> los dos archivos en <code>relatorios/</code>.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>La tarea representativa sigue funcionando en Claude. <em>Evidencia:</em> se ejecutó una vez después de la migración.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Todo commiteado y en origin. <em>Evidencia:</em> <code>git status -sb</code> limpio.</span></li>
+              </ul>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> cerrar con handoff y commit, en un solo bloque.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>P=~/projetos/&lt;seu-piloto&gt;
+cd $P
+<span class="text-neutral-500"># handoff: completa las secciones de la plantilla (qué cambió, checks ejecutados y resultado, próxima acción exacta)</span>
+$EDITOR handoffs/latest.md
+<span class="text-neutral-500"># el piloto ahora usa el núcleo: registra en tasks/current.md que la aceptación pasó</span>
+$EDITOR tasks/current.md
+
+git add AGENTS.md CLAUDE.md context tasks handoffs scripts
+git -c user.name=inematds -c user.email=inematds@gmail.com commit -m "workspace portátil: AGENTS.md + núcleo (context/tasks/handoffs); readback aprobado en Claude y Codex"
+git push
+git status -sb | head -1   <span class="text-neutral-500"># esperado: ## main...origin/main</span></code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> abre mañana una sesión nueva en Codex dentro del piloto y pide "lee handoffs/latest.md y dime la próxima acción". Si responde la misma frase que escribiste, el ciclo se cerró.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">⚠️ Riesgos de este proyecto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Renombrado a ciegas de referencias a CLAUDE.md de otros proyectos (tema 2).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Limpieza que borra en lugar de mover (tema 3).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Otra sesión editando el mismo repo durante la migración.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Cada readback en Codex consume cuota de OpenAI; ejecútalo por proyecto, no en bucle.</span></li>
+                </ul>
+              </div>
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">↩️ Rollback en un comando</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>CLAUDE.md del piloto: <code>mv CLAUDE.md.bak-AAAAMMDD CLAUDE.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>CLAUDE.md global: mismo patrón en <code>~/.claude/</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Base de Codex: <code>rm ~/.codex/AGENTS.md</code> vuelve al estado anterior (nada).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Núcleo: <code>git checkout -- .</code> antes del commit, o <code>git revert</code> después.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Aceptación con evidencia</span><p class="text-sm text-neutral-400 mt-1">Cada criterio apunta a un archivo o a la salida de un comando.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Handoff</span><p class="text-sm text-neutral-400 mt-1">El resumen estructurado que cualquier runtime retoma.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Publicar = push</span><p class="text-sm text-neutral-400 mt-1">El trabajo termina cuando entra en origin.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Rollback definido</span><p class="text-sm text-neutral-400 mt-1">Antes de empezar, ya sabes cómo deshacer cada paso.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-3-1#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): el readback de Codex respondió "no pude leer los archivos: bwrap RTM_NEWADDR". ¿Qué haces primero?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Reescribo el AGENTS.md, debe estar mal formateado.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Reconozco que es el sandbox (infra), reviso el sandbox_mode del config.toml y lo ejecuto de nuevo sin forzar read-only.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Marco el readback como "aprobado" porque Claude lo aprobó.</button>
+              </div>
+             <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del proyecto</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Piloto pequeño y en uso</strong><span class="text-neutral-400"> — uno de los 13 trusted sin AGENTS.md, con una tarea representativa clara.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Fase 0</strong><span class="text-neutral-400"> — <code>~/.codex/AGENTS.md</code> derivado del CLAUDE.md global, con revisión y respaldo.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Limpieza</strong><span class="text-neutral-400"> — instrucción estable en AGENTS.md; hechos, decisiones y runbooks en context/, movidos y no borrados.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Prueba y handoff</strong><span class="text-neutral-400"> — readback en los dos runtimes con fuente citada, aceptación con evidencia, push al origin.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Próximo proyecto:</h3>
+                <p class="text-neutral-300">3.2 — MCP y hooks entre Claude y Codex: las herramientas viajan, los eventos no</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Ruta</a>
+                <a href="modulo-3-2.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Próximo proyecto →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o mantente agnóstico</p>
+      <p>Proyecto 3.1 · Ruta 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-1#q1', {
+          answer: 1,
+          explain: {
+            0: 'No: el error ocurre antes de cualquier lectura de archivo. bwrap es el sandbox de Codex; el AGENTS.md ni siquiera se abrió.',
+            1: 'Correcto. Es infra, no contenido. En esta máquina AppArmor bloquea bwrap; el fix registrado en FALHAS.md fue quitar el -s read-only y respetar el config.toml.',
+            2: 'No: cada runtime tiene su propio resultado. Codex sin lectura es "no ejecutado" o "falló", nunca "pasó".'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

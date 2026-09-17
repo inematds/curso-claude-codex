@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Módulo 1.2 · El vocabulario: runtime, harness, skill, MCP, hook, handoff | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'emerald' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'emerald');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['emerald'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha1/modulo-1-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha1/modulo-1-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha1/modulo-1-2.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+        <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-emerald-400 bg-emerald-500/10"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Púrpura"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-emerald-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-emerald-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-emerald-400">Ruta 1</a><span>/</span>
+          <span class="text-emerald-400">Módulo 1.2</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full mb-4">MÓDULO 1.2</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🗣️ El vocabulario: runtime, harness, skill, MCP, hook, handoff</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Seis palabras van a aparecer durante todo el curso. Cada una tiene un significado preciso y un lugar en el disco. Este módulo las define todas desde cero, muestra dónde buscan cada cosa Claude Code y Codex, y separa lo que es <strong class="text-neutral-100">tuyo</strong> de lo que es <strong class="text-neutral-100">de la herramienta</strong>.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">~30</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">Básico</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">Teoría</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <!-- TOC sticky -->
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">1. Modelo, runtime, harness</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">2. Instrucciones y orden de lectura</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">3. Skill y dónde busca cada uno</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">4. MCP: herramientas, no memoria</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">5. Hooks, plugins, subagentes</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">6. Handoff y prime</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:1-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 1.2">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-emerald-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TÓPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-1-2#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧱 Modelo vs runtime vs harness</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-2-t1-p1">Cuando alguien dice "uso Claude", puede estar hablando de tres cosas distintas. El <strong class="text-emerald-400">modelo</strong> es el cerebro de IA que genera texto (Claude Opus, GPT, DeepSeek). El <strong class="text-emerald-400">runtime</strong> es el programa que abres en la terminal y que conversa con ese modelo (Claude Code, Codex CLI, dsh). El <strong class="text-emerald-400">harness</strong> es la estructura alrededor del modelo que le da manos y ojos: leer archivos, ejecutar comandos, guardar el historial, llamar herramientas. En la práctica, runtime y harness suelen ser el mismo programa; la distinción importa cuando cambias uno y mantienes el otro.</p>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo por aquí?</strong> Un <strong>LLM</strong> (modelo de lenguaje) es solo el modelo: recibe texto, devuelve texto. Por sí solo no abre ningún archivo. Lo que hace que Claude Code "edite tu código" es el harness que lo rodea, que transforma el texto del modelo en acciones reales y devuelve el resultado. El modelo piensa; el harness actúa.</p>
+            </div>
+
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 260" class="w-full h-auto" role="img" aria-label="Tres cajas anidadas: el modelo en el centro, dentro del runtime, dentro del harness que contiene herramientas, historial e instrucciones; al lado, la capa portátil del proyecto que cualquier harness lee">
+                <defs>
+                  <linearGradient id="m12-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                  <filter id="m12-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m12-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#10b981" opacity="0.12"/></pattern>
+                  <marker id="m12-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#34d399"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="260" fill="url(#m12-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="40" y="30" width="560" height="200" rx="18" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="60" y="56" fill="#9ad6ff" font-size="14" font-weight="600">HARNESS (Claude Code · Codex CLI · dsh)</text>
+                  <g font-size="11.5" fill="#bfe6ff">
+                    <rect x="60" y="72" width="110" height="26" rx="7" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.5"/><text x="115" y="89" text-anchor="middle">herramientas</text>
+                    <rect x="60" y="106" width="110" height="26" rx="7" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.5"/><text x="115" y="123" text-anchor="middle">historial</text>
+                    <rect x="60" y="140" width="110" height="26" rx="7" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.5"/><text x="115" y="157" text-anchor="middle">hooks · plugins</text>
+                    <rect x="60" y="174" width="110" height="26" rx="7" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.5"/><text x="115" y="191" text-anchor="middle">permisos</text>
+                  </g>
+                  <rect x="200" y="72" width="370" height="130" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2" opacity="0.9"/>
+                  <text x="385" y="96" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">RUNTIME (bucle: lee → piensa → actúa)</text>
+                  <g filter="url(#m12-glow)"><rect x="300" y="112" width="170" height="70" rx="12" fill="#0e2018" stroke="url(#m12-grad)" stroke-width="2.5"/></g>
+                  <text x="385" y="142" text-anchor="middle" fill="#34d399" font-size="15" font-weight="600">MODELO</text>
+                  <text x="385" y="162" text-anchor="middle" fill="#a7f3d0" font-size="11.5">solo entra texto, solo sale texto</text>
+                  <g fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.55">
+                    <path d="M600,130 L700,130" marker-end="url(#m12-ah)"/>
+                  </g>
+                  <text x="650" y="118" text-anchor="middle" fill="#a7f3d0" font-size="11">lee</text>
+                  <g filter="url(#m12-glow)"><rect x="710" y="60" width="250" height="140" rx="16" fill="#0e2018" stroke="url(#m12-grad)" stroke-width="2.5"/></g>
+                  <text x="835" y="88" text-anchor="middle" fill="#34d399" font-size="14" font-weight="600">TU PROYECTO (portátil)</text>
+                  <g fill="#a7f3d0" font-size="12" text-anchor="middle">
+                    <text x="835" y="114">AGENTS.md · context/</text>
+                    <text x="835" y="134">tasks/ · handoffs/</text>
+                    <text x="835" y="154">.agents/skills/ · scripts/</text>
+                    <text x="835" y="182" fill="#9ca3af" font-size="11">lo mismo para cualquier harness</text>
+                  </g>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">De izquierda a derecha: el <span class="text-emerald-400">modelo</span> está en el fondo de dos cajas <span class="text-sky-400">azules</span> que pertenecen a la herramienta. Lo que es tuyo queda fuera de ellas, a la derecha, y lo lee cualquier harness. Cambiar de harness es cambiar las cajas azules; la caja verde de la derecha no cambia.</p>
+           </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Es tuyo (portátil)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Las instrucciones del proyecto, en Markdown.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Las skills (procedimientos en SKILL.md).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>El contexto, las decisiones y los handoffs.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Es de la herramienta (nativo)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>El loop de ejecución y el formato del historial.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Sandbox, permisos, confianza por carpeta.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Plugins, hooks y la memoria automática.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Modelo</span><p class="text-sm text-neutral-400 mt-1">El LLM: entra texto, sale texto. No toca archivos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Runtime</span><p class="text-sm text-neutral-400 mt-1">El programa que ejecuta el loop lee → piensa → actúa.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Harness</span><p class="text-sm text-neutral-400 mt-1">Herramientas, historial, hooks, permisos alrededor del modelo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Ejecutor</span><p class="text-sm text-neutral-400 mt-1">Modelo + harness vistos desde afuera: lo que lee tu proyecto.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-1-2#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">📜 Instrucciones (CLAUDE.md / AGENTS.md) y orden de lectura</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-2-t2-p1">Todo harness abre una carpeta y busca un archivo de instrucciones. Claude Code busca <code class="text-emerald-400">CLAUDE.md</code>; Codex, Gemini y OpenCode buscan <code class="text-emerald-400">AGENTS.md</code>. Ese es el único punto del sistema que realmente está atado al proveedor, y la solución es simple: el AGENTS.md pasa a ser la fuente, y el CLAUDE.md empieza con una línea que importa el AGENTS.md. Una regla, escrita una vez, leída por todos.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-emerald-400">Objetivo:</strong> hacer que Claude lea el mismo archivo que Codex. Este es el CLAUDE.md completo de un proyecto adaptado:</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>@AGENTS.md
+
+# Específico de Claude Code
+- Nunca usar AskUserQuestion; preguntar en texto libre.
+- Los plugins superpowers / context-mode / claude-mem son de Claude; no citarlos en nada portátil.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong>Cómo verificar:</strong> abre una sesión nueva de Claude en el proyecto y pide "cita una regla del proyecto y el archivo de origen". La respuesta debe apuntar al AGENTS.md.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo por aquí?</strong> El <strong>orden de lectura</strong> es la lista, escrita al inicio del AGENTS.md, de lo que el agente debe leer y en qué secuencia: primero las reglas, después el contexto, después la tarea actual, por último el último handoff. Ningún harness carga esas carpetas por sí solo; solo lee lo que la instrucción le manda leer. Por eso el orden tiene que estar escrito.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">AGENTS.md</h4><p class="text-sm text-neutral-400">Reglas estables y el orden de lectura. Corto. Cambia cuando cambia una regla.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">context/overview.md y current-state.md</h4><p class="text-sm text-neutral-400">Qué es el proyecto y qué es verdad hoy.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">tasks/current.md</h4><p class="text-sm text-neutral-400">Qué estamos haciendo ahora, quién es el responsable, cuál es el criterio de terminado.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">handoffs/latest.md</h4><p class="text-sm text-neutral-400">Dónde se detuvo la última sesión y cuál es la próxima acción exacta.</p></div>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">AGENTS.md</span><p class="text-sm text-neutral-400 mt-1">Fuente de las instrucciones. Leído por Codex, Gemini, OpenCode.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">@AGENTS.md</span><p class="text-sm text-neutral-400 mt-1">La línea que hace que el CLAUDE.md importe la fuente.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Residuo</span><p class="text-sm text-neutral-400 mt-1">Lo poco que solo Claude entiende, debajo de la línea de import.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Orden de lectura</span><p class="text-sm text-neutral-400 mt-1">Escrito al inicio; nada se carga automáticamente.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-1-2#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🧩 Skill (SKILL.md) y dónde busca cada runtime</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-2-t3-p1">Una <strong class="text-emerald-400">skill</strong> es un procedimiento escrito para el agente: una carpeta con un archivo <code>SKILL.md</code> (nombre, descripción, cuándo usarla, pasos) y, opcionalmente, scripts y referencias al lado. El formato es el mismo entre Claude Code y Codex; lo que cambia es <strong>dónde busca cada uno</strong>. Esa diferencia de carpeta es lo que genera copias manuales, y las copias manuales son el camino más corto hacia versiones divergentes.</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📂</span> Dónde busca skills cada runtime</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Claude Code:</strong> <code>~/.claude/skills/</code> (global) y <code>.claude/skills/</code> en el proyecto.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Codex CLI:</strong> <code>~/.codex/skills/</code> y <code>~/.agents/skills/</code> (global), <code>.agents/skills/</code> en el proyecto.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>dsh (DeepSeek en contenedor):</strong> una carpeta montada como <code>/work/.dsh/skills</code>.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>En la máquina auditada: 117 skills en Claude, 27 en Codex, 3 copias a mano en dsh, 16 propias en un bot. Cuatro consumidores, ninguna fuente única.</span></li>
+              </ul>
+            </div>
+           <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> Una <strong>skill canónica</strong> es la versión fuente, guardada en un solo lugar. Las carpetas de cada runtime reciben <strong>copias generadas</strong> a partir de ella por una herramienta (el curso usa <code>polyskill</code>), con una verificación de <strong>drift</strong>: si alguien editó la copia en vez de la fuente, el sistema avisa. Editas un archivo; las N copias se regeneran.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Sin fuente canónica</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>skill-claude, skill-codex, skill-gemini, skill-glm: cuatro archivos que mantener.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Corriges un bug en una y te olvidas de las otras.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Nadie sabe cuál es la versión correcta.</span></li>
+                </ul>
+              </div>
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Con fuente canónica</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Una SKILL.md canónica → adaptador Claude, adaptador Codex, adaptador dsh.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>El build regenera todas las copias de una vez.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Verificación de drift: [ok] o [DRIFT] por runtime.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">SKILL.md</span><p class="text-sm text-neutral-400 mt-1">Procedimiento en Markdown: nombre, cuándo usar, pasos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Carpeta de descubrimiento</span><p class="text-sm text-neutral-400 mt-1">Donde busca cada runtime. Difiere entre ellos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Fuente canónica</span><p class="text-sm text-neutral-400 mt-1">La única versión editable; las demás se generan.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Drift</span><p class="text-sm text-neutral-400 mt-1">Divergencia entre copia y fuente. Debe detectarse, no descubrirse por accidente.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-1-2#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🔌 MCP: herramientas y datos, no memoria</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-2-t4-p1"><strong class="text-emerald-400">MCP</strong> (Model Context Protocol) es un estándar para conectar un agente a servicios externos: un generador de imágenes, un programador de publicaciones, una base de datos. El agente gana herramientas nuevas ("generar imagen", "listar publicaciones") que cualquier harness compatible puede usar. Es la parte más fácil de confundir: MCP da <strong>acceso</strong>, no da <strong>recuerdo</strong>. No junta historiales de chat, no resuelve conflictos de memoria, no separa clientes.</p>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> Piensa en MCP como un enchufe estandarizado. El servicio (Magnific, Metricool) ofrece el enchufe; el harness (Claude, Codex) tiene la clavija. Cada harness necesita <strong>registrar</strong> el enchufe por su cuenta, pero la clave de acceso es la misma y queda en un archivo <code>.env</code> referenciado, nunca copiado.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> El estado real en la máquina auditada</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Claude: MCP global <strong>magnific</strong> y <strong>metricool</strong>, más dos por proyecto.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Codex: <strong>ningún</strong> MCP registrado.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Consecuencia: 15 skills que dependen de MCP solo funcionan en Claude hasta que Codex registre los mismos enchufes.</span></li>
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Lo que MCP resuelve</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Acceso a herramientas y datos externos, estandarizado.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>El mismo servicio, conectado a N harnesses.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>La memoria expuesta vía MCP se vuelve portátil (el texto base lo hace).</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Lo que MCP no hace por sí solo</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Juntar historiales de chat de herramientas distintas.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Decidir qué versión de un hecho es la correcta.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Imponer separación entre clientes: eso es permiso de backend.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">MCP</span><p class="text-sm text-neutral-400 mt-1">Protocolo de herramientas y datos para agentes.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Registro por harness</span><p class="text-sm text-neutral-400 mt-1">Cada runtime conecta el mismo enchufe por su cuenta.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Referencia, no copia</span><p class="text-sm text-neutral-400 mt-1">La clave queda en el .env; el registro apunta a ella.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Acceso ≠ memoria</span><p class="text-sm text-neutral-400 mt-1">MCP no recuerda nada por ti.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-1-2#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">⚙️ Hooks, plugins, subagentes: qué es nativo</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-2-t5-p1">Tres cosas de Claude Code no cruzan el puente, y conviene saberlo antes de intentarlo. Un <strong class="text-emerald-400">hook</strong> es un script que el harness dispara en un evento (al abrir la sesión, después de editar un archivo). Un <strong class="text-emerald-400">plugin</strong> es un paquete que agrega comandos y comportamientos al harness. Un <strong class="text-emerald-400">subagente</strong> es un agente hijo con rol propio, que el principal convoca. Los tres dependen de que el harness tenga ese evento, ese formato de paquete, ese mecanismo de convocatoria. Codex tiene hooks, pero eventos distintos; no tiene los plugins de Claude; no tiene subagentes en el mismo formato.</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🔍</span> Comparación real de los dos harnesses</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Hooks:</strong> Claude dispara en SessionStart (inyecta un playbook, ajusta caché); Codex dispara en PostToolUse y Stop. El evento "al abrir sesión" no existe en Codex.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Plugins:</strong> 7 en Claude (superpowers, claude-mem, context-mode…); 1 en Codex (github). Formatos incompatibles.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Subagentes:</strong> 7 en Claude (un "consejo" de roles); ningún equivalente 1:1 en Codex.</span></li>
+             </ul>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">El hook se vuelve texto</h4><p class="text-sm text-neutral-400">Lo que el hook inyectaba al abrir la sesión (un playbook de ritmo, por ejemplo) pasa a ser una sección del AGENTS.md. Pierde la automatización, conserva el contenido.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">El plugin se queda en el residuo</h4><p class="text-sm text-neutral-400">No se menciona un plugin en una instrucción portátil. Vive debajo del @AGENTS.md, en la parte que solo Claude lee.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">El subagente se vuelve skill de rol</h4><p class="text-sm text-neutral-400">El prompt del "abogado del diablo" se convierte en un SKILL.md que cualquier harness invoca como procedimiento. Pierde la convocatoria automática, conserva el rol.</p></div>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Regla del texto base</h3>
+              <p class="text-sm text-neutral-300">"Pon la lógica reutilizable de hooks y verificaciones en scripts comunes; valida cada evento nativo, payload y configuración de confianza por separado." El script es portátil. El disparador es de la herramienta.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Hook</span><p class="text-sm text-neutral-400 mt-1">Script disparado por un evento del harness. Los eventos difieren.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Plugin</span><p class="text-sm text-neutral-400 mt-1">Paquete del harness. No cruza.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Subagente</span><p class="text-sm text-neutral-400 mt-1">Agente hijo con un rol. Se vuelve skill de rol.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Nativo</span><p class="text-sm text-neutral-400 mt-1">Lo que solo existe en ese harness. Se queda en el residuo.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-1-2#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🔁 Handoff y prime: el resumen que viaja</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-2-t6-p1">Un <strong class="text-emerald-400">handoff</strong> es el resumen estructurado que una sesión escribe antes de cerrar: decisiones tomadas, tareas inconclusas, próximos pasos, rutas de archivo. Va a un archivo Markdown, con un <code>latest.md</code> que apunta al más reciente. <strong class="text-emerald-400">Prime</strong> es el acto inverso: la sesión nueva lee ese archivo antes de hacer cualquier cosa. El ciclo reemplaza la dependencia del historial en bruto, y es lo que permite que Claude se detenga y Codex continúe.</p>
+
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 240" class="w-full h-auto" role="img" aria-label="Ciclo en cuatro pasos: una sesión en Claude termina con un handoff, que graba handoffs/latest.md en Markdown; el prime lee ese archivo y abre una sesión nueva, que puede ser en Codex; la flecha de retorno cierra el ciclo">
+                <defs>
+                  <linearGradient id="m12b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                  <filter id="m12b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m12b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#10b981" opacity="0.12"/></pattern>
+                  <marker id="m12b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#34d399"/></marker>
+                  <marker id="m12b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="240" fill="url(#m12b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g class="wf-a"><rect x="40" y="80" width="170" height="64" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="125" y="107" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="600">Sesión A</text><text x="125" y="127" text-anchor="middle" fill="#bfe6ff" font-size="11.5">Claude Code</text></g>
+                  <path d="M210,112 L290,112" fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.6" marker-end="url(#m12b-ah)"/>
+                  <text x="250" y="100" text-anchor="middle" fill="#a7f3d0" font-size="11">/handoff</text>
+                  <g filter="url(#m12b-glow)"><rect x="300" y="70" width="200" height="84" rx="14" fill="#0e2018" stroke="url(#m12b-grad)" stroke-width="2.5"/></g>
+                  <text x="400" y="100" text-anchor="middle" fill="#34d399" font-size="14" font-weight="600">handoffs/latest.md</text>
+                  <text x="400" y="120" text-anchor="middle" fill="#a7f3d0" font-size="11">decisiones · pendientes</text>
+                  <text x="400" y="136" text-anchor="middle" fill="#a7f3d0" font-size="11">próximo paso · rutas</text>
+                  <path d="M500,112 L580,112" fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.6" marker-end="url(#m12b-ah)"/>
+                  <text x="540" y="100" text-anchor="middle" fill="#a7f3d0" font-size="11">/prime</text>
+                  <g class="wf-a"><rect x="590" y="80" width="170" height="64" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="675" y="107" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="600">Sesión B</text><text x="675" y="127" text-anchor="middle" fill="#bfe6ff" font-size="11.5">Codex CLI (o cualquiera)</text></g>
+                  <path d="M760,112 L840,112" fill="none" stroke="#38bdf8" stroke-width="1.8" opacity="0.5" marker-end="url(#m12b-ahc)"/>
+                  <rect x="850" y="86" width="110" height="52" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+                  <text x="905" y="108" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">el trabajo</text>
+                  <text x="905" y="125" text-anchor="middle" fill="#bfe6ff" font-size="10.5">continúa</text>
+                  <path d="M905,140 C905,200 125,200 125,146" fill="none" stroke="#34d399" stroke-width="1.8" stroke-dasharray="7 7" opacity="0.5" marker-end="url(#m12b-ah)"/>
+                  <text x="500" y="212" text-anchor="middle" fill="#9ca3af" font-size="11">al final de la sesión B: nuevo handoff, y el ciclo vuelve a empezar en cualquier runtime</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">El archivo <span class="text-emerald-400">verde</span> del medio es el único vínculo entre las dos sesiones <span class="text-sky-400">azules</span>. Fíjate en que la Sesión B no necesita ser el mismo harness que la Sesión A: el handoff es Markdown, así que cualquier ejecutor lo lee.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> Sin handoff, "continuar donde me quedé" significa reabrir la sesión antigua en el mismo harness, o hurgar en un archivo JSONL de miles de líneas. El handoff es un resumen de una página, hecho por el propio agente, que cabe en cualquier contexto. Es la diferencia entre transportar la conversación entera y transportar lo que importa de ella.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Un buen handoff tiene</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Decisiones tomadas y el motivo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Tareas inconclusas y lo que falta.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Rutas exactas de los archivos tocados.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>La próxima acción, concreta, en una línea.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Un handoff malo</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Narra la conversación en orden cronológico.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Dice "se modificaron varios archivos" sin decir cuáles.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Afirma que algo funciona sin decir qué prueba corrió.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Incluye credenciales o el historial en bruto.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Handoff</span><p class="text-sm text-neutral-400 mt-1">Resumen estructurado escrito al cerrar la sesión.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Prime</span><p class="text-sm text-neutral-400 mt-1">La sesión nueva lee el handoff antes de actuar.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">latest.md</span><p class="text-sm text-neutral-400 mt-1">Puntero fijo al handoff más reciente.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Cross-runtime</span><p class="text-sm text-neutral-400 mt-1">Claude escribe, Codex retoma. O al revés.</p></div>
+           </div>
+
+            <!-- CHECAGEM LEVE -->
+            <div data-inema-check="modulo-1-2#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): ¿cuál de estos elementos es portátil entre Claude Code y Codex sin adaptación?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Un hook de SessionStart que inyecta un playbook.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Un handoff en handoffs/latest.md con decisiones, pendientes y próxima acción.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Un subagente "abogado del diablo" configurado en ~/.claude/agents.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-emerald-900/40 via-dark-800 to-dark-800 rounded-xl border border-emerald-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del módulo</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">El modelo piensa, el harness actúa</strong><span class="text-neutral-400"> — y tu proyecto queda fuera de los dos, legible por cualquiera.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">AGENTS.md es la fuente</strong><span class="text-neutral-400"> — CLAUDE.md lo importa con @AGENTS.md; el orden de lectura está escrito, nada se carga solo.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Skill canónica, MCP registrado por harness</strong><span class="text-neutral-400"> — una sola fuente con drift check; claves referenciadas, nunca copiadas.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Hooks, plugins y subagentes son nativos</strong><span class="text-neutral-400"> — se convierten en texto, residuo o skill de rol. El handoff es lo que viaja.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-emerald-400 mb-2">Próximo módulo:</h3>
+                <p class="text-neutral-300">1.3 — Los tres niveles de migración: un clic, un comando, personal</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Ruta</a>
+                <a href="modulo-1-3.html" class="flex-1 text-center px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-500 transition-colors">Próximo módulo →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o quédate agnóstico</p>
+      <p>Módulo 1.2 · Ruta 1 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-1-2#q1', {
+          answer: 1,
+          explain: {
+            0: 'No. El evento SessionStart no existe en Codex; el contenido del hook se convierte en texto en el AGENTS.md, pero el disparador es nativo.',
+            1: 'Eso es. El handoff es Markdown común: cualquier ejecutor lo lee, y es el vínculo entre una sesión en Claude y otra en Codex.',
+            2: 'No. Los subagentes son un mecanismo de Claude Code; el rol puede convertirse en una skill, pero la convocatoria automática no cruza.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Proyecto 3.3 · Memoria curada | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/modulo-3-3.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/modulo-3-3.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/modulo-3-3.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+<div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Morado"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Ruta 3</a><span>/</span>
+          <span class="text-purple-400">Proyecto 3.3</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROYECTO 3.3</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🗃️ Proyecto 3: memoria curada</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">El agente propone, tú apruebas. En este proyecto dejas de tratar la memoria bruta de Claude como fuente de verdad y armas una capa de hechos aprobados que Claude, Codex y cualquier otro ejecutor leen desde el mismo lugar — reutilizando el vault que openpcbotv3 ya opera en esta máquina.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~40</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Intermedio</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Proyecto</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. Materia prima, no fuente</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. El vault de openpcbotv3</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. Propone → aprueba</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. superseded_by</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. Todos leen el mismo USER.md</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Archivar sesiones antiguas</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-3" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del proyecto 3.3">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> El proyecto en una pantalla</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Objetivo</span><p class="text-neutral-300 mt-1">Tener UN lugar de hechos verificados sobre ti y tus proyectos, aprobado por ti y leído por todos los ejecutores.</p></div>
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Terminas con</span><p class="text-neutral-300 mt-1">3 hechos promovidos de la memoria de Claude al <code>context/overview.md</code> de un proyecto, con fuente y fecha; <code>AGENTS.md</code> y <code>CLAUDE.md</code> indicando leer el <code>USER.md</code> del vault.</p></div>
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Criterio de aceptación</span><p class="text-neutral-300 mt-1">Una sesión nueva en Claude Y en Codex cita un hecho personal señalando el <code>USER.md</code> como fuente. No se copió nada de la memoria bruta en masa.</p></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-3#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧱 La memoria de Claude es materia prima, no fuente</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t1-p1">El diagnóstico de esta máquina encontró <strong class="text-purple-400">227 carpetas de memoria y 869 archivos</strong> en <code>~/.claude/projects/*/memory</code>. Cada archivo es una observación que Claude consideró útil guardar: una preferencia, una ruta, un hecho de proyecto. Nada de eso pasó por tu aprobación. Buena parte está desactualizada, duplicada o contradice otro archivo escrito semanas después. Y solo Claude lee esa carpeta.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t1-p2">Por eso el plan trata esa memoria como <strong>materia prima</strong>: una mina de hechos candidatos, no la verdad. La verdad es lo que tú aprobaste, con fuente y fecha, en un archivo que cualquier runtime puede abrir.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Copiar la memoria en masa</h4>
+               <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>869 archivos se convierten en 869 archivos en otro lugar, con las mismas contradicciones.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Codex empieza a creer en hechos que Claude guardó mal en mayo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Ninguna fuente, ninguna fecha: imposible saber qué versión es la válida.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Secretos y rutas privadas pueden irse junto con todo lo demás.</span></li>
+                </ul>
+              </div>
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Promover hecho por hecho</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Lees la memoria del proyecto en el que estás trabajando y eliges lo que todavía es verdad.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Cada hecho promovido recibe fuente, fecha y alcance.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El resto se queda donde está, como historial.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El resultado cabe en una pantalla y cualquier modelo lo lee.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Eres nuevo aquí?</strong> La "memoria" de Claude Code es una carpeta de archivos Markdown que el propio agente escribe entre sesiones para acordarse de cosas. "Promover" un hecho es copiarlo, ya revisado, a un archivo que tú controlas. La diferencia entre ambos es una sola: la aprobación humana.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Materia prima</span><p class="text-sm text-neutral-400 mt-1">Observaciones no aprobadas, candidatas a hecho.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Fuente de verdad</span><p class="text-sm text-neutral-400 mt-1">Lo que aprobaste, con origen y fecha.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Promoción</span><p class="text-sm text-neutral-400 mt-1">Llevar un hecho de la memoria bruta al overview, ya revisado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Copia masiva</span><p class="text-sm text-neutral-400 mt-1">El error que hay que evitar: arrastra ruido y contradicciones.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-3#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🗄️ El vault de openpcbotv3 como overview global</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t2-p1">No necesitas inventar la capa de hechos aprobados: ya existe en esta máquina. El bot <strong>openpcbotv3</strong> mantiene un <strong class="text-purple-400">vault curado</strong> en <code>~/vault/MEMORY.md</code> y <code>~/vault/USER.md</code>. El bot propone entradas; nada se escribe sin que lo apruebes con <code>/memoria aprovar &lt;id&gt;</code>. Y el <code>USER.md</code> entra en el prompt de cada conversación del bot. Es exactamente el "overview global" que pide el plan.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 250" class="w-full h-auto" role="img" aria-label="Escalera de cuatro peldaños: memoria bruta de Claude, propuesta del bot, aprobación humana y overview aprobado en el vault, cada peldaño más alto y más confiable que el anterior">
+                <defs>
+                  <linearGradient id="m33-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m33-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m33-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m33-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="250" fill="url(#m33-grid)"/>
+                <path d="M60,215 L940,45" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-dasharray="9 9" opacity="0.4"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="40" y="160" width="190" height="62" rx="12" fill="#26201a" stroke="#9ca3af" stroke-width="2"/>
+                  <text x="135" y="186" text-anchor="middle" fill="#e5e7eb" font-size="14" font-weight="600">memoria bruta</text>
+                  <text x="135" y="206" text-anchor="middle" fill="#9ca3af" font-size="11.5">869 archivos, sin aprobación</text>
+                  <path d="M230,190 L270,150" fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.6" marker-end="url(#m33-ah)"/>
+                  <rect x="275" y="118" width="190" height="62" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="370" y="144" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="600">propuesta</text>
+                  <text x="370" y="164" text-anchor="middle" fill="#bfe6ff" font-size="11.5">el agente sugiere un hecho</text>
+                  <path d="M465,148 L505,108" fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.6" marker-end="url(#m33-ah)"/>
+                  <rect x="510" y="76" width="190" height="62" rx="12" fill="#1f1604" stroke="#FACC15" stroke-width="2"/>
+                  <text x="605" y="102" text-anchor="middle" fill="#FACC15" font-size="14" font-weight="600">aprobación</text>
+                  <text x="605" y="122" text-anchor="middle" fill="#fde68a" font-size="11.5">tú dices sí o no</text>
+                  <path d="M700,106 L740,66" fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.6" marker-end="url(#m33-ah)"/>
+                  <g filter="url(#m33-glow)"><rect x="745" y="30" width="215" height="66" rx="14" fill="#1a1230" stroke="url(#m33-grad)" stroke-width="2.5"/></g>
+                  <text x="852" y="58" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="600">overview aprobado</text>
+                  <text x="852" y="80" text-anchor="middle" fill="#e9d5ff" font-size="11.5">USER.md · overview.md · fuente + fecha</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Léelo de abajo hacia arriba: cada peldaño filtra el anterior. Solo el último peldaño, <span class="text-purple-400">aprobado por ti</span>, lo leen los ejecutores. La memoria bruta nunca sube directo.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> Lo que v3 ya hace (del README, sección Cérebro)</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Cada mensaje tuyo se convierte en memoria clasificada como <strong>semantic</strong> (duradera: "prefiero", "siempre", "vivo en") o <strong>episodic</strong>. Una pregunta nunca se convierte en hecho.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Búsqueda por palabra clave (FTS5) más vector <code>bge-m3</code>; contexto en el prompt limitado a 600 tokens.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Vault curado: el bot propone, tú apruebas. <code>USER.md</code> entra en cada prompt.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Consolidación nocturna a las 4 h, en Ollama, costo cero: fusiona duplicados y marca contradicciones.</span></li>
+              </ul>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Por qué reutilizar en lugar de crear</h3>
+              <p class="text-sm text-neutral-300">El plan de migración dice: no reinventar. El vault ya tiene el mecanismo de aprobación, ya corre como servicio y ya lo lee un ejecutor (el bot). Solo falta apuntar Claude, Codex y dsh al mismo archivo. Crear un segundo "overview global" sería crear la segunda fuente de verdad que todo el curso intenta evitar.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Vault curado</span><p class="text-sm text-neutral-400 mt-1">MEMORY.md + USER.md, solo entra lo que fue aprobado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">USER.md</span><p class="text-sm text-neutral-400 mt-1">Hechos sobre ti; entra en cada prompt del bot.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Semantic vs episodic</span><p class="text-sm text-neutral-400 mt-1">Duradero vs "pasó una vez".</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Overview global</span><p class="text-sm text-neutral-400 mt-1">El archivo de hechos personales que todo ejecutor lee.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-3#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">✅ Flujo propone → aprueba, aplicado a un proyecto</h2>
+           </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t3-p1">Ahora, manos a la obra. Elige un proyecto que ya hayas migrado (Proyecto 1) y promueve <strong class="text-purple-400">3 hechos</strong> de la memoria bruta de Claude a su <code>context/overview.md</code>. Tres, no treinta: el objetivo es entrenar el gesto, no vaciar la carpeta.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Listar la memoria bruta del proyecto</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: ver qué guardó Claude sobre este proyecto, con fecha. Cambia la ruta por la tuya.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>MEM=~/.claude/projects/-home-nmaldaner-projetos-&lt;meu-projeto&gt;/memory
+ls -lt "$MEM" | head -20
+# leer solo el índice, que resume cada archivo en una línea
+cat "$MEM/MEMORY.md"</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: el índice lista los archivos con un gancho por línea. Si está vacío, este proyecto no tiene memoria y pasas al paso 3 con hechos del propio CLAUDE.md.</p>
+                </div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Pedirle al agente que PROPONGA, sin escribir</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: el agente lee la memoria y devuelve candidatos clasificados. Pégalo en Claude Code o en Codex, dentro del proyecto.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>Lee los archivos en &lt;ruta del memory/ de arriba&gt;. No edites nada.
+Devuelve una tabla con como máximo 8 candidatos a hecho duradero sobre este proyecto.
+Columnas: hecho (una frase), tipo (hecho | preferencia | hipótesis | decisión),
+archivo de origen, fecha del archivo y "¿todavía parece válido?" (sí / no / no sé).
+Descarta preguntas, tareas pasadas y cualquier secreto o clave.</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: la tabla cita el archivo de origen en cada línea. Sin origen, la línea no vale.</p>
+                </div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Aprobar 3 y guardarlos en el overview con fuente y fecha</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: tú eliges; el agente escribe solo lo que aprobaste, en el formato de la plantilla.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>Apruebo los candidatos 2, 5 y 7. Agrégalos en context/overview.md,
+en la sección "Hechos verificados", uno por línea, con el formato:
+- &lt;hecho&gt; (fuente: memory/&lt;archivo&gt;, observado el &lt;AAAA-MM-DD&gt;, promovido el 2026-09-14)
+Los demás candidatos NO entran. No cambies nada más en el archivo.</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: <code>git diff context/overview.md</code> muestra exactamente 3 líneas nuevas, todas con fuente y dos fechas.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Lo mismo en el bot</h3>
+              <p class="text-sm text-neutral-300">En openpcbotv3 el gesto es idéntico, solo que por Telegram: el bot envía una propuesta con id, respondes <code>/memoria aprovar &lt;id&gt;</code>, y solo entonces la línea entra en <code>~/vault/MEMORY.md</code> o <code>USER.md</code>. Lo que acabas de hacer a mano en el proyecto es la versión manual del mismo protocolo.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Propuesta</span><p class="text-sm text-neutral-400 mt-1">Candidato con origen, tipo y fecha; todavía no vale.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Aprobación explícita</span><p class="text-sm text-neutral-400 mt-1">Tú nombras cuáles entran; el resto no entra.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Dos fechas</span><p class="text-sm text-neutral-400 mt-1">Cuándo se observó y cuándo se promovió.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Diff pequeño</span><p class="text-sm text-neutral-400 mt-1">Tres líneas. Si el diff es grande, algo se salió del protocolo.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-3#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🕰️ Consolidación con superseded_by: nunca borra, oculta</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t4-p1">¿Qué pasa cuando un hecho aprobado deja de ser verdad? La v3 responde con la consolidación nocturna: cuando detecta dos memorias que se contradicen, la más antigua recibe el campo <code>superseded_by</code> apuntando a la nueva. <strong class="text-purple-400">No se borra</strong>, solo deja de entrar en el prompt. Puedes volver y ver lo que se creía antes.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 220" class="w-full h-auto" role="img" aria-label="Dos tarjetas de hecho: la antigua, de julio, aparece punteada y atenuada detrás de la nueva, de septiembre, que está destacada; una flecha rotulada superseded_by une la antigua con la nueva">
+                <defs>
+                  <filter id="m33b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m33b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m33b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                  <linearGradient id="m33b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                </defs>
+                <rect x="0" y="0" width="1000" height="220" fill="url(#m33b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="110" y="70" width="300" height="100" rx="14" fill="#26201a" stroke="#9ca3af" stroke-width="2" stroke-dasharray="7 6" opacity="0.55"/>
+                  <text x="260" y="100" text-anchor="middle" fill="#9ca3af" font-size="13" font-weight="600" opacity="0.8">hecho antiguo · 2026-07-09</text>
+                  <text x="260" y="124" text-anchor="middle" fill="#9ca3af" font-size="12.5" opacity="0.8">"la voz predeterminada de inemavox es bella"</text>
+                  <text x="260" y="150" text-anchor="middle" fill="#f87171" font-size="11.5">estado: superseded · queda en el historial</text>
+                  <path d="M410,120 L560,120" fill="none" stroke="#38bdf8" stroke-width="1.8" opacity="0.7" marker-end="url(#m33b-ahc)"/>
+                  <text x="485" y="108" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">superseded_by</text>
+                  <g filter="url(#m33b-glow)"><rect x="565" y="60" width="330" height="120" rx="16" fill="#1a1230" stroke="url(#m33b-grad)" stroke-width="2.5"/></g>
+                  <text x="730" y="92" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="600">hecho actual · 2026-09-14</text>
+                  <text x="730" y="118" text-anchor="middle" fill="#e9d5ff" font-size="13">"la voz predeterminada de inemavox es rachel"</text>
+                  <text x="730" y="144" text-anchor="middle" fill="#a7f3d0" font-size="11.5">estado: activo · entra en el prompt</text>
+                  <text x="730" y="164" text-anchor="middle" fill="#9ca3af" font-size="11">fuente: ~/.claude/CLAUDE.md, decisión del 2026-07-09</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">El hecho antiguo sigue existiendo, pero <span class="text-red-400">punteado y fuera del prompt</span>. El ejecutor solo ve el <span class="text-purple-400">hecho actual</span>. Si la nueva decisión estaba equivocada, la deshaces sin perder nada.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Cómo resolver un conflicto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El origen y la decisión aceptada ganan. El timestamp solo desempata entre iguales.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>La versión vencida recibe <code>superseded_by</code> y sale del prompt.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Backup antes de cada ronda de consolidación.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Lo que rompe la memoria</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Lo más nuevo siempre gana": un archivo escrito por error borra una decisión tuya.</span></li>
+                 <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Borrar la versión antigua: se pierde el rastro de por qué cambiaste.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Mantener ambas activas: el ejecutor elige una al azar.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">En el overview en Markdown, sin base de datos:</strong> aplica la misma idea a mano. En lugar de borrar la línea antigua, muévela a una sección "Superado" al final del archivo con la nota <em>superado por: &lt;línea nueva&gt;, el &lt;fecha&gt;</em>. El agente lee solo "Hechos verificados"; el historial queda para ti.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">superseded_by</span><p class="text-sm text-neutral-400 mt-1">Puntero del hecho vencido al hecho que lo reemplazó.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Ocultar ≠ borrar</span><p class="text-sm text-neutral-400 mt-1">Sale del prompt, queda en el historial.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Provenance</span><p class="text-sm text-neutral-400 mt-1">De dónde vino y quién decidió; pesa más que la fecha.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Consolidación</span><p class="text-sm text-neutral-400 mt-1">Ronda periódica que fusiona y marca; siempre con respaldo.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-3#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🔗 Claude, Codex y dsh leyendo el mismo USER.md</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t5-p1">El bot ya inyecta el <code>USER.md</code> en cada prompt porque su código lo hace. Claude Code y Codex no tienen ese código, y <strong class="text-purple-400">ningún archivo se carga solo</strong> aparte del <code>CLAUDE.md</code> y del <code>AGENTS.md</code>. La solución es la misma de todo el curso: una instrucción explícita de lectura en esos dos archivos.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Agregar la instrucción en el AGENTS.md global y del proyecto</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: todo ejecutor que lee AGENTS.md aprende dónde están los hechos personales aprobados. El CLAUDE.md lo hereda vía <code>@AGENTS.md</code>.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cat &gt;&gt; ~/.codex/AGENTS.md &lt;&lt;'EOF'
+
+## Hechos personales aprobados
+- Antes de asumir cualquier preferencia mía (voz, modelo de imagen, cuenta git, rutas),
+  lee `~/vault/USER.md`. Es la única fuente aprobada. Cita el archivo cuando uses un hecho de él.
+- No propongas guardar nada ahí por tu cuenta: propónlo en texto y yo lo apruebo.
+EOF
+# ¿el CLAUDE.md global empieza con "@AGENTS.md"? Si no, agrega esa línea al inicio.
+head -1 ~/.claude/CLAUDE.md</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: <code>grep -n USER.md ~/.codex/AGENTS.md</code> devuelve la línea; <code>head -1 ~/.claude/CLAUDE.md</code> devuelve <code>@AGENTS.md</code>.</p>
+                </div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">5</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Probar en los dos runtimes</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: una sesión nueva cita el USER.md como fuente de un hecho personal. Si no cita la fuente, no pasó.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>P='¿Cuál es la voz de narración predeterminada que uso? Responde en una frase y di en qué archivo lo leíste. No edites nada.'
+claude -p "$P"
+codex exec --skip-git-repo-check "$P"</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: las dos respuestas nombran <code>~/vault/USER.md</code>. Si una cita la memoria de Claude o "no sé", la instrucción no llegó; revisa si se está leyendo el AGENTS.md correcto.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🐳</span> ¿Y el dsh?</h3>
+              <p class="text-neutral-300 text-sm">El dsh-sandbox no lee <code>~/vault</code> porque el contenedor solo ve lo que se montó. En el modo <code>local</code>, <code>~/projetos</code> está montado; el vault no. Dos salidas: montar <code>~/vault</code> como solo lectura en el <code>docker-compose.projetos.yml</code>, o copiar el <code>USER.md</code> aprobado al proyecto como <code>context/user.md</code> con la fecha del snapshot. El Proyecto 4 trata el dsh en detalle.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Instrucción de lectura</span><p class="text-sm text-neutral-400 mt-1">La forma de "inyectar" sin código: pedir que lea.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Una fuente, N lectores</span><p class="text-sm text-neutral-400 mt-1">Bot, Claude, Codex y dsh apuntan al mismo archivo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Citar la fuente</span><p class="text-sm text-neutral-400 mt-1">El criterio de aceptación: una respuesta correcta sin fuente no vale.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Snapshot fechado</span><p class="text-sm text-neutral-400 mt-1">Cuando no se puede leer en vivo, se copia con fecha y regla de actualización.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-3#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">📦 Archivar sesiones antiguas, solo después de que el ciclo funcione</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-3-t6-p1">En esta máquina hay <strong>6.859 sesiones JSONL de Claude (2,3 GB)</strong> y 209 de Codex. Son el historial en bruto de cada conversación. Mientras tu contexto vivía solo ahí, borrar era perder memoria. Una vez que handoff y prime (módulo 2.6) están funcionando, lo que importa de cada sesión ya pasó a <code>handoffs/latest.md</code> y al overview. Entonces, y solo entonces, archivar se vuelve una limpieza segura.</p>
+
+            <div class="relative border-l-2 border-purple-500/30 pl-6 space-y-6 mb-6">
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500"></span><h4 class="font-semibold text-neutral-100">Semana 1: ciclo funcionando</h4><p class="text-sm text-neutral-400">Toda sesión termina con handoff. Cada sesión nueva empieza por el prime. Todavía no se borra ninguna sesión.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/60"></span><h4 class="font-semibold text-neutral-100">Semana 2: promoción de hechos</h4><p class="text-sm text-neutral-400">En los proyectos trabajados, de 3 a 5 hechos promovidos al overview (tópico 3). Lo que era memoria en bruto relevante ya está aprobado.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/40"></span><h4 class="font-semibold text-neutral-100">Semana 3: archivar, no borrar</h4><p class="text-sm text-neutral-400">Las sesiones con más de 90 días van a un archivo comprimido fuera de <code>~/.claude</code>. Si algo falta, está ahí.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/25"></span><h4 class="font-semibold text-neutral-100">Después: rutina mensual</h4><p class="text-sm text-neutral-400">Un comando al mes. El disco (88% lleno hoy) lo agradece.</p></div>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl p-5 border border-dark-600 mb-6">
+              <h4 class="font-semibold text-neutral-100 mb-1">Paso 6: archivar sesiones con más de 90 días (reversible)</h4>
+              <p class="text-sm text-neutral-400 mb-3">Objetivo: quitarlas del camino sin perderlas. Primero cuenta y lista; solo el segundo bloque mueve.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># 1) solo mirar: cuántas son y cuánto pesan
+find ~/.claude/projects -name '*.jsonl' -mtime +90 | wc -l
+find ~/.claude/projects -name '*.jsonl' -mtime +90 -print0 | du -ch --files0-from=- | tail -1
+
+# 2) archivar (mueve a un tar.gz fechado fuera de ~/.claude; no se borra nada)
+ARQ=~/projetos/output/arquivo-sessoes-claude-$(date +%Y-%m-%d).tar.gz
+find ~/.claude/projects -name '*.jsonl' -mtime +90 -print0 \
+  | tar --null -T - -czf "$ARQ" --remove-files
+ls -lh "$ARQ"</code></pre>
+              <p class="text-xs text-neutral-500 mt-2">Cómo verificar: el primer <code>find</code> ejecutado de nuevo devuelve 0; el tar.gz existe y se abre con <code>tar -tzf "$ARQ" | head</code>. Rollback: <code>tar -xzf "$ARQ" -C /</code>.</p>
+           </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> Riesgos y rollback del proyecto</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Promover un hecho equivocado:</strong> el diff es de 3 líneas; <code>git checkout context/overview.md</code> lo deshace.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Archivar demasiado pronto:</strong> no archives antes de tener al menos dos semanas de handoffs. El tar.gz es reversible, pero el hábito de ir a buscar ahí no.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Dos fuentes de hechos personales:</strong> si creas un <code>context/user.md</code> global además del vault, elige uno y haz que el otro apunte a él.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Secreto en el overview:</strong> las claves quedan en <code>.env</code>; el overview cita la ruta, nunca el valor.</span></li>
+              </ul>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Archivar ≠ borrar</span><p class="text-sm text-neutral-400 mt-1">Comprime y quita del camino; vuelve con un comando.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Precondición</span><p class="text-sm text-neutral-400 mt-1">Handoff/prime funcionando antes de cualquier limpieza.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Sesión = historial</span><p class="text-sm text-neutral-400 mt-1">En bruto, útil para auditoría; no es fuente de contexto.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Rutina</span><p class="text-sm text-neutral-400 mt-1">Una vez al mes, el mismo comando.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-3-3#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): Claude guardó en mayo que "el modelo de imagen predeterminado es flux2-dev" y en agosto que "es flux2-klein". ¿Qué hacer en el overview?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Copiar los dos al overview; el agente elige.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Borrar el de mayo y conservar solo el de agosto.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Verificar la fuente (el CLAUDE.md global define flux2-klein), promover ese con fecha y mover el de mayo a "Superado" con la nota de cuál lo reemplazó.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del proyecto</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">La memoria en bruto es materia prima</strong><span class="text-neutral-400"> — 869 archivos sin aprobación no son fuente; promueve hecho por hecho.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">El vault ya existe</strong><span class="text-neutral-400"> — MEMORY.md y USER.md de openpcbotv3, con aprobación humana, se convierten en el overview global.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Propone → aprueba</strong><span class="text-neutral-400"> — 3 hechos con fuente y dos fechas; diff de 3 líneas.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">superseded_by y archivar</strong><span class="text-neutral-400"> — nunca borra, oculta; las sesiones antiguas solo después de que el ciclo funcione.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Próximo proyecto:</h3>
+                <p class="text-neutral-300">3.4 — Proyecto 4: tercer ejecutor (dsh-sandbox y modelo local)</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Ruta</a>
+                <a href="modulo-3-4.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Próximo proyecto →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o mantente agnóstico</p>
+      <p>Proyecto 3.3 · Ruta 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-3#q1', {
+          answer: 2,
+          explain: {
+            0: 'No: dos versiones activas hacen que el ejecutor elija al azar. Es la contradicción que el vault existe para impedir.',
+            1: 'Casi: el de agosto es correcto, pero borrar pierde el rastro de por qué cambió. Oculta con superseded_by, no borres.',
+            2: 'Eso es: la provenance decide (la regla global), el ganador entra con fecha y el vencido queda visible como superado.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

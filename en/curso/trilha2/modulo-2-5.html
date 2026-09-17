@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-en">
+  <title>Module 2.5 · Readback: prove it in a fresh session | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'blue' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'blue');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['blue'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-en",
+    "tracks": [
+      { "n": "1", "title": "Fundamentals", "modules": [
+        { "id": "1-1", "title": "Why separate the brain from the model", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "The vocabulary: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "The three levels of migration", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomy of a portable workspace", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Owners of the information", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit before implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Hands-on", "modules": [
+        { "id": "2-1", "title": "Environment diagnosis", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Installing the portable core", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Canonical skills with polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: proving it in a fresh session", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff and prime: the daily cycle", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projects", "modules": [
+        { "id": "3-1", "title": "Project 1: migrate your first real project", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Project 2: MCP and hooks between Claude and Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Project 3: curated memory", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Project 4: third executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Project 5: client workspace", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Project 6: the mindset", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Skip to content</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha2/modulo-2-5.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha2/modulo-2-5.html" class="text-yellow-400 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha2/modulo-2-5.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentals</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-400 bg-blue-500/10"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Hands-on</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projects</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="My journey"><span aria-hidden="true">◷</span><span class="hidden md:inline">Journey</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Appearance"><span aria-hidden="true">◑</span><span class="hidden md:inline">Appearance</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Theme</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Dark</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Light</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Focus</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">High contrast</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Font</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">System</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Reading</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Size</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Line spacing</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compact</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Comfortable</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Accent</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Toggle light/dark">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-blue-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-blue-400">Home</a><span>/</span>
+          <a href="index.html" class="hover:text-blue-400">Track 2</a><span>/</span>
+          <span class="text-blue-400">Module 2.5</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full mb-4">MODULE 2.5</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">✅ Readback: prove it in a fresh session</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">You built the portable core and ported the skill. Now comes the only question that matters: <strong class="text-neutral-100">can an agent that has never seen the project pick it up?</strong> In this module you run the readback on both runtimes, read the answer critically, and learn to mark each check as passed, failed or not run.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">6</div><div class="text-xs text-neutral-400">Topics</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">~30</div><div class="text-xs text-neutral-400">Minutes</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Intermed.</div><div class="text-xs text-neutral-400">Level</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Practice</div><div class="text-xs text-neutral-400">Type</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Page contents" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Section <span class="inema-toc-pos" data-inema-section-counter>1</span> of 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">1. The 5 questions</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">2. readback-test.sh</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">3. Reading the answer</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">4. The real case</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">5. FALHAS.md</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">6. Passed / failed / not run</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:2-5" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Module 2.5 progress">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-blue-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 of 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TÓPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-2-5#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">❓ The 5 readback questions</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t1-p1"><strong class="text-blue-400">Readback</strong> is a continuity test: you open a fresh session, with no history, and ask the agent to read the project and answer five questions. If it answers by citing the right files, the portable core works. If it makes things up, or answers from its own generic knowledge, the core exists but isn't being used.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 250" class="w-full h-auto" role="img" aria-label="Five readback questions (goal, rule and source, decision, next action, conflicts) enter a fresh session and converge on a three-state verdict: passed, failed or not run">
+                <defs>
+                  <linearGradient id="m25-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m25-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m25-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m25-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m25-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="250" fill="url(#m25-grid)"/>
+                <g font-family="Inter,sans-serif" font-size="13" font-weight="600">
+                  <g class="wf-a"><rect x="30" y="18"  width="230" height="32" rx="9" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="145" y="39"  text-anchor="middle" fill="#bfdbfe">1 · goal + definition of done</text></g>
+                  <g class="wf-a"><rect x="30" y="62"  width="230" height="32" rx="9" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="145" y="83"  text-anchor="middle" fill="#bfdbfe">2 · one rule + source file</text></g>
+                  <g class="wf-a"><rect x="30" y="106" width="230" height="32" rx="9" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="145" y="127" text-anchor="middle" fill="#bfdbfe">3 · last accepted decision</text></g>
+                  <g class="wf-a"><rect x="30" y="150" width="230" height="32" rx="9" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="145" y="171" text-anchor="middle" fill="#bfdbfe">4 · concrete next action</text></g>
+                  <g class="wf-a"><rect x="30" y="194" width="230" height="32" rx="9" fill="#0e1622" stroke="#60a5fa" stroke-width="2"/><text x="145" y="215" text-anchor="middle" fill="#bfdbfe">5 · conflicts / missing access</text></g>
+                </g>
+                <g fill="none" stroke="#60a5fa" stroke-width="1.8" opacity="0.5">
+                  <path d="M260,34  C340,34 350,122 420,122" marker-end="url(#m25-ah)"/>
+                  <path d="M260,78  C340,78 350,122 420,122" marker-end="url(#m25-ah)"/>
+                  <path d="M260,122 L420,122" marker-end="url(#m25-ah)"/>
+                  <path d="M260,166 C340,166 350,122 420,122" marker-end="url(#m25-ah)"/>
+                  <path d="M260,210 C340,210 350,122 420,122" marker-end="url(#m25-ah)"/>
+                </g>
+                <g filter="url(#m25-glow)"><rect x="420" y="88" width="190" height="68" rx="14" fill="#0e1622" stroke="url(#m25-grad)" stroke-width="2.5"/></g>
+                <text x="515" y="116" text-anchor="middle" fill="#60a5fa" font-family="Inter,sans-serif" font-size="15" font-weight="600">fresh session</text>
+                <text x="515" y="136" text-anchor="middle" fill="#bfdbfe" font-family="Inter,sans-serif" font-size="12">claude -p · codex exec</text>
+                <g fill="none" stroke="#38bdf8" stroke-width="1.8" opacity="0.55">
+                  <path d="M610,122 C680,122 690,52 760,52" marker-end="url(#m25-ahc)"/>
+                  <path d="M610,122 L760,122" marker-end="url(#m25-ahc)"/>
+                  <path d="M610,122 C680,122 690,192 760,192" marker-end="url(#m25-ahc)"/>
+                </g>
+                <g font-family="Inter,sans-serif" font-size="14" font-weight="600">
+                  <rect x="760" y="34"  width="200" height="36" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/><text x="860" y="58"  text-anchor="middle" fill="#a7f3d0">passed ✓</text>
+                  <rect x="760" y="104" width="200" height="36" rx="10" fill="#2a0f16" stroke="#f87171" stroke-width="2"/><text x="860" y="128" text-anchor="middle" fill="#fecaca">failed ✗</text>
+                  <rect x="760" y="174" width="200" height="36" rx="10" fill="#26201a" stroke="#9ca3af" stroke-width="2"/><text x="860" y="198" text-anchor="middle" fill="#e5e7eb">not run —</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Read from left to right: the <span class="text-blue-400">five questions</span> go into a session with no history and come out as one of <span class="text-sky-400">three verdicts</span>. There's no "sort of passed": either it cites the file, or it doesn't.</p>
+           </div>
+
+            <p class="text-neutral-300 mb-4 leading-relaxed" data-inema-block="m2-5-t1-p2">The prompt is short and generic on purpose. It doesn't say where the files are: if the agent needs you to point the way, the reading order in <code class="text-blue-400">AGENTS.md</code> isn't working. This is the exact text, taken from the prompt library and stored in the kit at <code>prompts/03-readback-handoff.md</code>:</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Goal:</strong> paste into a fresh session of any runtime, inside the project folder.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>Read this project's active instructions, current context, task, and latest handoff. Do not edit.
+Report: (1) the current objective and acceptance criteria; (2) one important project rule,
+with its exact source file; (3) the latest accepted decision; (4) the next concrete action; (5)
+conflicts, stale facts, or missing access. Separate what the files establish from what you
+infer. Do not rely on a previous conversation.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">How to check:</strong> the answer has 5 numbered items and each one names a project file. "Separate what the files establish from what you infer" is the most important part: it forces the agent to admit what it made up.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> "Fresh session" means an agent process that starts from scratch, with no memory of the previous conversation. In Claude Code it's <code>claude -p "..."</code>; in Codex it's <code>codex exec "..."</code>. Everything the agent knows about the project has to come from the files it reads at that moment.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Readback</span><p class="text-sm text-neutral-400 mt-1">Continuity test: a fresh session answers 5 questions citing files.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Established vs inferred</span><p class="text-sm text-neutral-400 mt-1">What the files say, kept apart from what the agent deduced.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">No pointing the way</span><p class="text-sm text-neutral-400 mt-1">The prompt doesn't say where the files are; the reading order has to work on its own.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Do not edit</span><p class="text-sm text-neutral-400 mt-1">Readback only reads. An agent that "fixes" things during the test contaminates the evidence.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-2-5#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🧪 readback-test.sh: claude -p and codex exec</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t2-p1">Pasting the prompt by hand works, but it gets tiring and leaves no trail. The kit has a script that runs both executions in sequence, inside the project folder, and saves each runtime's raw answer in <code class="text-blue-400">relatorios/</code>. The verdict is still yours: the script marks "not run" only when the runtime doesn't exist on the machine.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Goal:</strong> run the readback on both runtimes against one of your projects and keep the evidence.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+scripts/readback-test.sh ~/projetos/&lt;seu-projeto&gt; both
+# → claude (fresh session in /home/.../&lt;seu-projeto&gt;)
+#   saved: relatorios/readback-claude-2026-09-14.md (25 lines)
+# → codex exec (fresh session in /home/.../&lt;seu-projeto&gt;)
+#   saved: relatorios/readback-codex-2026-09-14.md (386 lines)</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">How to check:</strong> both files exist in <code>relatorios/</code> and have more than a dozen lines. If one of them only holds a harness warning, that runtime counts as not run, even if the file exists. Replace <code>&lt;seu-projeto&gt;</code> with the real folder; <code>both</code> can become <code>claude</code> or <code>codex</code> to run just one.</p>
+            </div>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t2-p2">Under the hood, the script is simple: it extracts the prompt from the prompts file, enters the project folder, calls <code>claude -p</code> and then <code>codex exec --skip-git-repo-check</code>, and redirects the output. The part that matters is what it does <strong>not</strong> do: it doesn't force a sandbox on Codex. The first version forced <code>-s read-only</code> and the test failed before reading a single file. You'll see that case in topic 5.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ The script does</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Runs each runtime in a fresh session, inside the project folder.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Saves the raw answer with the date in the name, so it becomes versioned evidence.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Marks "not run" when the binary doesn't exist, instead of failing.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Prints the pass criteria at the end, so you can read them next to the answer.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ The script doesn't</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Give the verdict. A file with 386 lines can be a failure.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Edit anything in the project, not even when the agent suggests fixes.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Force a sandbox: it respects the <code>sandbox_mode</code> in <code>~/.codex/config.toml</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Run in a loop. Each <code>codex exec</code> uses up OpenAI account quota.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Practical tip</h3>
+              <p class="text-sm text-neutral-300">Run the readback right after finishing the core (module 2.3) and again after porting the skill (module 2.4). The first measures the context; the second measures whether the installed skill changed anything in the answer. If the answer is identical, the runtime isn't discovering the skill.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">claude -p</span><p class="text-sm text-neutral-400 mt-1">Claude Code's non-interactive mode: takes the prompt, answers, exits.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">codex exec</span><p class="text-sm text-neutral-400 mt-1">The Codex CLI equivalent; <code>--skip-git-repo-check</code> avoids refusal outside a repo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">relatorios/</span><p class="text-sm text-neutral-400 mt-1">Dated, versioned evidence; without it the test "didn't happen".</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Quota</span><p class="text-sm text-neutral-400 mt-1">Every run costs; run it per project, not out of curiosity.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-2-5#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🔎 Reading the answer: does it cite the right files?</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t3-p1">The answer arrives as a long block of text. Don't read it as prose: read it as a <strong class="text-blue-400">checklist</strong>. For each of the five questions, you look for three things: the item exists, it names a project file, and its content matches what's in the file. The fourth question has one extra criterion: the next action it cites has to be the same one that's in <code>tasks/current.md</code>.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 230" class="w-full h-auto" role="img" aria-label="Three-step evidence ladder: the file exists, the agent read the file, the agent used the file in its answer; only the last step counts as proof">
+                <defs>
+                  <linearGradient id="m25b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m25b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m25b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                </defs>
+                <rect x="0" y="0" width="1000" height="230" fill="url(#m25b-grid)"/>
+                <path d="M60,190 L940,40" fill="none" stroke="#60a5fa" stroke-width="1.5" stroke-dasharray="9 9" opacity="0.45"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="60" y="130" width="220" height="60" rx="12" fill="#26201a" stroke="#9ca3af" stroke-width="2"/>
+                  <text x="170" y="155" text-anchor="middle" fill="#e5e7eb" font-size="14" font-weight="600">file exists</text>
+                  <text x="170" y="175" text-anchor="middle" fill="#9ca3af" font-size="12">ls shows AGENTS.md</text>
+                  <text x="170" y="210" text-anchor="middle" fill="#f87171" font-size="12">≠ proof</text>
+
+                  <rect x="390" y="85" width="220" height="60" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="500" y="110" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="600">agent read it</text>
+                  <text x="500" y="130" text-anchor="middle" fill="#bfe6ff" font-size="12">shows up in the tool log</text>
+                  <text x="500" y="165" text-anchor="middle" fill="#f87171" font-size="12">≠ proof</text>
+
+                  <g filter="url(#m25b-glow)"><rect x="720" y="40" width="220" height="60" rx="12" fill="#0e1622" stroke="url(#m25b-grad)" stroke-width="2.5"/></g>
+                  <text x="830" y="65" text-anchor="middle" fill="#60a5fa" font-size="14" font-weight="600">agent used it</text>
+                  <text x="830" y="85" text-anchor="middle" fill="#bfdbfe" font-size="12">answer cites and matches the file</text>
+                  <text x="830" y="120" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">= proof ✓</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Three steps that many people mix up: the file <span class="text-neutral-300">existing</span> and the agent <span class="text-sky-400">having read it</span> are necessary, but only the third, <span class="text-blue-400">the answer using the content and matching it</span>, counts as evidence.</p>
+           </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Goal and definition of done</h4><p class="text-sm text-neutral-400">It has to come from <code>tasks/current.md</code>. If the agent describes the goal from the README, the current task is not being read.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Rule with source file</h4><p class="text-sm text-neutral-400">It must name <code>AGENTS.md</code> (or the CLAUDE.md that imports it). A rule without a source is a guess.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Last accepted decision</h4><p class="text-sm text-neutral-400">Comes from <code>context/decisions/</code>. A good answer distinguishes "proposed" from "accepted", as both runtimes did in the real case.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Next action</h4><p class="text-sm text-neutral-400">It must match <code>tasks/current.md</code> and <code>handoffs/latest.md</code>. If the two diverge, the agent should say so in question 5.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">5</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Conflicts and missing access</h4><p class="text-sm text-neutral-400">The most valuable part. An agent that finds real inconsistencies is actually reading. One that says "no conflicts" in a freshly created project probably didn't read.</p></div>
+              </div>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📋</span> Pass criterion, in one line</h3>
+              <p class="text-neutral-300 text-sm">All five answers cite <code>AGENTS.md</code>, <code>tasks/current.md</code> and <code>handoffs/latest.md</code>, and the next action in the answer is the same as in the task. Anything less is a fail, even if the prose is nice.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">File citation</span><p class="text-sm text-neutral-400 mt-1">The minimum unit of evidence: file name + matching content.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Evidence ladder</span><p class="text-sm text-neutral-400 mt-1">Exists → read → used. Only the last rung is proof.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Next action matches</span><p class="text-sm text-neutral-400 mt-1">Answer = tasks/current.md = handoffs/latest.md.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Conflict found = good sign</span><p class="text-sm text-neutral-400 mt-1">Whoever finds a real inconsistency is reading.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-2-5#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🧾 The real case: Codex found three holes in its own kit</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t4-p1">On September 13, 2026, the readback was run against the kit's own repository, minutes after it was created. The result is the best argument for the test: both runtimes passed, and each one <strong class="text-blue-400">pointed out real problems</strong> that whoever wrote the repo had not seen. Below are verbatim excerpts from the files saved in <code>relatorios/</code>.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Real excerpt:</strong> <code>relatorios/readback-codex-2026-09-13.md</code>, question 5.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>5. Problems found:
+   - Failed: reading handoffs/latest.md; file missing. Only the
+     template exists at template/handoffs/latest.md.
+   - Documentation conflict: PLANO.md says no readback was run;
+     context/current-state.md says the first run took place.
+   - Ambiguity: the skill groups in the plan add up to 94, although the
+     declared gap is 89; the overlap is not explained.
+   - Not run: runtime validation, drift and the isolated-copy test.
+
+No files were edited by me.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">What this proves:</strong> Codex read <code>PLANO.md</code>, <code>context/current-state.md</code> and the skills matrix, cross-checked all three and found a wrong sum (73+17+4 = 94, not 89), a handoff that only existed as a template, and a contradictory sentence. All three were fixed in that session.</p>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Real excerpt:</strong> <code>relatorios/readback-claude-2026-09-13.md</code>, question 5 (the answer came in English; the content is what matters).</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>5. Conflicts, stale facts, missing access.
+   - The working tree has six modified files and an untracked handoffs folder,
+     all uncommitted. The handoff's "estado aceito" says "repo criado, commit
+     inicial", which does not reflect these later edits.
+   - There is no git remote configured, so the open question about publishing
+     to inematds/agente-claude-codex is unresolved and a push is currently
+     impossible. The local git email is already the correct inematds address.
+   - Branch is master, while the environment lists main as the main branch.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">What this proves:</strong> Claude went beyond the Markdown files and looked at the git state. The uncommitted edits and the <code>master</code> branch were fixed in the next commit; the remote was created when the owner authorized publishing.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">1st round on Codex: failed before reading</h4><p class="text-sm text-neutral-400">The script forced <code>-s read-only</code>; the bwrap sandbox doesn't start on this host because of AppArmor. The whole answer said "I couldn't read the files".</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Minimal fix and 2nd round: passed</h4><p class="text-sm text-neutral-400">The flag was removed; the script now respects the config's <code>sandbox_mode</code>. Codex cited AGENTS.md, PLANO.md and tasks/current.md and pointed out the three holes.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Claude: passed and found git debt</h4><p class="text-sm text-neutral-400">It cited AGENTS.md, context/decisions, tasks/current.md and handoffs/latest.md, and listed what was out of place in the repository.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Handoff updated with the evidence</h4><p class="text-sm text-neutral-400">Each check went into <code>handoffs/latest.md</code> as passed, failed or not run, with the round number. The next agent reads that, not the conversation.</p></div>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Notice:</strong> both runtimes agreed on questions 1 to 4 and differed only in what each one chose to investigate further. That is exactly what you expect from a good portable core: the context is the same, the executor changes.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Verbatim evidence</span><p class="text-sm text-neutral-400 mt-1">An excerpt from the saved answer, not a summary from memory.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Real hole</span><p class="text-sm text-neutral-400 mt-1">Wrong sum, missing file, contradictory sentence: things the author didn't see.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Round</span><p class="text-sm text-neutral-400 mt-1">Each run has a number; "passed on the 2nd round" carries the history.</p></div>
+             <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Same context, different executor</span><p class="text-sm text-neutral-400 mt-1">Agreement on the first 4 questions is the signal of portability.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-2-5#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🧯 FALHAS.md: one line per failure</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t5-p1">Every failure the readback exposes becomes a line in a file at the project root: date, what broke, the <strong class="text-blue-400">smallest possible fix</strong>, and whether the cause was prompt (you asked in a way that induced the error) or infra (machine, network, service, permission). After about ten lines the pattern shows up on its own, and you stop rebuilding things that only needed a safeguard.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Real file:</strong> <code>FALHAS.md</code> from the kit, the two lines that came out of this readback session.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># Failures (most recent on top)
+
+| date | what broke | smallest fix | prompt \| infra |
+|---|---|---|---|
+| 2026-09-13 | readback-test.sh forced `-s read-only` on codex exec; bwrap fails due to AppArmor on this host | remove the flag, respect sandbox_mode from config.toml | prompt \| infra |
+| 2026-09-13 | audit.sh summary counted lines from section 3 (73+17+4=94 ≠ 89) | restrict grep to section 2.1 | prompt |</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">How to use:</strong> copy the header into your project. Write the line when you finish fixing, before moving on to the next task. If the fix was "rewrite everything", it was probably just a missing guard, retry or validation; record that.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Good line</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>One line, no narrative. Long details go in a separate, linked file.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Fix named as a minimal action: "remove the flag", "restrict grep".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Marks both causes when it is both, as in the sandbox case.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Most recent on top, so you can glance and see the pattern.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Bad line</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Codex threw an error, I redid the script." No what, no minimal fix.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Written at the end of the session, from memory, three failures at once.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>No prompt or infra classification: loses the most instructive information.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Kept only in the conversation, which the next agent can't see.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> A "sandbox" is a playpen Codex creates with a tool called bwrap so the agent doesn't touch anything outside the folder. "AppArmor" is a Linux security module that, on this machine, forbids the technique bwrap uses. Result: the playpen doesn't come up and the agent can't read anything. The fix wasn't "repair Linux"; it was to stop forcing the playpen on a host where it doesn't work.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Smallest possible fix</span><p class="text-sm text-neutral-400 mt-1">A cap, a retry, a guard, a validation. Rarely a rewrite.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Prompt vs infra</span><p class="text-sm text-neutral-400 mt-1">You induced the error, or the machine/service failed. Sometimes both.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">When to write</span><p class="text-sm text-neutral-400 mt-1">When you finish fixing, before the next task. Never at the end of the session.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Pattern emerges</span><p class="text-sm text-neutral-400 mt-1">After ~10 lines, you see what always breaks and protect it ahead of time.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-2-5#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🚦 When to mark passed, failed or not run</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-5-t6-p1">The three states are the grammar of every report in this course, and the third is the most important. <strong class="text-blue-400">Not run</strong> is not shameful: it is honesty. The serious mistake is the opposite: marking "passed" on a check nobody executed because the file "looked right". The prompt library is explicit: a readable file, a successful import or valid syntax are not proof of equivalent behavior.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-5">
+                <h4 class="font-bold text-emerald-400 mb-2">✓ Passed</h4>
+                <p class="text-sm text-neutral-300">The check was executed, the result was observed and it meets the criterion. There is an evidence file or command output to show.</p>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-5">
+                <h4 class="font-bold text-red-400 mb-2">✗ Failed</h4>
+                <p class="text-sm text-neutral-300">Executed, observed, doesn't meet it. It gets recorded with the reason and becomes a line in FALHAS.md. A preserved failure is worth more than an invented pass.</p>
+              </div>
+              <div class="bg-dark-800 rounded-xl border border-dark-600 p-5">
+                <h4 class="font-bold text-neutral-300 mb-2">— Not run</h4>
+                <p class="text-sm text-neutral-300">Not executed, for lack of runtime, time, an owner decision or quota. Write down the exact step to reproduce it later.</p>
+              </div>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-5 mb-6">
+              <p class="text-xs text-neutral-400 mb-2"><strong class="text-blue-400">Real example:</strong> the "Checks run and result" block from the kit's <code>handoffs/latest.md</code>, after the readback.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>## Checks run and result
+- scripts/audit.sh — passed (89 skills only in Claude: 71 reusable, 15 adapter, 2 native, 1 without SKILL.md).
+- scripts/adapt-instructions.sh ~/.claude --dry-run — passed (71 portable lines, 7 Claude residue).
+- template/scripts/check.sh — passed.
+- scripts/readback-test.sh . codex — passed on the 2nd run (1st failed due to bwrap sandbox; fixed).
+- scripts/readback-test.sh . claude — passed: cited AGENTS.md, context/decisions, tasks/current.md and handoffs/latest.md.
+- scripts/sync-skills.sh — not run (awaiting pilot choice).
+- Isolated copy + check.sh — not run.</code></pre>
+              <p class="text-xs text-neutral-400 mt-2"><strong class="text-blue-400">Notice:</strong> both "not run" entries are there, with the reason. Whoever opens the next session knows exactly what is left, and doesn't find out at the worst moment that "sync-skills" was never tested.</p>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> The mistake to avoid</h3>
+              <p class="text-neutral-300 text-sm">Declaring "migration complete" while a required flow is "not run". The prompt library says the opposite: recommend the smallest remaining step, never a speculative rewrite of the whole system.</p>
+           </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Three states</span><p class="text-sm text-neutral-400 mt-1">Passed, failed, not run. There is no fourth state.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Attached evidence</span><p class="text-sm text-neutral-400 mt-1">A "passed" with no file or command output is a "not run" in disguise.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Reproduction</span><p class="text-sm text-neutral-400 mt-1">Every "not run" comes with the exact command to run it later.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Smallest remaining step</span><p class="text-sm text-neutral-400 mt-1">The report ends with an action, not with a rewrite plan.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-2-5#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Self-check (optional): the readback in Codex returned 380 well-written lines, but none of them cites <code>tasks/current.md</code>. How do you mark it?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Passed: the answer is long and coherent; the agent clearly understood the project.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Failed: the criterion requires citing tasks/current.md; length and prose don't count.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Not run: the answer is useless, so it's as if the test never happened.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-blue-900/40 via-dark-800 to-dark-800 rounded-xl border border-blue-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Module summary</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Five questions, fresh session</strong><span class="text-neutral-400"> — goal, rule with source, decision, next action, conflicts; without pointing to where the files are.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">readback-test.sh</strong><span class="text-neutral-400"> — runs claude -p and codex exec, saves to relatorios/, and doesn't give the verdict for you.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Evidence ladder</strong><span class="text-neutral-400"> — exist, read, use. Only an answer that cites the file and matches it is proof.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Real case and FALHAS.md</strong><span class="text-neutral-400"> — both runtimes found real gaps; each failure became one line with the smallest fix.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Passed / failed / not run</strong><span class="text-neutral-400"> — the three states, always with evidence or with the step to reproduce.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-400 mb-2">Next module:</h3>
+                <p class="text-neutral-300">2.6 — Handoff and prime: the daily cycle</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Back to the Track</a>
+                <a href="modulo-2-6.html" class="flex-1 text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors">Next module →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migrate or stay agnostic</p>
+      <p>Module 2.5 · Track 2 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-2-5#q1', {
+          answer: 1,
+          explain: {
+            0: 'No. Length and coherence are not the criterion. If it doesn\'t cite tasks/current.md, the current task was not read.',
+            1: 'Right. The test ran and the criterion was not met: failed. Record the reason and check why the reading order did not lead the agent to tasks/current.md.',
+            2: 'No. "Not run" is only for when the check was not executed. Here it ran and failed; hiding that as "not run" erases the evidence.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

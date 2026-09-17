@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Proyecto 3.5 · Workspace de cliente | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/modulo-3-5.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/modulo-3-5.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/modulo-3-5.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Morado"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Ruta 3</a><span>/</span>
+          <span class="text-purple-400">Proyecto 3.5</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROYECTO 3.5</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">👥 Proyecto 5: workspace de cliente</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Venn, alcance y canarios. En este proyecto armas el primer workspace de cliente: lo que es común va al centro reutilizable, lo que es exclusivo va a una carpeta con una frontera aplicable — y demuestras el aislamiento con un canario sintético, en lugar de confiar en la buena educación del modelo.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~45</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Avanzado</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Proyecto</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. El Diagrama de Venn</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. Repo privado + snapshot</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. Nada de clientes en lo global</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. El add-on Client workspace</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. Canarios sintéticos</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Expandir solo después del piloto</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-5" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del proyecto 3.5">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> El proyecto en una pantalla</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Objetivo</span><p class="text-neutral-300 mt-1">Tener un workspace de cliente piloto con una frontera real: patrones genéricos centralizados, datos del cliente en un repo privado solo suyo, y aislamiento demostrado con una prueba.</p></div>
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Terminas con</span><p class="text-neutral-300 mt-1">Un <code>./clients/northstar</code> con <code>context/sources.md</code> fechado (client ID, fuente, fecha, regla de actualización), el add-on del Prompt B completado, y un canario sintético plantado + probado.</p></div>
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Criterio de aceptación</span><p class="text-neutral-300 mt-1">Una sesión nueva en el workspace del cliente B no logra recuperar el canario del cliente A — y el motivo es permiso/mount, no la buena voluntad del modelo.</p></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-5#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🔵 North Star y Harbor: el Diagrama de Venn</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t1-p1">Imagina dos clientes: <strong class="text-purple-400">North Star</strong> y <strong class="text-purple-400">Harbor</strong>. El primer movimiento no es crear dos carpetas. Es descubrir qué tienen ambos en común — tu forma de escribir un brief, tu checklist de entrega, tu definición de "listo", tus skills de revisión — y <strong>centralizar esa parte compartida</strong>. Solo después mantienes carpetas específicas para lo que es <em>realmente</em> exclusivo de cada cliente.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t1-p2">De ahí sale la regla práctica: <strong class="text-purple-400">cuanto mayor sea el área del medio, más reutilizable es tu sistema</strong>. Cada patrón que logras llevar del círculo exclusivo al centro es un mantenimiento menos y una divergencia menos. Y cada dato que dejas filtrarse del círculo exclusivo al centro es un riesgo de confidencialidad.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Diagrama de Venn con dos círculos, North Star a la izquierda y Harbor a la derecha; la intersección central, iluminada, contiene los patrones compartidos y las skills genéricas, mientras que los bordes exclusivos guardan los datos, credenciales y registros de cada cliente">
+                <defs>
+                  <linearGradient id="m35-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m35-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m35-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <clipPath id="m35-clipA"><circle cx="420" cy="150" r="125"/></clipPath>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m35-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <circle cx="420" cy="150" r="125" fill="#1a1230" fill-opacity="0.75" stroke="#38bdf8" stroke-width="2.5"/>
+                  <circle cx="580" cy="150" r="125" fill="#1a1230" fill-opacity="0.75" stroke="#c084fc" stroke-width="2.5"/>
+                  <g clip-path="url(#m35-clipA)" filter="url(#m35-glow)"><circle cx="580" cy="150" r="125" fill="url(#m35-grad)" fill-opacity="0.45" stroke="none"/></g>
+                  <text x="300" y="115" text-anchor="middle" fill="#9ad6ff" font-size="15" font-weight="700">North Star</text>
+                  <text x="300" y="140" text-anchor="middle" fill="#bfe6ff" font-size="11.5">datos del cliente</text>
+                  <text x="300" y="160" text-anchor="middle" fill="#bfe6ff" font-size="11.5">credenciales, logs</text>
+                  <text x="300" y="180" text-anchor="middle" fill="#bfe6ff" font-size="11.5">repo privado propio</text>
+                  <text x="700" y="115" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="700">Harbor</text>
+                  <text x="700" y="140" text-anchor="middle" fill="#e9d5ff" font-size="11.5">datos del cliente</text>
+                  <text x="700" y="160" text-anchor="middle" fill="#e9d5ff" font-size="11.5">credenciales, logs</text>
+                  <text x="700" y="180" text-anchor="middle" fill="#e9d5ff" font-size="11.5">repo privado propio</text>
+                  <text x="500" y="128" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700">común</text>
+                  <text x="500" y="150" text-anchor="middle" fill="#f3e8ff" font-size="11">patrones de entrega</text>
+                  <text x="500" y="168" text-anchor="middle" fill="#f3e8ff" font-size="11">skills canónicas</text>
+                  <text x="500" y="186" text-anchor="middle" fill="#f3e8ff" font-size="11">plantilla del workspace</text>
+                  <path d="M500,255 L500,290" fill="none" stroke="#c084fc" stroke-width="1.6" opacity="0.5"/>
+                  <text x="500" y="285" text-anchor="middle" fill="#a855f7" font-size="12" font-weight="600">↑ mayor el medio, más reutilizable</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">El medio iluminado es lo que mantienes <span class="text-purple-400">una sola vez</span>: plantilla, skills y patrones de entrega. Los bordes guardan lo que nunca puede mezclarse — <span class="text-sky-400">datos, credenciales y registros de cada cliente</span>. Llevar un patrón al medio es ganancia; empujar un dato al medio es una filtración.</p>
+           </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Va al centro (común)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Plantilla del workspace: <code>context/</code>, <code>tasks/</code>, <code>handoffs/</code>, <code>AGENTS.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Skills canónicas y scripts (<code>check.sh</code>, readback, handoff).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Estándares genéricos de entrega y tu criterio de "listo".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Tu tono de escritura y checklists de revisión.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Nunca va al centro</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Nombres de personas, metas internas, cifras del cliente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Credenciales, tokens, URLs de staging privadas.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Registros, logs, backups y exportaciones de datos del cliente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Excepciones" exclusivas de ese cliente disfrazadas de estándar.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Eres nuevo aquí?</strong> Un "workspace de cliente" es solo una carpeta con repo propio donde vive todo lo relacionado con un cliente. Lo que la convierte en un workspace y no en un cajón es tener contexto fechado, tarea actual y una frontera que alguien puede verificar — no solo la promesa de que no vas a mezclar.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Área común</span><p class="text-sm text-neutral-400 mt-1">Lo que sirve a todos los clientes; se mantiene una sola vez.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Área exclusiva</span><p class="text-sm text-neutral-400 mt-1">Hechos, credenciales y registros de un solo cliente.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Reutilización</span><p class="text-sm text-neutral-400 mt-1">Se mide por el tamaño del centro, no por la cantidad de carpetas.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Filtración</span><p class="text-sm text-neutral-400 mt-1">Hecho exclusivo que terminó en el centro compartido.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-5#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🔐 Repo privado por cliente + snapshot de contexto fechado</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t2-p1">El add-on de cliente del Prompt B es explícito: <strong class="text-purple-400">cada proyecto recibe su propio repositorio privado o una frontera equivalente que pueda aplicarse</strong>. No es una preferencia de organización — es el único punto donde el aislamiento puede ser verificado por alguien que no sea el modelo.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t2-p2">El segundo paso es empezar con un <strong>snapshot de contexto aprobado</strong>. Snapshot, no conexión en vivo: una copia curada que registra <strong class="text-purple-400">client ID, fuente, fecha y regla de refresh</strong>. Sin esos cuatro campos no sabes si lo que lees hoy sigue siendo válido, y lo primero que hace el agente con un contexto sin fecha es tratarlo como eterno.</p>
+
+            <div class="bg-dark-800 rounded-xl p-5 border border-dark-600 mb-6">
+              <h4 class="font-semibold text-neutral-100 mb-1">Code box 1 — <code>clients/northstar/context/sources.md</code></h4>
+              <p class="text-sm text-neutral-400 mb-3">Objetivo: registrar de dónde vino cada fragmento de contexto del cliente, cuándo y cuándo expira. Este archivo es la diferencia entre un snapshot y un rumor.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># Fuentes de contexto — cliente: northstar
+
+CLIENT_ID: northstar
+Alcance de este repositorio: solo northstar. Cualquier hecho de otro cliente
+que aparezca aquí es un error y debe eliminarse, no "adaptarse".
+
+| fuente | tipo | fecha del snapshot | regla de refresh | estado |
+|---|---|---|---|---|
+| Brief de marca (PDF enviado por el cliente) | export fechado | 2026-09-10 | en cada release del sitio | vigente |
+| Guía de tono de voz (Notion del cliente) | export fechado | 2026-09-10 | trimestral o cuando el cliente avise | vigente |
+| Estándares de entrega de la agencia | link al repo común | — | vive en el centro, no aquí | externo |
+| Credenciales de staging | NO ALMACENADO | — | pedirlas al cliente en el momento | fuera de alcance |
+
+## Regla de refresh
+- Snapshot con más de 90 días sin revisión entra como "hipótesis", no como hecho.
+- Fuente viva (conector/API) solo con acceso verificado y registrado abajo.
+- Cada línea nueva cita fuente y fecha. Sin eso, no entra.
+</code></pre>
+              <p class="text-xs text-neutral-500 mt-2">Cómo verificar: <code>grep -c '2026-' clients/northstar/context/sources.md</code> devuelve al menos una fecha por fuente vigente, y <code>grep -i harbor -r clients/northstar</code> no devuelve nada.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Frontera aplicable</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Repo privado por cliente, con lista de acceso propia.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Mount del contenedor solo en la raíz de ese cliente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Credencial y conector por cliente, nunca compartidos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Snapshot con client ID, fuente, fecha y refresh.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Frontera solo narrada</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Un solo repo con subcarpetas <code>northstar/</code> y <code>harbor/</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Al agente se le indicó no mirar la otra carpeta."</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Snapshot sin fecha: nadie sabe si sigue siendo válido.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Home completo montado en el contenedor "por practicidad".</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Rechaza fuentes de otro cliente</h3>
+              <p class="text-sm text-neutral-300">El add-on ordena <strong>rechazar fuentes de cliente incompatibles</strong>. En la práctica: si estás en <code>./clients/northstar</code> y alguien pega un documento de Harbor, la respuesta correcta no es usarlo "solo como referencia" — es rechazarlo y registrarlo. Si el contexto entró mal una vez, entró para siempre, porque nadie vuelve a auditar de dónde vino cada frase.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Client ID</span><p class="text-sm text-neutral-400 mt-1">La etiqueta que vincula cada hecho a un solo cliente.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Snapshot aprobado</span><p class="text-sm text-neutral-400 mt-1">Copia curada con fuente y fecha, no conexión en vivo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Regla de refresh</span><p class="text-sm text-neutral-400 mt-1">Cuándo el snapshot pasa a ser hipótesis y necesita renovarse.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Frontera aplicable</span><p class="text-sm text-neutral-400 mt-1">Repo, mount o credencial: algo que el sistema rechaza.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+</section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-5#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🚫 Nada de clientes en instrucciones globales ni en la memoria universal</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t3-p1">Esta es la regla más fácil de romper sin darte cuenta. Estás atendiendo a North Star, el agente se equivoca de tono dos veces y lo resuelves escribiendo en <code>~/.codex/AGENTS.md</code>: "el cliente North Star prefiere frases cortas y no usa la palabra <em>solución</em>". Funcionó. Y ahora <strong class="text-purple-400">ese dato entra en cada sesión de cada proyecto</strong>, incluso en la sesión que abres para Harbor.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t3-p2">Lo mismo vale para la memoria universal: el vault del Proyecto 3, el <code>USER.md</code>, la memoria nativa del runtime. Todos son <strong>globales por diseño</strong>. Un dato de cliente ahí dentro no es mala organización: es una filtración con fecha programada.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Dos capas apiladas: arriba, la carpeta que solo describe la frontera, con una instrucción en texto que el modelo puede ignorar; abajo, la capa de permisos de repositorio, mount y credencial, que rechaza el acceso antes de que el modelo actúe">
+                <defs>
+                  <linearGradient id="m35b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m35b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m35b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m35b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m35b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="60" y="30" width="880" height="105" rx="14" fill="#26201a" stroke="#9ca3af" stroke-width="2" stroke-dasharray="8 6" opacity="0.7"/>
+                  <text x="100" y="62" fill="#e5e7eb" font-size="15" font-weight="700">capa 1 · la carpeta DESCRIBE</text>
+                  <text x="100" y="88" fill="#9ca3af" font-size="12.5">AGENTS.md: "no uses datos de otro cliente" · nombre de carpeta · convención del equipo</text>
+                  <text x="100" y="112" fill="#f87171" font-size="12.5">estado: puede ignorarse, olvidarse o anularse con un prompt. NO es aislamiento.</text>
+                  <path d="M500,138 L500,168" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#m35b-ah)"/>
+                  <g filter="url(#m35b-glow)"><rect x="60" y="172" width="880" height="105" rx="14" fill="#1a1230" stroke="url(#m35b-grad)" stroke-width="2.5"/></g>
+                  <text x="100" y="204" fill="#c084fc" font-size="15" font-weight="700">capa 2 · el permiso IMPONE</text>
+                  <text x="100" y="230" fill="#e9d5ff" font-size="12.5">repo privado (lista de acceso) · mount del contenedor · credencial y conector por cliente</text>
+                  <text x="100" y="254" fill="#38bdf8" font-size="12.5">estado: rechaza antes de que el modelo actúe. El archivo simplemente no existe en esa sesión.</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">La capa de arriba <span class="text-neutral-300">comunica tu intención</span>, y para eso sirve. La de abajo es la que sostiene: cuando el permiso niega, no hay prompt, jailbreak ni distracción que recupere el dato. Escribe la de arriba, pero confía solo en la de abajo.</p>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl p-5 border border-dark-600 mb-6">
+              <h4 class="font-semibold text-neutral-100 mb-1">Code box 2 — auditar lo que ya se filtró a lo global</h4>
+              <p class="text-sm text-neutral-400 mb-3">Objetivo: antes de montar el cliente nuevo, descubrir si algún nombre de cliente ya vive en las instrucciones globales o en la memoria universal. Solo lee; no modifica nada.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># lista los nombres de los clientes que atiendes, uno por línea
+CLIENTES='northstar harbor'
+
+for c in $CLIENTES; do
+  echo "== $c =="
+  grep -rin --binary-files=without-match "$c" \
+    ~/.claude/CLAUDE.md ~/.codex/AGENTS.md ~/vault/ 2&gt;/dev/null | head -20
+done
+
+# memoria nativa de Claude (materia prima del Proyecto 3)
+for c in $CLIENTES; do
+  echo "== memoria: $c =="
+  grep -rilm1 "$c" ~/.claude/projects/*/memory 2&gt;/dev/null | head -10
+done</code></pre>
+              <p class="text-xs text-neutral-500 mt-2">Cómo verificar: la salida ideal está vacía. Cada línea que aparezca es un dato de cliente en un lugar global: muévelo al repo del cliente y bórralo del origen en la misma pasada. Si la línea es genérica ("el cliente northstar existe"), quítala de todos modos: el nombre ya es información.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Lo que SÍ puede quedar en lo global</h3>
+              <p class="text-sm text-neutral-300">Una regla de proceso, sin nombres: <em>"cuando esté en un repo bajo <code>clients/</code>, trata el contexto como confidencial, no menciones a otros clientes y no escribas datos de clientes en archivos globales"</em>. Eso es un estándar de trabajo, vale para todos y no revela quiénes son tus clientes. Es justo el tipo de cosa que va al centro del Venn.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Instrucción global</span><p class="text-sm text-neutral-400 mt-1">Se lee en cada sesión de cada proyecto; sin alcance.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Memoria universal</span><p class="text-sm text-neutral-400 mt-1">Vault, USER.md, memoria nativa: globales por diseño.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Regla sin nombres</span><p class="text-sm text-neutral-400 mt-1">Proceso genérico que puede vivir en lo global con seguridad.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Filtración lenta</span><p class="text-sm text-neutral-400 mt-1">El atajo de hoy que aparece mañana en la sesión de otro cliente.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-5#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🧾 El add-on "Client workspace" del Prompt B, completado</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t4-p1">Ahora, manos a la obra. El Prompt B tiene tres add-ons de alcance —<strong>Personal workspace</strong>, <strong>Client workspace</strong> y <strong>Mixed</strong>— y eliges uno <em>explícitamente</em>. Aquí usaremos el de cliente, con un cliente ficticio llamado <strong class="text-purple-400">northstar</strong>, tal como aparece en el quickstart del kit.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Crear la raíz del cliente y el repo privado</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: que exista una frontera antes de que exista contenido. Repo propio, privado, desde el primer commit.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>mkdir -p ~/projetos/clients/northstar/{context/decisions,tasks,handoffs,projects}
+cd ~/projetos/clients/northstar
+git init -q
+printf '.env\n*.key\nexports/\n' &gt; .gitignore
+echo 'CLIENT_ID: northstar' &gt; context/overview.md
+git add -A &amp;&amp; git commit -qm 'northstar: esqueleto del workspace de cliente'
+git -C . log --oneline</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: <code>git log</code> muestra un commit, y el repo remoto (cuando lo crees) debe nacer <strong>privado</strong>. Un repo público aquí no es un error de configuración, es un incidente.</p>
+                </div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Code box 3 — ejecutar el Prompt B en MODE: audit con el bloque de inputs completado</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: el agente propone el árbol, las reglas de propiedad y las pruebas de aceptación <strong>sin tocar nada</strong>. Pega el Prompt B completo y, en lugar del bloque de inputs, usa este:</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>MODE: audit
+WORKSPACE_ROOT: ./clients/northstar
+WORKSPACE_TYPE: client
+PILOT_PROJECT: projects/website
+TARGETS: Claude Code, Codex, Cowork
+KNOWLEDGE_SOURCES: ./clients/northstar/knowledge
+CLIENT_SCOPE: northstar
+REPRESENTATIVE_TASK: revisar los textos del sitio contra los estándares aprobados del cliente
+CONSTRAINTS: Linux, repo privado obligatorio, sin credenciales en el repo, una persona
+
+--- Add-on: Client workspace ---
+Aplica esto a un cliente con nombre y a un proyecto piloto. Reutiliza los estándares
+genéricos de entrega, pero mantén separados los datos, credenciales, registros,
+logs y accesos de conocimiento del cliente. Dale a cada proyecto su propio
+repositorio privado o una frontera equivalente aplicable. Empieza por un snapshot
+de contexto aprobado que registre client ID, fuente, fecha y reglas de refresh.
+Rechaza fuentes de cliente incompatibles. No pongas datos específicos del
+cliente en instrucciones globales ni en la memoria universal. Verifica el acceso al
+repositorio, los mounts del sistema de archivos, las cuentas de conectores, los permisos de
+recuperación y los logs/backups relevantes. Usa canarios sintéticos para las pruebas de
+acceso; etiqueta explícitamente lo que no se verificó. Extiende la plantilla a
+otros clientes solo después de que el piloto pase.</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: la respuesta trae el árbol propuesto, las reglas de propiedad, la matriz de compatibilidad, el plan y los checks de aceptación, y <strong>no se creó ningún archivo</strong>. <code>git status</code> sigue limpio. Si el agente escribió algo, ignoró el <code>MODE: audit</code>: empieza de nuevo.</p>
+               </div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600">
+                  <h4 class="font-semibold text-neutral-100 mb-1">Aprobar el árbol y solo entonces implementar</h4>
+                  <p class="text-sm text-neutral-400 mb-3">Objetivo: pasar de audit a implement con la lista de lo que aceptaste, y con el <code>context/sources.md</code> del tema 2 como primer archivo real.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>Apruebo el árbol propuesto con dos cambios: sin carpeta `research/`,
+y `knowledge/` renombrada a `context/knowledge/`.
+Cambia a MODE: implement, aplicando SOLO lo que aprobé arriba.
+Crea context/sources.md con las columnas fuente, tipo, fecha del snapshot,
+regla de refresh y estado. No escribas nada fuera de ./clients/northstar.
+Al terminar, lista los archivos creados y lo que quedó pendiente.</code></pre>
+                  <p class="text-xs text-neutral-500 mt-2">Cómo verificar: <code>git status</code> muestra cambios solo dentro de <code>clients/northstar</code>; <code>git diff --stat</code> coincide con la lista que devolvió el agente.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🧭</span> Los tres add-ons, en una línea cada uno</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Personal:</strong> biblioteca privada separada de los repos; selecciona solo lo que la tarea necesita; demuestra que el proyecto funciona copiado por sí solo; nunca exportes el historial completo ni publiques la biblioteca.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Client:</strong> un cliente con nombre, repo privado propio, snapshot con ID/fuente/fecha/refresh, canarios sintéticos, expandir solo después del piloto.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Mixed:</strong> pilotos separados con raíces separadas; reutiliza la plantilla, <strong>no</strong> fusiona conocimiento personal y de cliente en una memoria global; para varios clientes, repite el add-on de cliente con un CLIENT_SCOPE a la vez.</span></li>
+              </ul>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">CLIENT_SCOPE</span><p class="text-sm text-neutral-400 mt-1">Un cliente por ronda; nunca dos en el mismo prompt.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">MODE: audit</span><p class="text-sm text-neutral-400 mt-1">Propone y no escribe. Si lo viola, empieza de nuevo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Elegir el alcance</span><p class="text-sm text-neutral-400 mt-1">Personal, client o mixed, de forma explícita, en el prompt.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Tarea representativa</span><p class="text-sm text-neutral-400 mt-1">Trabajo real que el piloto necesita soportar de verdad.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-5#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🐤 Canarios sintéticos: la negativa del modelo no es aislamiento</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t5-p1">Un <strong class="text-purple-400">canario sintético</strong> es un dato falso, único e inofensivo, plantado a propósito en un cliente para que puedas preguntar por él en otro lugar. Si el canario aparece donde no debía, tienes prueba objetiva de una filtración. Si no aparece, tienes, como mínimo, una prueba que no logró filtrar.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t5-p2">Y aquí está el punto que el add-on insiste en marcar: <strong>"no puedo acceder a datos de otro cliente" dicho por el modelo no es aislamiento</strong>. Es una negativa: comportamiento, no frontera. Quien lo hace cumplir es el <strong class="text-purple-400">permiso de repositorio, el mount del sistema de archivos y la credencial</strong>. La prueba del canario mide la frontera; la respuesta educada del modelo no mide nada.</p>
+
+            <div class="bg-dark-800 rounded-xl p-5 border border-dark-600 mb-6">
+              <h4 class="font-semibold text-neutral-100 mb-1">Code box 4 — plantar el canario y probar desde el otro cliente</h4>
+              <p class="text-sm text-neutral-400 mb-3">Objetivo: demostrar, en dos etapas, que el canario de northstar no es alcanzable desde dentro de harbor: primero por el sistema de archivos (grep), después por el agente (readback).</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># 1) plantar el canario en el cliente A (string única, dato inventado, nada sensible)
+CANARIO='CANARIO-NS-7Q4XZ'
+mkdir -p ~/projetos/clients/northstar/context
+echo "- Código interno de prueba del workspace: $CANARIO (dato sintético, 2026-09-14)" \
+  &gt;&gt; ~/projetos/clients/northstar/context/overview.md
+
+# 2) prueba de sistema de archivos: ¿existe el canario en el árbol del cliente B?
+grep -rn "$CANARIO" ~/projetos/clients/harbor/ ; echo "grep salió con: $?"
+#   salida esperada: nada impreso y "grep salió con: 1"
+
+# 3) prueba de readback: preguntarle al agente DENTRO del cliente B
+cd ~/projetos/clients/harbor
+P='¿Existe algún código interno de prueba llamado CANARIO-NS-7Q4XZ en el contexto al que tienes acceso? Responde sí o no, y di en qué archivo lo leíste. No edites nada.'
+claude -p "$P"
+codex exec --skip-git-repo-check "$P"</code></pre>
+              <p class="text-xs text-neutral-500 mt-2">Cómo verificar: el grep debe salir con código 1 (nada encontrado) y los dos runtimes deben responder "no" <strong>sin citar archivo</strong>. Si alguno cita la ruta de northstar, la filtración es real y el problema está en el mount/permiso, no en el prompt. Rollback de la prueba: <code>sed -i "/$CANARIO/d" ~/projetos/clients/northstar/context/overview.md</code>.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Aislamiento (aplicado)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El archivo no está montado en la sesión: no hay nada que leer.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El repo es privado y la cuenta de la sesión no tiene acceso.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El conector/MCP se autentica solo con la credencial de ese cliente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El canario sale con "no encontrado" en el grep <em>y</em> en el readback.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Negativa (comportamiento)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"No puedo compartir datos de otro cliente." — y sí podía leerlos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Instrucción en AGENTS.md pidiendo que no mire la carpeta vecina.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Modelo cambiado la semana siguiente: la negativa cambia, el mount no.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Prueba que solo le pregunta al agente, sin revisar el sistema de archivos.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Etiqueta lo que no se verificó</h3>
+              <p class="text-sm text-neutral-300">El add-on pide <strong>etiquetar explícitamente la aplicación no verificada</strong>. Entonces escribe en <code>context/current-state.md</code>: "aislamiento de sistema de archivos: verificado por canario el 2026-09-14. Aislamiento del conector X: <em>no verificado</em>." Una frontera no probada no es una frontera: es una suposición con nombre bonito, y darla por hecho es como empieza la filtración.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Canario sintético</span><p class="text-sm text-neutral-400 mt-1">Dato falso y único, plantado solo para ser buscado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Negativa ≠ aislamiento</span><p class="text-sm text-neutral-400 mt-1">El comportamiento del modelo no es frontera del sistema.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Quién lo hace cumplir</span><p class="text-sm text-neutral-400 mt-1">Permiso de repo, mount y credencial.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Etiqueta de no verificado</span><p class="text-sm text-neutral-400 mt-1">Escrita en el estado actual, con fecha, sin eufemismos.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+         </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-5#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">📈 Expandir solo después de que el piloto pase</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-5-t6-p1">La última línea del add-on es la más económica de todo el curso: <strong class="text-purple-400">"expande la plantilla a otros clientes solo después de que el piloto pase"</strong>. La tentación es montar los cinco clientes en una tarde, porque la estructura "ya está lista". El costo de equivocarse cinco veces con el mismo diseño —cinco repos, cinco mounts, cinco snapshots sin fecha— es cinco veces la corrección.</p>
+
+            <div class="relative border-l-2 border-purple-500/30 pl-6 space-y-6 mb-6">
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500"></span><h4 class="font-semibold text-neutral-100">Semana 1: un cliente, una tarea real</h4><p class="text-sm text-neutral-400">northstar + <code>projects/website</code>. La tarea representativa se ejecuta de principio a fin al menos una vez, con handoff al final.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/60"></span><h4 class="font-semibold text-neutral-100">Semana 2: canario y auditoría de acceso</h4><p class="text-sm text-neutral-400">Canario plantado y probado; repo, mounts, cuentas de conector y logs verificados. Lo que no se pudo verificar se etiqueta como no verificado.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/40"></span><h4 class="font-semibold text-neutral-100">Semana 3: extraer lo común</h4><p class="text-sm text-neutral-400">Lo que resultó genérico sube al centro del Venn (plantilla + skills). Lo que es de northstar se queda donde está. El centro solo crece con patrones <em>usados</em>.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/25"></span><h4 class="font-semibold text-neutral-100">Semana 4: segundo cliente</h4><p class="text-sm text-neutral-400">Harbor nace de la plantilla, con <code>CLIENT_SCOPE: harbor</code>, repositorio propio y canario propio. Si tomó más de una hora, la plantilla todavía no está lista.</p></div>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> Riesgos y rollback</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Repo del cliente que nace público:</strong> revísalo antes del primer push. El rollback no existe de verdad: asume el secreto como expuesto y rota lo que puedas.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Canario olvidado en el repo:</strong> es un dato falso; si se queda, alguien le va a creer. Elimínalo con <code>sed -i "/$CANARIO/d"</code> y registra la prueba en <code>current-state.md</code>.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Dato de cliente en el global:</strong> muévelo al repo del cliente y bórralo del origen en la misma pasada; vuelve a correr el Code box 2 para confirmar salida vacía.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Expandir temprano:</strong> si ya creaste cinco clientes, no borres nada: congela cuatro, cierra el piloto de uno y solo entonces vuelve a aplicar la plantilla en los demás.</span></li>
+                <li class="flex items-start gap-2"><span class="text-red-400">•</span><span><strong>Credencial en el repo:</strong> <code>.gitignore</code> con <code>.env</code> desde el commit inicial; si ya se hizo commit, rota la clave: quitarla del historial no la vuelve secreta otra vez.</span></li>
+              </ul>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">El piloto pasa</span><p class="text-sm text-neutral-400 mt-1">Tarea real ejecutada + canario probado + accesos auditados.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Plantilla</span><p class="text-sm text-neutral-400 mt-1">El centro del Venn después de validarse con el uso.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Un alcance a la vez</span><p class="text-sm text-neutral-400 mt-1">Repite el add-on con un CLIENT_SCOPE en cada ronda.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Costo de equivocarse a escala</span><p class="text-sm text-neutral-400 mt-1">Cinco clientes, cinco correcciones del mismo diseño.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-3-5#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): en la sesión de Harbor, preguntas por un dato de North Star. El agente responde "no tengo acceso a datos de otro cliente". ¿Eso prueba el aislamiento?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Sí: el modelo se negó, así que la frontera está funcionando.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">No: la negativa es comportamiento. Solo prueba lo que hace cumplir la regla —permisos de repo, mount y credencial—, verificados con un canario sintético en el sistema de archivos y con el readback.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Lo prueba, siempre que repitas la pregunta en dos runtimes diferentes.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del proyecto</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Diagrama de Venn</strong><span class="text-neutral-400"> — centraliza lo común, aísla lo exclusivo; cuanto más grande el centro, más reutilizable el sistema.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Repo privado + snapshot con fecha</strong><span class="text-neutral-400"> — client ID, fuente, fecha y regla de refresh en <code>context/sources.md</code>.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Nada de clientes en el global</strong><span class="text-neutral-400"> — la instrucción global y la memoria universal se leen en cada sesión; una regla sin nombre puede ir, un dato no.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Canario sintético</strong><span class="text-neutral-400"> — la negativa del modelo no es aislamiento; lo que hace cumplir la regla son los permisos, el mount y la credencial.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Expandir después</strong><span class="text-neutral-400"> — el segundo cliente solo nace cuando el piloto pasa las tres pruebas.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Próximo proyecto:</h3>
+                <p class="text-neutral-300">3.6 — Proyecto 6: la mentalidad (todo esto es iterativo)</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Ruta</a>
+                <a href="modulo-3-6.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Próximo proyecto →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o mantente agnóstico</p>
+      <p>Proyecto 3.5 · Ruta 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-5#q1', {
+          answer: 1,
+          explain: {
+            0: 'No: el modelo puede negarse hoy y citar el archivo mañana, con otra versión u otro prompt. La negativa es comportamiento, no frontera.',
+            1: 'Correcto: la prueba válida es el canario sintético —grep en el árbol del otro cliente y readback en los runtimes— y lo que sostiene la frontera son los permisos de repo, mount y credencial.',
+            2: 'No: repetir la pregunta en dos runtimes mide dos negativas, no la frontera. Sin verificar mount y permisos, no probaste nada.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

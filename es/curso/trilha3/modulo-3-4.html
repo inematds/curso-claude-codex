@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Proyecto 3.4 · Tercer ejecutor: dsh-sandbox y modelo local | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/modulo-3-4.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/modulo-3-4.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/modulo-3-4.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Púrpura"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Ruta 3</a><span>/</span>
+          <span class="text-purple-400">Proyecto 3.4</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROYECTO 3.4</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🐳 Proyecto 4: tercer ejecutor</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Hasta aquí el curso habló de dos runtimes. Pero ya existe un tercero corriendo en tu máquina desde hace semanas: el <code>dsh-sandbox</code>, el agente de DeepSeek en contenedor, con modelo local o remoto. Tiene tres skills copiadas a mano (drift garantizado) y ninguna capa de contexto. Este proyecto agrega un destino <code>--dsh</code> a la fuente canónica de skills, le da al dsh un prime que le indica leer los archivos correctos, y hace el readback allí dentro — sin juntar nunca <code>~/projetos</code> con un proveedor remoto.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~50</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Avanzado</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Proyecto</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. Qué es el dsh-sandbox</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. Copia a mano = drift</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. Destino --dsh en el sync</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. Skill de prime</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. Seguridad: 269 secretos</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Expectativa honesta</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.4">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> El proyecto en una pantalla</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Objetivo</span><span class="text-neutral-400">Probar que el núcleo portátil sirve para un tercer ejecutor — el <code>dsh-sandbox</code> — y que sus skills salen de la misma fuente canónica que Claude y Codex, sin copia manual.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Terminas con</span><span class="text-neutral-400">Un <code>sync-skills.sh</code> con destino <code>--dsh</code> y drift check, una skill <code>prime</code> en <code>~/projetos/dsh-skills</code>, y un readback ejecutado en el panel con modelo local y comparado con el remoto.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Criterio de aceptación</span><span class="text-neutral-400">Drift cero en los tres destinos; el dsh cita <code>AGENTS.md</code>, <code>context/</code>, <code>tasks/current.md</code> y <code>handoffs/latest.md</code> por su nombre; y ningún paso usó <code>remoto-projetos</code>.</span></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-4#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🐳 Qué es el dsh-sandbox</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t1-p1">El <code>dsh-sandbox</code> es <code>@deepseek-ai/dsh</code> en la versión <strong class="text-purple-400">0.1.1-rc.1</strong> corriendo en Docker, con panel en <code>127.0.0.1:9080</code> y contenedor <code>dsh-orchestrator-runtime-1</code>. La versión está congelada dentro de <code>work/node_modules</code> a propósito: un arranque no vuelve al registry, y actualizar es un acto explícito. Todo el control pasa por un único script en la raíz del proyecto — <code>./dsh</code> — con cinco verbos.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t1-p2">Lo que importa para este curso es el diseño de los <strong>modos</strong>. No existe "encender todo": el montaje de disco y el proveedor de modelo están <strong class="text-purple-400">atados</strong>. En el modo <code>local</code>, <code>~/projetos</code> se monta dentro del contenedor y el único proveedor es Ollama en la propia máquina — tus archivos están ahí, pero no sale ni un byte. En el modo <code>remoto</code>, el proveedor es OpenRouter y <code>~/projetos</code> <em>no</em> se monta — el modelo es mejor, pero no ve nada tuyo. La combinación de ambos existe (<code>remoto-projetos</code>) y pide escribir la palabra <code>CONFIRMO</code>, porque es exactamente la combinación peligrosa.</p>
+           <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="El contenedor dsh con panel en 127.0.0.1 puerto 9080 y sus dos modos: en el modo local la carpeta projetos se monta y el proveedor es Ollama en la propia máquina; en el modo remoto la carpeta no se monta y el proveedor es OpenRouter por internet. La combinación de ambos exige una confirmación escrita.">
+                <defs>
+                  <linearGradient id="m34-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m34-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m34-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m34-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                  <marker id="m34-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m34-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m34-glow)"><rect x="380" y="108" width="240" height="84" rx="16" fill="#1a1230" stroke="url(#m34-grad)" stroke-width="2.5"/></g>
+                  <text x="500" y="138" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="700">contenedor dsh</text>
+                  <text x="500" y="158" text-anchor="middle" fill="#e9d5ff" font-size="11">dsh-orchestrator-runtime-1</text>
+                  <text x="500" y="177" text-anchor="middle" fill="#e9d5ff" font-size="11">panel 127.0.0.1:9080</text>
+
+                  <rect x="40" y="26" width="270" height="110" rx="16" fill="#0f2119" stroke="#34d399" stroke-width="2"/>
+                  <text x="175" y="52" text-anchor="middle" fill="#6ee7b7" font-size="14" font-weight="700">./dsh local</text>
+                  <text x="175" y="76" text-anchor="middle" fill="#a7f3d0" font-size="12">~/projetos MONTADO</text>
+                  <text x="175" y="96" text-anchor="middle" fill="#a7f3d0" font-size="12">proveedor: solo Ollama (en la máquina)</text>
+                  <text x="175" y="118" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="600">tus archivos entran, nada sale</text>
+                  <path d="M310,84 C345,84 350,128 378,136" fill="none" stroke="#34d399" stroke-width="2" marker-end="url(#m34-ahc)"/>
+
+                  <rect x="40" y="166" width="270" height="110" rx="16" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="175" y="192" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="700">./dsh remoto</text>
+                  <text x="175" y="216" text-anchor="middle" fill="#bfe6ff" font-size="12">~/projetos FUERA</text>
+                  <text x="175" y="236" text-anchor="middle" fill="#bfe6ff" font-size="12">proveedor: OpenRouter (internet)</text>
+                  <text x="175" y="258" text-anchor="middle" fill="#9ad6ff" font-size="11" font-weight="600">mejor modelo, sin ver tus archivos</text>
+                  <path d="M310,216 C345,216 350,172 378,164" fill="none" stroke="#38bdf8" stroke-width="2" marker-end="url(#m34-ahc)"/>
+
+                  <rect x="690" y="40" width="270" height="86" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="825" y="66" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="700">skills montadas</text>
+                  <text x="825" y="88" text-anchor="middle" fill="#bfe6ff" font-size="11">~/projetos/dsh-skills</text>
+                  <text x="825" y="108" text-anchor="middle" fill="#bfe6ff" font-size="11">→ /work/.dsh/skills</text>
+                  <path d="M620,140 C655,140 660,95 688,88" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#m34-ah)"/>
+
+                  <rect x="690" y="164" width="270" height="112" rx="14" fill="#221018" stroke="#f87171" stroke-width="2"/>
+                  <text x="825" y="190" text-anchor="middle" fill="#fca5a5" font-size="13" font-weight="700">./dsh remoto-projetos</text>
+                  <text x="825" y="212" text-anchor="middle" fill="#fecaca" font-size="11">montaje + proveedor remoto</text>
+                  <text x="825" y="232" text-anchor="middle" fill="#fecaca" font-size="11">269 archivos de secretos en riesgo</text>
+                  <text x="825" y="254" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">exige escribir CONFIRMO</text>
+                  <text x="825" y="270" text-anchor="middle" fill="#fecaca" font-size="11">nunca para readback</text>
+                  <path d="M620,166 C655,180 660,200 688,206" fill="none" stroke="#f87171" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#m34-ah)"/>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Lee el diagrama siguiendo las flechas que entran al contenedor. <span class="text-emerald-400">Local</span> trae tus archivos pero ata el modelo a la máquina; <span class="text-sky-400">remoto</span> libera el modelo pero deja los archivos afuera. El bloque rojo es la única combinación que junta ambos, y existe justamente para que sea difícil activarla por accidente.</p>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> levantar dsh en el modo correcto y confirmar que el panel responde antes que cualquier otra cosa.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/dsh-sandbox
+
+<span class="text-neutral-500"># ver en qué estado está ahora (puede llevar días en ejecución)</span>
+./dsh status
+
+<span class="text-neutral-500"># para este proyecto: modo local (projetos montados + solo Ollama)</span>
+./dsh local
+
+<span class="text-neutral-500"># el panel solo escucha en loopback; desde fuera, usa un túnel SSH</span>
+curl -sf -o /dev/null -w '%{http_code}\n' http://127.0.0.1:9080
+<span class="text-neutral-500"># esperado: 200</span>
+
+<span class="text-neutral-500"># contenedor y límite de memoria</span>
+docker ps --filter name=dsh-orchestrator-runtime-1
+
+<span class="text-neutral-500"># al terminar</span>
+./dsh off</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> <code>./dsh status</code> indica el modo activo y el <code>curl</code> devuelve <code>200</code>. Si necesitas acceder desde otra máquina, el camino es <code>ssh -L 9080:127.0.0.1:9080 …</code>: <code>dsh</code> rechaza el bind en <code>0.0.0.0</code> por decisión de los autores, y la app no tiene ninguna autenticación.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">El contenedor no es el costo:</strong> pesa unos 85 MB en reposo, con un límite de 3 GB. El peso real es el <em>modelo</em> cargado en el host, sin límite: de 17 GB a 45 GB según lo que elijas. Ese es el número que decide si la máquina aguanta, no Docker.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Tercer ejecutor</span><p class="text-sm text-neutral-400 mt-1">Un consumidor más del mismo contexto portátil, junto a Claude y Codex.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Modos vinculados</span><p class="text-sm text-neutral-400 mt-1">Montaje y proveedor se deciden juntos, nunca por separado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Versión congelada</span><p class="text-sm text-neutral-400 mt-1">0.1.1-rc.1 instalada localmente; el arranque no busca actualizaciones.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Solo loopback</span><p class="text-sm text-neutral-400 mt-1">El panel no tiene login; acceso remoto solo por túnel SSH.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-4#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🧬 Copiar a mano es drift garantizado</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t2-p1">Hoy dsh tiene tres skills, y las tres llegaron ahí con <code>cp</code>: <code>formato-curso-v2</code>, <code>formato-curso-v5</code> y <code>capa-inema</code> (dependencia de las dos primeras). Viven en <code>~/projetos/dsh-skills</code>, montado en el contenedor como <code>/work/.dsh/skills</code>. El formato es compatible (es el mismo <code>SKILL.md</code> de Claude) y por eso la copia <em>funciona</em>. El problema no es que no funcione hoy; es que no siga igual mañana.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t2-p2">Llámalo <strong class="text-purple-400">drift</strong>: corriges un bug en la skill de Claude, pruebas, publicas, y la copia de dsh se queda en la versión anterior. Nada se rompe de forma ruidosa. dsh simplemente genera un curso con el patrón de hace dos meses y lo descubres en el output. El diagnóstico es claro sobre la escala del problema: ya son <strong>cuatro consumidores de skills</strong>, no dos: Claude (117), Codex (27), dsh (3 copias manuales) y openpcbotv3 (16 propias). Sin una fuente canónica, cada uno diverge por su cuenta, y la divergencia crece con el tiempo.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Una fuente canónica de skills alimenta cuatro destinos mediante un build automatizado: Claude, Codex, dsh y openpcbotv3. El destino dsh es lo que este proyecto agrega; openpcbotv3 queda para después. Un verificador de drift compara cada destino con la fuente.">
+                <defs>
+                  <linearGradient id="m34b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m34b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m34b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m34b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                  <marker id="m34b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m34b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m34b-glow)"><rect x="40" y="108" width="230" height="86" rx="16" fill="#1a1230" stroke="url(#m34b-grad)" stroke-width="2.5"/></g>
+                  <text x="155" y="138" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="700">fuente canónica</text>
+                  <text x="155" y="158" text-anchor="middle" fill="#e9d5ff" font-size="11">skills/&lt;nombre&gt;/ (polyskill)</text>
+                  <text x="155" y="178" text-anchor="middle" fill="#e9d5ff" font-size="11">un lugar, una verdad</text>
+
+                  <rect x="330" y="118" width="130" height="66" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="395" y="145" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="700">build</text>
+                  <text x="395" y="165" text-anchor="middle" fill="#bfe6ff" font-size="11">dist/&lt;runtime&gt;/</text>
+                  <path d="M270,151 L328,151" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#m34b-ah)"/>
+
+                  <g class="wf-a"><rect x="560" y="18" width="240" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="680" y="40" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">~/.claude/skills</text><text x="680" y="58" text-anchor="middle" fill="#bfe6ff" font-size="11">117 skills</text></g>
+                  <g class="wf-a"><rect x="560" y="88" width="240" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="680" y="110" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">~/.codex/skills</text><text x="680" y="128" text-anchor="middle" fill="#bfe6ff" font-size="11">27 skills</text></g>
+                  <g filter="url(#m34b-glow)"><rect x="560" y="158" width="240" height="52" rx="12" fill="#1a1230" stroke="url(#m34b-grad)" stroke-width="2.5"/></g>
+                  <text x="680" y="180" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">~/projetos/dsh-skills</text>
+                  <text x="680" y="198" text-anchor="middle" fill="#e9d5ff" font-size="11">3 copias a mano → ESTE PROYECTO</text>
+                  <rect x="560" y="228" width="240" height="52" rx="12" fill="#26201a" stroke="#9ca3af" stroke-width="2" opacity="0.8"/>
+                  <text x="680" y="250" text-anchor="middle" fill="#e5e7eb" font-size="13" font-weight="600">openpcbotv3/skills</text>
+                  <text x="680" y="268" text-anchor="middle" fill="#9ca3af" font-size="11">destino --v3, queda para después</text>
+
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.7">
+                    <path d="M460,142 C510,142 510,44 558,44" marker-end="url(#m34b-ahc)"/>
+                    <path d="M460,148 C510,148 510,114 558,114" marker-end="url(#m34b-ahc)"/>
+                  </g>
+                  <path d="M460,156 C510,156 510,184 558,184" fill="none" stroke="#c084fc" stroke-width="2.4" marker-end="url(#m34b-ah)"/>
+                  <path d="M460,164 C510,164 510,254 558,254" fill="none" stroke="#9ca3af" stroke-width="2" stroke-dasharray="7 6" opacity="0.6" marker-end="url(#m34b-ah)"/>
+
+                  <rect x="840" y="88" width="130" height="122" rx="12" fill="#150f25" stroke="#a855f7" stroke-width="1.8"/>
+                  <text x="905" y="118" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">drift</text>
+                  <text x="905" y="140" text-anchor="middle" fill="#e9d5ff" font-size="11">compara cada</text>
+                  <text x="905" y="157" text-anchor="middle" fill="#e9d5ff" font-size="11">destino con la</text>
+                  <text x="905" y="174" text-anchor="middle" fill="#e9d5ff" font-size="11">salida del build</text>
+                  <text x="905" y="196" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">meta: cero</text>
+                  <path d="M800,114 L838,120" fill="none" stroke="#a855f7" stroke-width="1.8" opacity="0.6"/>
+                  <path d="M800,184 L838,178" fill="none" stroke="#a855f7" stroke-width="1.8" opacity="0.6"/>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Una <span class="text-purple-400">fuente canónica</span> a la izquierda, un <span class="text-sky-400">build</span> en el medio, cuatro destinos a la derecha. Los dos primeros ya salen del build; el tercero (<span class="text-purple-400">dsh</span>) es lo que este proyecto agrega; el cuarto queda para después. La caja de la derecha es lo que convierte esto en una garantía: sin <code>drift</code>, tienes cuatro copias y ninguna prueba de que son iguales.</p>
+           </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Skill generada por el build</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Corregiste en la fuente: un <code>build</code> y un <code>install</code> actualizan todos los destinos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>El <code>drift</code> lo detecta antes de que lo detecte el usuario.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Respaldo automático del destino anterior en cada instalación.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Una sola revisión sirve a los cuatro consumidores.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Skill copiada a mano</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Nadie recuerda cuál copia es la más reciente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>La divergencia aparece en el output, meses después, y parece un bug del modelo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Corregir se vuelve cuatro ediciones, y olvidas una.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Sin verificador, "está sincronizado" es fe, no un hecho.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Cuidado con el nombre de la carpeta:</strong> el destino es <code>~/projetos/dsh-skills</code>, y no <code>~/projetos/skills</code> — este último ya es el repositorio git <code>inematds/skills</code> del curso de Agent Skills. Copiar al nombre equivocado contamina un repo publicado. Verifica la ruta antes de ejecutar cualquier <code>cp -a</code>.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Drift</span><p class="text-sm text-neutral-400 mt-1">Copias que empiezan iguales y divergen sin que nadie lo note.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Fuente canónica</span><p class="text-sm text-neutral-400 mt-1">El único lugar que se edita; todo lo demás se genera.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Cuatro consumidores</span><p class="text-sm text-neutral-400 mt-1">Claude, Codex, dsh y openpcbotv3 — todos queriendo la misma skill.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Falla silenciosa</span><p class="text-sm text-neutral-400 mt-1">El drift no genera error; genera un resultado equivocado con apariencia de correcto.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-4#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🔧 Agregar el destino <code>--dsh</code> a sync-skills.sh</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t3-p1">El <code>scripts/sync-skills.sh</code> que ya usaste en la Trilha 2 tiene cuatro verbos: <code>import</code>, <code>build</code>, <code>drift</code> e <code>install</code>. Asume dos runtimes todo el tiempo, con el bucle <code>for rt in claude codex</code> y la ruta <code>$HOME/.$rt/skills/$s</code> — un truco elegante que funciona porque las dos carpetas tienen el mismo formato de nombre. El dsh rompe ese patrón: su destino es <code>~/projetos/dsh-skills/&lt;nome&gt;</code>, que no encaja en la fórmula.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t3-p2">La buena noticia es que el dsh acepta el <strong>mismo <code>SKILL.md</code> de Claude</strong>. Así que no hace falta un nuevo objetivo de <code>polyskill build</code>: lo que se copia al dsh es el <code>dist/claude/&lt;nome&gt;</code> que el build ya produce. El cambio es pequeño y quirúrgico — una función que resuelve la ruta de destino por runtime, el caso <code>--dsh</code> en el <code>install</code>, y la inclusión del dsh en el bucle del <code>drift</code>, que es la parte que realmente vale la pena.</p>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> aplicar el patch que agrega el tercer destino, manteniendo el <code>drift</code> como verificación de los tres.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># --- en scripts/sync-skills.sh, justo después del `mkdir -p skills dist` ---</span>
+
+<span class="text-neutral-500"># resuelve la carpeta de destino de cada runtime (dsh se sale del patrón ~/.&lt;rt&gt;/skills)</span>
+dest_for() {
+  case "$1" in
+    claude|codex) printf '%s/.%s/skills/%s\n' "$HOME" "$1" "$2" ;;
+    dsh)          printf '%s/projetos/dsh-skills/%s\n' "$HOME" "$2" ;;
+    *) return 1 ;;
+  esac
+}
+<span class="text-neutral-500"># el dsh consume el MISMO formato de Claude: el origen es dist/claude</span>
+src_for() {
+  case "$1" in dsh) echo claude ;; *) echo "$1" ;; esac
+}
+
+<span class="text-neutral-500"># --- en el verbo `drift`: cambiar `for rt in claude codex` por: ---</span>
+      for rt in claude codex dsh; do
+        out="$d/dist/$(src_for "$rt")/$s"; tgt="$(dest_for "$rt" "$s")"
+        [ -d "$out" ] &amp;&amp; [ -d "$tgt" ] || { echo "[no instalada] $s → $rt"; continue; }
+        if diff -rq "$out" "$tgt" &gt;/dev/null; then echo "[ok] $s → $rt"; else echo "[DRIFT] $s → $rt"; rc=1; fi
+      done
+
+<span class="text-neutral-500"># --- en el verbo `install`: cambiar `for rt in claude codex` por: ---</span>
+    for rt in claude codex dsh; do
+      case "$tgt" in --both) [ "$rt" = dsh ] &amp;&amp; continue ;; --all) ;; --$rt) ;; *) continue ;; esac
+      out="skills/$s/dist/$(src_for "$rt")/$s"; [ -d "$out" ] || { echo "ejecuta build antes: $out"; exit 1; }
+      dest="$(dest_for "$rt" "$s")"
+      [ -e "$dest" ] &amp;&amp; cp -a "$dest" "$(dirname "$dest")/.$s.bak-$(date +%s)"
+      mkdir -p "$(dirname "$dest")"; cp -a "$out" "$dest"; echo "instalada: $dest"
+      <span class="text-neutral-500"># preservado del original: Codex también descubre en ~/.agents/skills</span>
+      [ "$rt" = codex ] &amp;&amp; [ -d "$HOME/.agents/skills" ] &amp;&amp; cp -a "$out" "$HOME/.agents/skills/$s" &amp;&amp; echo "reflejada: ~/.agents/skills/$s"
+    done</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> <code>bash -n scripts/sync-skills.sh</code> pasa sin error de sintaxis, y <code>scripts/sync-skills.sh drift</code> pasa a imprimir tres líneas por skill en lugar de dos — la tercera terminando en <code>→ dsh</code>.</p>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> traer las tres skills copiadas a mano al flujo canónico y dejar el drift en cero.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># 1. guardar las copias actuales antes de sobrescribir (son el último estado bueno conocido)</span>
+cp -a ~/projetos/dsh-skills ~/projetos/dsh-skills.bak-$(date +%Y%m%d)
+
+<span class="text-neutral-500"># 2. importar a la fuente canónica (a partir del original de Claude)</span>
+scripts/sync-skills.sh import formato-curso-v2 formato-curso-v5 capa-inema
+scripts/sync-skills.sh build
+
+<span class="text-neutral-500"># 3. instalar ahora también en el dsh</span>
+for s in formato-curso-v2 formato-curso-v5 capa-inema; do
+  scripts/sync-skills.sh install "$s" --dsh
+done
+
+<span class="text-neutral-500"># 4. la prueba</span>
+scripts/sync-skills.sh drift; echo "rc=$?"
+<span class="text-neutral-500"># esperado: solo líneas [ok], rc=0</span></code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> <code>rc=0</code> y ninguna línea <code>[DRIFT]</code>. Si aparece drift justo después del install, la copia a mano tenía alguna edición local que nunca volvió a la fuente — compara con el respaldo del paso 1 y lleva la diferencia a <code>skills/&lt;nome&gt;/</code> antes de continuar.</p>
+           </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Por qué <code>--both</code> sigue significando dos:</strong> el patch mantiene <code>--both</code> como Claude+Codex e introduce <code>--all</code> para los tres. Quien ya tiene la costumbre de escribir <code>--both</code> no se lleva la sorpresa de una instalación en un lugar nuevo: cambiar el comportamiento de un flag existente es el tipo de trampa que solo aparece tres semanas después.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Destino fuera del estándar</span><p class="text-sm text-neutral-400 mt-1">El dsh no vive en <code>~/.&lt;runtime&gt;/skills</code>; necesita un resolvedor.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Reúso de dist/claude</span><p class="text-sm text-neutral-400 mt-1">Formato compatible: no hace falta ningún target de build nuevo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Drift como contrato</span><p class="text-sm text-neutral-400 mt-1">Un destino que no entra en el drift no está realmente en el flujo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Flag estable</span><p class="text-sm text-neutral-400 mt-1">Agregar <code>--all</code> en lugar de cambiar lo que hace <code>--both</code>.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-4#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🧭 Darle contexto al dsh: la skill de prime</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t4-p1">Con las skills resueltas, falta el contexto. El dsh escanea <code>$DSH_HOME/skills</code> y nada más: <strong class="text-purple-400">no tiene auto-load de AGENTS.md ni de CLAUDE.md</strong>. Si abres el panel dentro de un proyecto migrado, ve los archivos (en modo <code>local</code>) pero no sabe que debería abrirlos. Como no hay hook, no hay evento de apertura ni instrucción global, la única palanca disponible es la que ya usa: una skill.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t4-p2">De ahí la skill de <strong>prime</strong>. No hace nada más que pedir la lectura, en el orden correcto: <code>AGENTS.md</code>, luego <code>context/</code>, luego <code>tasks/current.md</code>, luego <code>handoffs/latest.md</code>, el mismo orden que Claude y Codex siguen por instrucción. Es la misma idea del tema 5 del Proyecto 2: cuando el evento no existe, el comportamiento se convierte en lectura pedida explícitamente. Y como el dsh acepta el formato de Claude, esta skill sale de la misma fuente canónica y va a los tres destinos.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Escribir el prime en la fuente canónica</h4><p class="text-sm text-neutral-400">Un <code>SKILL.md</code> corto en <code>skills/prime/</code>, con el orden de lectura y el formato de la respuesta.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Build e install en los tres destinos</h4><p class="text-sm text-neutral-400"><code>install prime --all</code> lleva la misma skill a Claude, Codex y dsh.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Levantar el dsh en modo local</h4><p class="text-sm text-neutral-400">Sin <code>~/projetos</code> montado no hay nada que leer; el readback tiene que hacerse en modo <code>local</code>.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Hacer las 5 preguntas en el panel</h4><p class="text-sm text-neutral-400">Las mismas del readback de la Ruta 2. El criterio es citar el archivo, no la belleza de la respuesta.</p></div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> crear la skill de prime e instalarla en los tres destinos, incluido el dsh.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+mkdir -p skills/prime
+
+cat &gt; skills/prime/SKILL.md &lt;&lt;'MD'
+---
+name: prime
+description: Carga el contexto del proyecto antes de cualquier trabajo. Úsala al
+  comienzo de toda sesión, antes de la primera edición, y siempre que pierdas el hilo.
+---
+
+# Prime — lee antes de actuar
+
+Lee, en este orden, y solo entonces responde:
+
+1. `AGENTS.md` en la raíz del proyecto — las reglas estables.
+2. `context/overview.md` — los hechos verificados. Si existe
+   `context/decisions/`, lee también la decisión más reciente.
+3. `tasks/current.md` — lo que está en curso ahora.
+4. `handoffs/latest.md` — lo que hizo la última sesión y cuál es la próxima acción.
+
+Si alguno de estos archivos no existe, di cuál falta en lugar de inventar.
+
+Cierra el prime con cuatro líneas, cada una citando el archivo de donde vino:
+
+- **Proyecto:** qué es, en una frase.
+- **Estado:** qué está listo y qué está pendiente.
+- **Próxima acción:** la frase exacta escrita en `handoffs/latest.md`.
+- **Regla que más importa aquí:** la restricción de `AGENTS.md` que
+  más afecta a la próxima acción.
+MD
+
+scripts/sync-skills.sh build
+scripts/sync-skills.sh install prime --all
+ls ~/projetos/dsh-skills/prime/SKILL.md</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> el <code>ls</code> encuentra el archivo, y <code>scripts/sync-skills.sh drift</code> muestra <code>[ok] prime → dsh</code> junto con claude y codex. Luego, en el panel en <code>127.0.0.1:9080</code> con el dsh en modo <code>local</code>, pide "usa la skill prime en el proyecto <code>/projetos/&lt;tu-piloto&gt;</code>" y comprueba que las cuatro líneas vuelvan con el nombre de archivo en cada una.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Atención a los puentes de ruta:</strong> dentro del contenedor, <code>~/projetos</code> aparece como <code>/projetos</code> y las skills se ven en <code>/work/.dsh/skills</code>. Hay dos symlinks en <code>work/</code> justamente para que los <code>~/...</code> escritos en las skills se resuelvan allí dentro; aparecen rotos cuando los miras desde el host, y eso es lo esperado. Al pedir algo desde el panel, usa la ruta de adentro.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Prime</span><p class="text-sm text-neutral-400 mt-1">La skill que reemplaza el auto-load inexistente por lectura pedida.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Orden de lectura</span><p class="text-sm text-neutral-400 mt-1">AGENTS → context → tasks/current → handoffs/latest, siempre igual.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Puente de ruta</span><p class="text-sm text-neutral-400 mt-1">Symlinks en <code>work/</code> que hacen que <code>~/…</code> se resuelva dentro del contenedor.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Citar la fuente</span><p class="text-sm text-neutral-400 mt-1">Una respuesta sin nombre de archivo no cuenta como lectura comprobada.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-4#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🔒 Seguridad: 269 secretos y la regla que no se negocia</h2>
+           </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t5-p1">La auditoría contó <strong class="text-purple-400">269 archivos de secretos dentro de <code>~/projetos</code></strong>, entre ellos los dos <code>.env</code> que todo el curso trata como fuente única de API keys: <code>wifi/.env</code> y <code>openpcbotv2/.env</code>. Montar ese árbol en un contenedor cuyo proveedor de modelo es remoto significa darle a un servicio de terceros la posibilidad de leer cualquiera de ellos, porque el agente decide por su cuenta qué archivos abrir. No existe el "no va a mirar": la única garantía es la que está en el diseño.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t5-p2">Por eso <strong>montaje y proveedor van atados</strong>. La decisión se tomó una sola vez, en el script, y no en cada sesión: <code>local</code> da acceso a los archivos y mantiene el modelo dentro de la máquina; <code>remoto</code> libera el modelo y saca los archivos de escena. La tercera opción existe y pide escribir <code>CONFIRMO</code>, y la regla de este proyecto es corta: <strong class="text-purple-400">nunca uses <code>remoto-projetos</code> para readback</strong>. El readback es justamente el ejercicio de pedirle a un agente que lea archivos de tu disco; es el peor momento posible para tener un proveedor externo en la línea.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Combinaciones permitidas</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>local</code> para readback y para generar cursos: archivos dentro, modelo dentro.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>remoto</code> para comparar la calidad de la prosa con contenido pegado a mano.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Panel solo en <code>127.0.0.1</code>; desde afuera, únicamente por túnel SSH.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>./dsh off</code> al terminar, para no dejar un montaje activo sin necesidad.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Nunca</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span><code>remoto-projetos</code> para readback: junta los 269 secretos con un proveedor externo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Exponer el panel con <code>--host 0.0.0.0</code>: la app no tiene ninguna autenticación.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Copiar un <code>.env</code> dentro de <code>dsh-skills</code> "para que la skill lo encuentre".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Escribir <code>CONFIRMO</code> en automático: la fricción existe para que te detengas a pensar.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> confirmar, antes de ejecutar el readback, que el modo activo es el seguro, y medir el tamaño de la superficie.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/dsh-sandbox
+
+<span class="text-neutral-500"># cuántos archivos de secretos expondría el montaje (solo el conteo, nunca el contenido)</span>
+find ~/projetos -maxdepth 3 \( -name '.env' -o -name '.env.*' -o -name '*credential*' \) \
+  -type f 2&gt;/dev/null | wc -l
+
+<span class="text-neutral-500"># el modo activo, antes de pedirle cualquier cosa al panel</span>
+./dsh status
+
+<span class="text-neutral-500"># verificación directa: ¿existe el montaje de /projetos en este contenedor?</span>
+docker inspect dsh-orchestrator-runtime-1 \
+  | python3 -c 'import json,sys; [print(m["Source"], "-&gt;", m["Destination"]) for m in json.load(sys.stdin)[0]["Mounts"]]'
+
+<span class="text-neutral-500"># el panel no puede estar escuchando fuera del loopback</span>
+ss -ltnp 2&gt;/dev/null | grep 9080
+<span class="text-neutral-500"># esperado: 127.0.0.1:9080 — si aparece 0.0.0.0:9080, apágalo YA con ./dsh off</span></code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> si <code>status</code> dice <code>local</code>, <code>inspect</code> muestra <code>/projetos</code> montado y <code>ss</code> muestra solo <code>127.0.0.1</code>, puedes seguir. Cualquier combinación distinta es motivo para detenerte y corregir antes de escribir la primera pregunta en el panel.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Sobre <code>network_mode: host</code>:</strong> el contenedor corre sin aislamiento de red porque <code>dsh</code> solo acepta bind en <code>127.0.0.1</code> y, con bridge, el proxy de Docker no alcanza el loopback interno. La consecuencia es que ve todos los servicios de loopback del host: Ollama en 11434, iccmonit en 9003 y lo que esté en marcha. No es un detalle cosmético: elimina la sensación de "está aislado porque es un contenedor". El aislamiento real aquí viene de los modos, no de la red.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Montaje atado</span><p class="text-sm text-neutral-400 mt-1">Quien ve los archivos no habla con un proveedor externo, y viceversa.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">269 secretos</span><p class="text-sm text-neutral-400 mt-1">La superficie medida de <code>~/projetos</code>; el número que justifica la regla.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Fricción intencional</span><p class="text-sm text-neutral-400 mt-1">Escribir <code>CONFIRMO</code> existe para impedir el accidente, no el uso.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Contenedor ≠ aislamiento</span><p class="text-sm text-neutral-400 mt-1">Con <code>network_mode: host</code>, toda la red del host queda visible.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-4#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">📉 Expectativa honesta: lo que entrega el modelo local</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t6-p1">El modelo local de esta máquina es <code>qwen3.8:27b</code>, unos <strong class="text-purple-400">18 GB cargados en el host, sin límite</strong>. Compite por RAM con inemavox, y el historial de caídas por OOM está registrado en el monitoreo; no es una hipótesis. Si vas a ejecutar readback en dsh, haz el preflight: revisa la memoria libre antes y no dejes una síntesis de voz pesada en curso.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-4-t6-p2">Sobre la calidad, el mensaje del diagnóstico es directo: las skills se escribieron para el comportamiento de Claude, y con un modelo local el resultado <strong>se queda corto</strong>. Pero "se queda corto" hay que medirlo en el eje correcto. Lo que este proyecto prueba es la <em>portabilidad de contexto</em>, y el criterio es <strong class="text-purple-400">citar los archivos correctos</strong>. Una prosa más pobre, una estructura más floja y menos matices son límites del modelo. Confundir ambas cosas lleva a la conclusión equivocada: "la portabilidad falló", cuando lo que falló fue la expectativa sobre la calidad de la redacción.</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🧪</span> La prueba que separa el modelo de la portabilidad</h3>
+              <p class="text-neutral-300 text-sm mb-3">Ejecuta la misma pregunta en los dos modos. En <code>remoto</code>, dsh no ve <code>~/projetos</code>, así que pega el contenido de los archivos en la propia pregunta. Si la respuesta mejora mucho, el cuello de botella era el modelo; si sigue sin citar ningún archivo, ahí sí el problema es tu capa de contexto.</p>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-neutral-400 border-b border-dark-600"><tr><th class="py-2 pr-4">Eje</th><th class="py-2 pr-4">Criterio</th><th class="py-2">Conclusión si falla</th></tr></thead>
+                  <tbody class="text-neutral-300 divide-y divide-dark-600">
+                    <tr><td class="py-2 pr-4">Portabilidad</td><td class="py-2 pr-4">Cita <code>AGENTS.md</code>, <code>tasks/current.md</code>, <code>handoffs/latest.md</code> por su nombre</td><td class="py-2">Falta el prime, el montaje o los archivos</td></tr>
+                    <tr><td class="py-2 pr-4">Fidelidad</td><td class="py-2 pr-4">La próxima acción coincide con la escrita en el handoff</td><td class="py-2">Leyó por encima; acorta los archivos</td></tr>
+                    <tr><td class="py-2 pr-4">Calidad de la prosa</td><td class="py-2 pr-4">Texto organizado y sin repeticiones</td><td class="py-2 text-neutral-400">Límite del modelo: no invalida nada</td></tr>
+                    <tr><td class="py-2 pr-4">Estabilidad</td><td class="py-2 pr-4">Terminó sin OOM</td><td class="py-2">Infra: modelo demasiado grande para la RAM libre</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Objetivo:</strong> hacer el preflight de memoria y registrar el resultado del readback en los dos modos, sin sacar conclusiones apresuradas.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># preflight: ¿cabe ahora el modelo de ~18 GB?</span>
+free -g | awk '/Mem:/ {print "livre:", $7, "GB"}'
+<span class="text-neutral-500"># regla práctica: con menos de 24 GB libres, no levantes el 27b junto con inemavox</span>
+
+<span class="text-neutral-500"># quién ya está ocupando memoria</span>
+ps -eo rss,comm --sort=-rss | head -5 | awk '{printf "%6.1f GB  %s\n", $1/1048576, $2}'
+
+<span class="text-neutral-500"># modelos cargados en Ollama en este momento</span>
+ollama ps
+
+<span class="text-neutral-500"># después del readback, registra el resultado junto a los otros dos runtimes</span>
+cd ~/projetos/&lt;seu-piloto&gt;
+mkdir -p relatorios
+$EDITOR relatorios/readback-dsh-local.md    <span class="text-neutral-500"># qué archivos se citaron y la próxima acción que leyó</span>
+$EDITOR relatorios/readback-dsh-remoto.md   <span class="text-neutral-500"># misma pregunta, contexto pegado a mano</span></code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Cómo verificar:</strong> los dos informes existen y el veredicto está escrito en una frase: "citó los cuatro archivos, prosa inferior a Claude" es aprobación; "no citó ningún archivo en los dos modos" es reprobación de la capa de contexto, y entonces el problema está en el prime o en el montaje, no en el modelo.</p>
+           </div>
+
+            <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-purple-400 mb-3 flex items-center"><span class="mr-2">✅</span> Criterios de aceptación (marca con evidencia)</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span><code>sync-skills.sh drift</code> devuelve <code>rc=0</code> con los tres destinos listados. <em>Evidencia:</em> salida del comando.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Las 3 skills que antes se copiaban a mano ahora las genera el build. <em>Evidencia:</em> <code>[ok] … → dsh</code> para cada una.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>La skill <code>prime</code> existe en los tres destinos. <em>Evidencia:</em> <code>ls</code> en las tres rutas.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>El readback en dsh cita los cuatro archivos por su nombre. <em>Evidencia:</em> <code>relatorios/readback-dsh-local.md</code>.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Ningún paso usó <code>remoto-projetos</code>. <em>Evidencia:</em> <code>./dsh status</code> registrado antes de cada ronda.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Ningún OOM durante el ejercicio. <em>Evidencia:</em> el preflight anotado y el inemavox detenido o intacto.</span></li>
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">⚠️ Riesgos de este proyecto</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>OOM: el modelo de ~18 GB arranca sin tope y compite con el inemavox por la misma RAM.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Usar <code>remoto-projetos</code> por comodidad y exponer los 269 secretos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Copiar a <code>~/projetos/skills</code> en lugar de <code>dsh-skills</code> y contaminar un repo publicado.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Que el <code>install --dsh</code> sobrescriba una copia con una edición local que nunca volvió a la fuente.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Concluir "la portabilidad falló" mirando la calidad de la prosa en lugar de las citas.</span></li>
+                </ul>
+              </div>
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">↩️ Rollback en un comando</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Skills de dsh: <code>rm -rf ~/projetos/dsh-skills &amp;&amp; mv ~/projetos/dsh-skills.bak-AAAAMMDD ~/projetos/dsh-skills</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Script: <code>git checkout -- scripts/sync-skills.sh</code> deshace el patch completo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Prime: <code>rm -rf skills/prime</code> en la fuente y en los destinos; nada más depende de ella.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Contenedor: <code>./dsh off</code> apaga todo y desmonta; Claude y Codex siguen intactos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Memoria: <code>ollama stop qwen3.8:27b</code> libera los ~18 GB al instante.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Preflight de RAM</span><p class="text-sm text-neutral-400 mt-1">Medir la memoria libre antes de arrancar el modelo, no después del bloqueo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Criterio correcto</span><p class="text-sm text-neutral-400 mt-1">Citar los archivos correctos; la calidad de la prosa es otro eje.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Comparar en remoto</span><p class="text-sm text-neutral-400 mt-1">Antes de culpar a la portabilidad, prueba con un modelo mejor.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Ejecutor de segunda línea</span><p class="text-sm text-neutral-400 mt-1">El dsh no reemplaza a Claude ni a Codex; demuestra que el contexto viaja.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-3-4#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): en el readback del dsh en modo <code>local</code>, el modelo citó <code>AGENTS.md</code>, <code>tasks/current.md</code> y <code>handoffs/latest.md</code>, pero el texto quedó repetitivo y mal organizado. ¿Qué concluyes?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">La portabilidad falló; vuelvo a mantener las skills del dsh copiadas a mano.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Levanto el modo <code>remoto-projetos</code> para que el modelo bueno lea los archivos y compare como corresponde.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Marco la portabilidad como aprobada (citó los archivos) y comparo la prosa en modo <code>remoto</code>, con el contexto pegado a mano.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del proyecto</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Tercer ejecutor real</strong><span class="text-neutral-400"> — el dsh ya corre en contenedor, con panel en 127.0.0.1:9080 y modos <code>local</code> y <code>remoto</code> que atan montaje y proveedor.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Fin de la copia a mano</strong><span class="text-neutral-400"> — destino <code>--dsh</code> en sync-skills.sh, con las tres skills entrando al drift check junto con Claude y Codex.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Contexto por skill</strong><span class="text-neutral-400"> — sin auto-load y sin hook, el prime ordena leer AGENTS.md, context/, tasks/current.md y handoffs/latest.md.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Seguridad y expectativa</strong><span class="text-neutral-400"> — nunca <code>remoto-projetos</code> para readback; y el criterio es citar los archivos correctos, no la belleza de la prosa.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Próximo proyecto:</h3>
+                <p class="text-neutral-300">3.5 — Workspace de cliente: Venn, alcance y canarios</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Trilha</a>
+                <a href="modulo-3-5.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Próximo proyecto →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o mantente agnóstico</p>
+      <p>Proyecto 3.4 · Ruta 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-4#q1', {
+          answer: 2,
+          explain: {
+            0: 'No: citó los archivos, que es exactamente el criterio de portabilidad. Lo que se quedó corto fue la prosa — límite del modelo local, no de la capa de contexto.',
+            1: 'No: remoto-projetos junta los 269 archivos de secretos de ~/projetos con un proveedor externo. Nunca para readback — compara pegando el contexto a mano en modo remoto.',
+            2: 'Exacto. Portabilidad aprobada por las citas; la calidad de la prosa es otro eje, y el modo remoto (sin montaje) permite comparar sin exponer nada.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

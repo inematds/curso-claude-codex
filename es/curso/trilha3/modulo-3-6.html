@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Proyecto 3.6 · La mentalidad | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/modulo-3-6.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/modulo-3-6.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/modulo-3-6.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Púrpura"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Ruta 3</a><span>/</span>
+          <span class="text-purple-400">Proyecto 3.6</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROYECTO 3.6</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🧭 Proyecto 6: la mentalidad</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Todo esto es iterativo. El módulo de cierre no instala nada: te entrega el hábito que hace que los cinco proyectos anteriores sobrevivan al próximo cambio de modelo — seguir lo que exige cada proveedor, registrar cada falla en una línea y dejar de administrar prompts.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~30</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Todos</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Reflexión</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. Mejora uno, rompe otro</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. Lo que exige cada proveedor</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. Cerrados vs. locales</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. Tú administras contexto</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. El changelog de fallas</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Una frase y el mañana</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-6" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del proyecto 3.6">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> El proyecto en una pantalla</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Objetivo</span><p class="text-neutral-300 mt-1">Convertir lo que armaste en hábito: una rutina de mantenimiento que absorbe cambios de modelo, de proveedor y de harness sin rehacerlo todo.</p></div>
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Te llevas</span><p class="text-neutral-300 mt-1">Un <code>FALHAS.md</code> en la raíz del proyecto con al menos una línea real, un handoff de cierre escrito y el checklist de los 7 puntos para mañana.</p></div>
+              <div class="bg-dark-800/60 rounded-lg p-4 border border-dark-600"><span class="text-purple-400 font-semibold">Criterio de aceptación</span><p class="text-neutral-300 mt-1">Puedes decir, mirando el <code>FALHAS.md</code>, cuántas fallas fueron de <strong>prompt</strong> y cuántas de <strong>infra</strong> — y cuál fue la corrección mínima de cada una.</p></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-6#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">♻️ Cada cambio mejora un modelo y rompe otro</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t1-p1">El escenario sigue cambiando, y esta no es una salvedad cortés al final del texto: es la condición permanente de trabajo. Cada cambio que haces en una skill, en un <code>AGENTS.md</code>, en un hook, puede <strong class="text-purple-400">mejorar esa skill para un modelo y romper la misma skill para otro</strong>. Ajustas la instrucción para el modelo que estaba divagando y, en la misma línea, le quitas el espacio que el otro necesitaba.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t1-p2">Por eso lo correcto no es congelar el workspace una vez armado — es <strong>seguir constantemente lo que cada modelo realmente necesita</strong>. El workspace agnóstico no elimina el mantenimiento; lo vuelve pequeño y localizado, en lugar de una migración completa en cada cambio.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Bucle circular de tres etapas unidas por flechas: cambiar algo en el núcleo, medir por modelo en Claude, Codex y local, y ajustar el borde del modelo afectado; en el centro, el núcleo portátil permanece estable mientras el ciclo gira">
+                <defs>
+                  <linearGradient id="m36-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m36-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m36-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m36-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m36-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <circle cx="500" cy="150" r="108" fill="none" stroke="#c084fc" stroke-width="1.8" stroke-dasharray="10 8" opacity="0.45"/>
+                  <path d="M596,105 A108,108 0 0 1 596,195" fill="none" stroke="#c084fc" stroke-width="2" opacity="0.8" marker-end="url(#m36-ah)"/>
+                  <path d="M455,254 A108,108 0 0 1 404,105" fill="none" stroke="#c084fc" stroke-width="2" opacity="0.8" marker-end="url(#m36-ah)"/>
+                  <path d="M545,254 A108,108 0 0 1 455,254" fill="none" stroke="#c084fc" stroke-width="2" opacity="0.8" marker-end="url(#m36-ah)"/>
+                  <rect x="390" y="10" width="220" height="58" rx="12" fill="#1a1230" stroke="#c084fc" stroke-width="2"/>
+                  <text x="500" y="34" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">1 · cambiar</text>
+                  <text x="500" y="55" text-anchor="middle" fill="#e9d5ff" font-size="11.5">skill, AGENTS.md, hook</text>
+                  <rect x="700" y="232" width="250" height="58" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="825" y="256" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="700">2 · medir por modelo</text>
+                  <text x="825" y="277" text-anchor="middle" fill="#bfe6ff" font-size="11.5">readback en Claude, Codex y local</text>
+                  <rect x="50" y="232" width="250" height="58" rx="12" fill="#1a1230" stroke="#a855f7" stroke-width="2"/>
+                  <text x="175" y="256" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">3 · ajustar el borde</text>
+                  <text x="175" y="277" text-anchor="middle" fill="#e9d5ff" font-size="11.5">solo el adaptador que se rompió</text>
+                  <g filter="url(#m36-glow)"><circle cx="500" cy="150" r="62" fill="#1a1230" stroke="url(#m36-grad)" stroke-width="2.5"/></g>
+                  <text x="500" y="145" text-anchor="middle" fill="#ffffff" font-size="13.5" font-weight="700">núcleo</text>
+                  <text x="500" y="167" text-anchor="middle" fill="#f3e8ff" font-size="11">portátil, estable</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">El ciclo gira para siempre; lo que no gira es el <span class="text-purple-400">núcleo</span>. Cuando un cambio rompe un ejecutor, el arreglo ocurre <span class="text-sky-400">en el borde de ese ejecutor</span> — nunca reescribiendo el contexto que los tres comparten.</p>
+           </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Mantenimiento pequeño</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El cambio entra en el núcleo; el adaptador de cada ejecutor se regenera.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>El readback se ejecuta en los runtimes que usas, no solo en tu favorito.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>¿Falló en uno solo? Arreglas el borde de ese, y el resto no se toca.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Lo que falló se convierte en una línea del changelog de fallas.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Mantenimiento por reescritura</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Falló en Codex" se convierte en "voy a rehacer mis instrucciones desde cero".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Dos versiones de la skill, una por modelo, divergiendo cada semana.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Probar solo en el modelo que más te gusta y descubrir el resto en producción.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Ningún registro: seis meses después repites el mismo error.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Iterativo</span><p class="text-sm text-neutral-400 mt-1">El escenario cambia; el workspace lo acompaña, no se congela.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Mejora/rompe</span><p class="text-sm text-neutral-400 mt-1">El mismo cambio tiene signos opuestos en modelos diferentes.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Arreglo en el borde</span><p class="text-sm text-neutral-400 mt-1">Adaptador del ejecutor, nunca el núcleo compartido.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Medir por modelo</span><p class="text-sm text-neutral-400 mt-1">Readback en cada runtime que realmente usas.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-6#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🔌 Seguir lo que exige cada proveedor</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t2-p1">"Model-agnostic" nunca quiso decir "provider-agnostic sin esfuerzo". La capa de conocimiento es portátil; los <strong class="text-purple-400">bordes siguen siendo del proveedor</strong>, y cambian sin avisarte. Las diferencias que mostró todo el curso no son bugs: son el precio de usar más de un ejecutor.</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📋</span> Lo que el kit ya descubrió sobre los bordes</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Codex CLI no tiene import:</strong> no existe el <code>@arquivo.md</code> de Claude. Lo que debe leerse hay que decirlo en texto — "lee <code>context/overview.md</code> antes de responder" — o el contenido entra inline.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Codex no lee un <code>AGENTS.md</code> global de la forma en que Claude lee el <code>CLAUDE.md</code> global:</strong> lo que vale es el del proyecto (y el de <code>~/.codex</code> cuando está configurado). No asumas herencia; compruébalo con readback.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Los hooks son diferentes en cada harness:</strong> nombre, evento, formato y momento de disparo no coinciden. Un hook siempre es código de borde — trátalo como adaptador, no como parte del núcleo.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Sandbox y permisos varían por máquina:</strong> en este host, forzar <code>-s read-only</code> en <code>codex exec</code> falló por AppArmor. La corrección fue respetar el <code>sandbox_mode</code> de <code>config.toml</code>, no reescribir el script.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Lo que es común a casi todos:</strong> Markdown. <code>agents.md</code> lo entienden varios; <code>claude.md</code> es la excepción específica de Claude. Prácticamente todo lo demás es portátil.</span></li>
+              </ul>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> La rutina de drift, semanal</h3>
+              <p class="text-sm text-neutral-300">Una vez por semana, ejecuta el mismo readback en los runtimes que usas y compáralo con la semana anterior. No es paranoia: así descubres que una actualización cambió la carga de instrucciones <em>antes</em> de que lo descubra un cliente. Quince minutos por semana contra una migración de emergencia.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Borde del proveedor</span><p class="text-sm text-neutral-400 mt-1">Import, archivo global, hooks, sandbox: todo específico.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Sin import en Codex</span><p class="text-sm text-neutral-400 mt-1">Pide la lectura en texto; no cuentes con <code>@arquivo</code>.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Drift</span><p class="text-sm text-neutral-400 mt-1">La diferencia que aparece sola entre dos semanas.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Markdown como base</span><p class="text-sm text-neutral-400 mt-1">El denominador común que sobrevive a todos ellos.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-6#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🔮 Los modelos cerrados quizá no necesiten skills; los locales sí</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t3-p1">Una posibilidad real para el futuro: los modelos cerrados podrían, en algún momento, <strong class="text-purple-400">dejar de necesitar skills</strong>. Si se entrenan con base en las conversaciones y absorben esas capacidades, buena parte de lo que hoy es skill se vuelve comportamiento por defecto. Mientras tanto, <strong>los modelos locales tal vez sigan dependiendo de ellas</strong> — y hoy dependen.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t3-p2">La conclusión práctica no es elegir un bando. Es la frase que cierra el texto fuente: <strong class="text-purple-400">construye tu estructura de forma independiente del modelo, pero sigue lo que exige cada proveedor a lo largo del tiempo</strong>. Una skill que se volvió innecesaria en el modelo cerrado sigue siendo la muleta que hace funcionar al modelo local — y es lo que te da la opción de salir.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Lo que sobrevive al cambio</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Contexto, conocimiento y decisiones en Markdown.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Procesos, handoffs y criterios de validación.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Skills canónicas, con adaptadores generados por ejecutor.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Memoria curada con fuente y fecha.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Lo que pierdes en el cambio</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Prompts afinados para un modelo específico.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Memoria nativa del runtime, que no sale de ahí.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Hooks y configuraciones de harness escritos a mano.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Hábitos de interfaz — y nada de eso era tu trabajo.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Sobre construir un "super-harness"</h3>
+             <p class="text-sm text-neutral-300">Para Claude y Codex no vale la pena: sus harnesses ya están muy optimizados, y los proveedores se encargan de adaptarlos a cada modelo nuevo. Donde sí vale construir el tuyo es donde nadie lo hace por ti: modelos locales y pipelines propios. Ahí el harness es tu producto, no una reimplementación de lo que ya existe listo.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Skill absorbida</span><p class="text-sm text-neutral-400 mt-1">Capacidad que el modelo pasa a tener sin necesitar un archivo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Dependencia local</span><p class="text-sm text-neutral-400 mt-1">Los modelos locales siguen necesitando las skills explícitas.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Agnóstico + atento</span><p class="text-sm text-neutral-400 mt-1">Construye de forma independiente, pero sigue lo que exige cada proveedor.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Opción de salida</span><p class="text-sm text-neutral-400 mt-1">El valor real de ser agnóstico: poder cambiar sin rehacer.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-6#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🗂️ Dejas de administrar prompts</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t4-p1">Este es el cambio de mentalidad que da nombre al módulo, y cabe en una frase: <strong class="text-purple-400">dejas de administrar prompts y pasas a administrar contexto, estado, herramientas, procesos y criterios de validación</strong>.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t4-p2">Administrar prompts es optimizar la frase. Da ganancias rápidas y se evapora con la próxima versión del modelo. Administrar contexto es responder <em>quién es dueño de cada información, cuál es el estado actual de la tarea, qué herramientas puede usar el agente, cuál es el proceso y cómo se demuestra que quedó listo</em>, y eso sigue valiendo cuando cambia el modelo.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Comparación entre antes y después: a la izquierda, una sola caja apagada llamada administrar prompts, con la frase afinada que se evapora; a la derecha, cinco bloques iluminados —contexto, estado, herramientas, procesos y validación— que sostienen el trabajo">
+                <defs>
+                  <linearGradient id="m36b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m36b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m36b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m36b-ah" markerWidth="10" markerHeight="10" refX="7" refY="5" orient="auto"><path d="M0,0 L9,5 L0,10 L2.6,5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m36b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <text x="150" y="42" text-anchor="middle" fill="#9ca3af" font-size="13" font-weight="700">ANTES</text>
+                  <rect x="40" y="70" width="220" height="150" rx="14" fill="#26201a" stroke="#9ca3af" stroke-width="2" stroke-dasharray="8 6" opacity="0.65"/>
+                  <text x="150" y="132" text-anchor="middle" fill="#e5e7eb" font-size="15" font-weight="600" opacity="0.85">administrar</text>
+                  <text x="150" y="156" text-anchor="middle" fill="#e5e7eb" font-size="15" font-weight="600" opacity="0.85">prompts</text>
+                  <text x="150" y="186" text-anchor="middle" fill="#f87171" font-size="11.5">se evapora en la próxima versión</text>
+                  <path d="M280,145 L360,145" fill="none" stroke="#38bdf8" stroke-width="2.4" marker-end="url(#m36b-ah)"/>
+                  <text x="680" y="42" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">DESPUÉS</text>
+                  <g filter="url(#m36b-glow)">
+                    <rect x="390" y="70" width="112" height="150" rx="12" fill="#1a1230" stroke="url(#m36b-grad)" stroke-width="2.2"/>
+                    <rect x="514" y="70" width="112" height="150" rx="12" fill="#1a1230" stroke="url(#m36b-grad)" stroke-width="2.2"/>
+                    <rect x="638" y="70" width="112" height="150" rx="12" fill="#1a1230" stroke="url(#m36b-grad)" stroke-width="2.2"/>
+                    <rect x="762" y="70" width="112" height="150" rx="12" fill="#1a1230" stroke="url(#m36b-grad)" stroke-width="2.2"/>
+                    <rect x="886" y="70" width="74" height="150" rx="12" fill="#1a1230" stroke="url(#m36b-grad)" stroke-width="2.2"/>
+                  </g>
+                  <text x="446" y="140" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">contexto</text>
+                  <text x="446" y="164" text-anchor="middle" fill="#e9d5ff" font-size="10.5">fuente y fecha</text>
+                  <text x="570" y="140" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">estado</text>
+                  <text x="570" y="164" text-anchor="middle" fill="#e9d5ff" font-size="10.5">tarea actual</text>
+                  <text x="694" y="140" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">herramientas</text>
+                  <text x="694" y="164" text-anchor="middle" fill="#e9d5ff" font-size="10.5">MCP, scripts</text>
+                  <text x="818" y="140" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">procesos</text>
+                  <text x="818" y="164" text-anchor="middle" fill="#e9d5ff" font-size="10.5">handoff, prime</text>
+                  <text x="923" y="134" text-anchor="middle" fill="#38bdf8" font-size="12.5" font-weight="700">validación</text>
+                  <text x="923" y="158" text-anchor="middle" fill="#bfe6ff" font-size="10.5">readback</text>
+                  <text x="923" y="176" text-anchor="middle" fill="#bfe6ff" font-size="10.5">canario</text>
+                  <text x="680" y="262" text-anchor="middle" fill="#a855f7" font-size="12" font-weight="600">cinco cosas que siguen siendo tuyas cuando cambia el modelo</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">A la izquierda, el trabajo que <span class="text-neutral-300">desaparece con la versión del modelo</span>. A la derecha, los cinco bloques que administras y que <span class="text-purple-400">sobreviven a cualquier cambio</span>; el último, validación, es el que impide que los otros cuatro se vuelvan ficción.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Cómo cambia esto tu día:</strong> cuando algo sale mal, la primera pregunta deja de ser "¿cómo reescribo este prompt?" y pasa a ser "¿cuál de los cinco falló?". ¿Faltó contexto? ¿El estado estaba desactualizado? ¿La herramienta no existía en la sesión? ¿El proceso se saltó el handoff? ¿O simplemente nadie validó? Cuatro de esas cinco respuestas se arreglan en un archivo, no en una frase.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Contexto</span><p class="text-sm text-neutral-400 mt-1">Hechos con dueño, fuente y fecha.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Estado</span><p class="text-sm text-neutral-400 mt-1"><code>tasks/current.md</code>: lo que se hace ahora y el criterio de terminado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Procesos</span><p class="text-sm text-neutral-400 mt-1">Handoff, prime, drift: el ciclo que repites.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Criterio de validación</span><p class="text-sm text-neutral-400 mt-1">Readback y canario; "el archivo existe" no es prueba.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-6#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">📓 El changelog de fallas: una línea por falla</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t5-p1">La herramienta de mantenimiento más barata del curso es un archivo <code>FALHAS.md</code> en la raíz del proyecto, con <strong class="text-purple-400">una línea por falla</strong>: fecha, qué se rompió, la corrección más pequeña posible, y si era un problema de <strong>prompt</strong> o de <strong>infra</strong>. Sin narrativa. Lo más reciente arriba.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t5-p2">Después de unas diez líneas el patrón se vuelve obvio, y dejas de reconstruir cosas que solo necesitaban una protección. Esa es la tesis de todo el archivo: <strong class="text-purple-400">si la respuesta fue reescribir o reconstruir, probablemente solo faltaba una protección</strong>: un tope, un retry, un guard, una validación. Registrarlo en la línea es lo que impide la próxima reconstrucción.</p>
+
+            <div class="bg-dark-800 rounded-xl p-5 border border-dark-600 mb-6">
+              <h4 class="font-semibold text-neutral-100 mb-1">Code box 1 — el <code>FALHAS.md</code> real del kit</h4>
+              <p class="text-sm text-neutral-400 mb-3">Objetivo: ver el formato en uso, con las dos fallas reales registradas durante la construcción de este material. Copia el encabezado a tu proyecto.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># Fallas (lo más reciente arriba)
+
+| fecha | qué se rompió | corrección mínima | prompt \| infra |
+|---|---|---|---|
+| 2026-09-13 | readback-test.sh forzaba `-s read-only` en codex exec; bwrap falla por AppArmor en este host | quitar el flag, respetar sandbox_mode de config.toml | prompt \| infra |
+| 2026-09-13 | el resumen de audit.sh contaba líneas de la sección 3 (73+17+4=94 ≠ 89) | restringir grep a la sección 2.1 | prompt |
+</code></pre>
+              <p class="text-xs text-neutral-500 mt-2">Cómo verificar: <code>wc -l FALHAS.md</code> crece una línea por cada falla corregida, y <code>grep -c 'infra' FALHAS.md</code> te dice cuántas fueron de entorno. Si una línea se volvió párrafo, está en el archivo equivocado: el detalle largo va en un archivo aparte y se enlaza.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-purple-900/20 rounded-xl border border-purple-500/30 p-6">
+                <h4 class="font-bold text-purple-400 mb-4">✓ Línea útil</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Escrita <strong>al terminar de corregir</strong>, antes de la siguiente tarea.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>La corrección más pequeña posible, no la que hiciste con rabia.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Marcada como prompt, infra, o ambas cuando sea ambas.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-purple-400">✓</span><span>Una línea. El detalle largo va a un archivo aparte, enlazado.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Línea inútil</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"El script dio error, lo arreglé." — sin qué ni cómo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Escrita al final de la semana, cuando ya olvidaste la causa.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"Reescribí el módulo" como corrección — eso es el síntoma, no el arreglo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Tres párrafos de narrativa que nadie vuelve a leer.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> ¿Prompt o infra?</h3>
+              <p class="text-sm text-neutral-300"><strong>Prompt</strong> = pediste de una forma que indujo el error, o el modelo entendió mal. <strong>Infra</strong> = máquina, memoria, red, servicio caído, clave incorrecta, proceso sin supervisión. Cuando sea ambas, marca ambas — como la primera línea del kit, que era un script mal escrito <em>y</em> un AppArmor del host. Una falla que atraviesa varios proyectos va en el <code>FALHAS.md</code> del hub, no en el del proyecto donde apareció por casualidad.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Una línea por falla</span><p class="text-sm text-neutral-400 mt-1">Fecha, qué se rompió, corrección mínima, clasificación.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Corrección mínima</span><p class="text-sm text-neutral-400 mt-1">El punto del ejercicio: lo mínimo que lo resolvió.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Protección faltante</span><p class="text-sm text-neutral-400 mt-1">Tope, retry, guard, validación — casi siempre era eso.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Patrón tras 10 líneas</span><p class="text-sm text-neutral-400 mt-1">El archivo empieza a decirte dónde tropiezas siempre.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-6#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🏁 En una frase — y qué hacer mañana</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-6-t6-p1">Si cierras esta página y te quedas con una sola frase, que sea esta:</p>
+
+            <div class="bg-gradient-to-br from-purple-900/40 to-dark-800 rounded-xl border border-purple-500/30 p-8 mb-8 text-center">
+              <p class="text-xl sm:text-2xl font-bold text-purple-400 leading-relaxed">"No migres tu cerebro de Claude a Codex; separa el cerebro del modelo."</p>
+              <p class="text-sm text-neutral-400 mt-4">Lo que necesita sobrevivir al cambio no es Claude, ni Codex, ni Gemini. Es tu capa de contexto, conocimiento, Markdown, procesos, handoffs, memoria y herramientas.</p>
+            </div>
+
+            <h3 class="text-lg font-semibold text-neutral-100 mb-4">Qué hacer mañana — 7 puntos</h3>
+            <div class="relative border-l-2 border-purple-500/30 pl-6 space-y-6 mb-8">
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500"></span><h4 class="font-semibold text-neutral-100">1. Ejecutar el doctor</h4><p class="text-sm text-neutral-400">Mira qué está instalado, en qué versión, y qué está roto hoy. Quince minutos antes de cualquier decisión.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/90"></span><h4 class="font-semibold text-neutral-100">2. Ejecutar el audit (MODE: audit)</h4><p class="text-sm text-neutral-400">No se escribe nada. Sales con el árbol propuesto, las reglas de propiedad y los checks de aceptación — y con la lista de lo que <em>no</em> se pudo inspeccionar.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/80"></span><h4 class="font-semibold text-neutral-100">3. Escribir el AGENTS.md global</h4><p class="text-sm text-neutral-400">Tus reglas genéricas, sin nombres de clientes, sin secretos. El <code>CLAUDE.md</code> global apunta a él.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/65"></span><h4 class="font-semibold text-neutral-100">4. Elegir UN piloto</h4><p class="text-sm text-neutral-400">Un proyecto real, con una tarea representativa. No cinco. La plantilla solo es plantilla después de que uno pasó.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/50"></span><h4 class="font-semibold text-neutral-100">5. Hacer el handoff hoy mismo</h4><p class="text-sm text-neutral-400">Al final de la primera sesión, antes de cerrar. El ciclo empieza a valer cuando la segunda sesión abre por el prime.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/35"></span><h4 class="font-semibold text-neutral-100">6. Agendar el drift semanal</h4><p class="text-sm text-neutral-400">Un recordatorio recurrente: mismo readback, mismos runtimes, comparado con la semana anterior.</p></div>
+              <div class="relative"><span class="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-purple-500/25"></span><h4 class="font-semibold text-neutral-100">7. Crear el FALHAS.md</h4><p class="text-sm text-neutral-400">Vacío, con el encabezado listo. La primera línea aparece antes de lo que imaginas — y escribirla ahí es lo que evita la primera reconstrucción.</p></div>
+            </div>
+
+            <div class="bg-dark-800 rounded-xl p-5 border border-dark-600 mb-6">
+              <h4 class="font-semibold text-neutral-100 mb-1">Code box 2 — handoff de cierre (ejemplo)</h4>
+              <p class="text-sm text-neutral-400 mb-3">Objetivo: cerrar el curso de la forma en que vas a cerrar cada sesión de aquí en adelante. Guárdalo como <code>handoffs/latest.md</code> en tu proyecto piloto y adapta las líneas.</p>
+<pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code># Handoff — 2026-09-14 — fin del curso Claude → Codex
+
+## Proyecto y alcance
+&lt;mi-proyecto-piloto&gt;: workspace agnóstico. Alcance: aplicar los 6 proyectos de la trilha 3.
+
+## Objetivo actual
+Correr una semana entera con handoff + prime antes de migrar el segundo proyecto.
+
+## Estado aceptado
+- AGENTS.md global escrito; CLAUDE.md global apunta a él.
+- context/{overview,current-state,sources}.md y tasks/current.md completados.
+- 3 hechos promovidos desde la memoria bruta, con fuente y dos fechas.
+- FALHAS.md creado (1 línea: sandbox de codex exec — infra).
+
+## Checks ejecutados y resultado
+- readback en Claude: pasó (citó AGENTS.md y tasks/current.md).
+- readback en Codex: pasó (citó AGENTS.md; sin import, lectura explícita).
+- canario sintético entre clientes: NO EJECUTADO (aún sin workspace de cliente).
+
+## Preguntas abiertas
+- ¿Vale la pena montar el tercer ejecutor local ahora o después del segundo proyecto?
+- ¿Qué skills se vuelven canónicas primero?
+
+## Próxima acción exacta
+`scripts/drift.sh` el lunes y comparar con el informe de esta semana.
+</code></pre>
+              <p class="text-xs text-neutral-500 mt-2">Cómo verificar: abre una sesión nueva, pide que lea solo este archivo, y pregunta "¿cuál es la próxima acción exacta?". Si la respuesta es la línea final, el handoff está bien. Si la sesión te necesita para entender, falta contexto en el archivo — no en el modelo.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Último recordatorio:</strong> nada de esto exige que abandones Claude, ni Codex, ni ningún runtime. Solo exige que tu parte — contexto, estado, herramientas, procesos y validación — esté en archivos que puedas abrir, copiar y llevarte. Los modelos pueden cambiar. Tu estructura de trabajo debe seguir funcionando.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Separar, no migrar</span><p class="text-sm text-neutral-400 mt-1">La frase que resume todo el curso.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Un piloto</span><p class="text-sm text-neutral-400 mt-1">La plantilla nace de un proyecto que funcionó.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Handoff hoy</span><p class="text-sm text-neutral-400 mt-1">El ciclo solo existe cuando la segunda sesión abre por el prime.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Rutina, no proyecto</span><p class="text-sm text-neutral-400 mt-1">Drift semanal + FALHAS.md: mantenimiento barato y continuo.</p></div>
+            </div>
+<div data-inema-check="modulo-3-6#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): uno de tus scripts falló porque el modelo devolvió una respuesta enorme y se agotó el tiempo. Reescribiste el script completo. ¿Qué va en la línea del <code>FALHAS.md</code>?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">"Script reescrito desde cero": eso fue lo que hice, es el registro honesto.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">La corrección más pequeña que lo habría resuelto: un límite de salida y un timeout (la protección que faltaba), clasificada como prompt e infra, con la fecha.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Nada: una falla del modelo no es una falla del proyecto, así que no entra en el changelog.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del proyecto</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Todo esto es iterativo</strong><span class="text-neutral-400"> — cada cambio mejora un modelo y rompe otro; el arreglo ocurre en el borde, no en el núcleo.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Sigue de cerca a los proveedores</strong><span class="text-neutral-400"> — Codex sin import, sin AGENTS.md global heredado, hooks diferentes, sandbox por máquina.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Cerrados vs. locales</strong><span class="text-neutral-400"> — las skills pueden volverse innecesarias en los cerrados y seguir siendo esenciales en los locales; construye de forma agnóstica.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Administras cinco cosas</strong><span class="text-neutral-400"> — contexto, estado, herramientas, procesos y criterios de validación. No prompts.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Changelog de fallas</strong><span class="text-neutral-400"> — una línea por falla; si la respuesta fue reescribir, solo faltaba una protección.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Fin de la Ruta 3:</h3>
+                <p class="text-neutral-300">Recorriste los seis proyectos. Mañana: doctor, audit, AGENTS.md global, un piloto, handoff hoy, drift semanal y el <code>FALHAS.md</code> creado.</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Ruta</a>
+                <a href="../../index.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Inicio del curso →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o mantente agnóstico</p>
+      <p>Proyecto 3.6 · Ruta 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-6#q1', {
+          answer: 1,
+          explain: {
+            0: 'Casi: es honesto, pero inútil. "Lo reescribí" es el síntoma; la línea tiene que nombrar la corrección más pequeña que habría bastado.',
+            1: 'Exacto: el changelog existe para exponer la protección que faltaba (límite y timeout) y para que dejes de reconstruir lo que solo necesitaba un guard.',
+            2: 'No: la falla ocurrió en tu proyecto y el arreglo es tuyo. Clasificarla como prompt y/o infra es justamente lo que revela el patrón.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-en">
+  <title>Module 2.2 · CLAUDE.md → AGENTS.md | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'blue' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'blue');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['blue'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-en",
+    "tracks": [
+      { "n": "1", "title": "Fundamentals", "modules": [
+        { "id": "1-1", "title": "Why separate the brain from the model", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "The vocabulary: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "The three levels of migration", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomy of a portable workspace", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Owners of the information", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit before implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Hands-on", "modules": [
+        { "id": "2-1", "title": "Environment diagnosis", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Installing the portable core", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Canonical skills with polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: proving it in a fresh session", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff and prime: the daily cycle", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projects", "modules": [
+        { "id": "3-1", "title": "Project 1: migrate your first real project", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Project 2: MCP and hooks between Claude and Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Project 3: curated memory", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Project 4: third executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Project 5: client workspace", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Project 6: the mindset", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Skip to content</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha2/modulo-2-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha2/modulo-2-2.html" class="text-yellow-400 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha2/modulo-2-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentals</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-400 bg-blue-500/10"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Hands-on</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projects</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="My journey"><span aria-hidden="true">◷</span><span class="hidden md:inline">Journey</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Appearance"><span aria-hidden="true">◑</span><span class="hidden md:inline">Appearance</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Theme</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Dark</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Light</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Focus</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">High contrast</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Font</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">System</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Reading</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Size</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Line spacing</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compact</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Comfortable</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Accent</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Toggle light/dark">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-blue-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-blue-400">Home</a><span>/</span>
+          <a href="index.html" class="hover:text-blue-400">Track 2</a><span>/</span>
+          <span class="text-blue-400">Module 2.2</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full mb-4">MODULE 2.2</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">✂️ CLAUDE.md → AGENTS.md</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Portable on one side, residue on the other. Your instructions file has two natures mixed together: rules that hold for any agent, and commands only Claude Code understands. In this module you separate the two with <code class="text-blue-400">adapt-instructions.sh</code>, review the cut by hand, and let Claude keep reading everything through an <code class="text-blue-400">@AGENTS.md</code>.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">6</div><div class="text-xs text-neutral-400">Topics</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">~30</div><div class="text-xs text-neutral-400">Minutes</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Basic</div><div class="text-xs text-neutral-400">Level</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Practice</div><div class="text-xs text-neutral-400">Type</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Page index" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Section <span class="inema-toc-pos" data-inema-section-counter>1</span> of 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">1. What is portable</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">2. What is residue</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">3. adapt-instructions.sh</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">4. @AGENTS.md</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">5. Reading order</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">6. The sed trap</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:2-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Module 2.2 progress">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-blue-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 of 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TÓPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-2-2#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧳 What is portable in an instruction</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t1-p1">Open your <code>CLAUDE.md</code> and read it line by line asking a single question: <em>would this sentence still be true if the executor were Codex, Gemini CLI or a local model?</em> If the answer is yes, the line is <strong class="text-blue-400">portable</strong>. It speaks about your world — the way you publish, your paths, your conventions — and not about the program that is reading it.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t1-p2">In this machine's global CLAUDE.md, the overwhelming majority of the file is portable. Rules like "publishing = commit + push to git, never poke Vercel directly", "the commit author follows the repo's target GitHub account", "semver versioning <code>vX.XX.YY</code>: minor bumps the XX and carries the YY, never resets it", "API keys always in <code>~/projetos/openpcbotv2/.env</code> or <code>~/projetos/wifi/.env</code>, load at runtime and never print the value" — none of them mentions Claude. They are work policy. Any agent that reads them behaves better.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 280" class="w-full h-auto" role="img" aria-label="A CLAUDE.md file enters a splitter and comes out divided in two: AGENTS.md with the portable rules, and a small CLAUDE.md with the residue specific to Claude Code">
+                <defs>
+                  <linearGradient id="m22-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m22-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m22-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m22-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m22-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="280" fill="url(#m22-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="30" y="80" width="190" height="120" rx="14" fill="#26201a" stroke="#9ca3af" stroke-width="2"/>
+                  <text x="125" y="112" text-anchor="middle" fill="#e5e7eb" font-size="15" font-weight="600">CLAUDE.md</text>
+                  <text x="125" y="136" text-anchor="middle" fill="#d1d5db" font-size="12">78 lines</text>
+                  <text x="125" y="156" text-anchor="middle" fill="#d1d5db" font-size="12">all mixed together</text>
+                  <text x="125" y="180" text-anchor="middle" fill="#9ca3af" font-size="11">rules + residue</text>
+
+                  <path d="M220,140 L340,140" fill="none" stroke="#60a5fa" stroke-width="2" opacity="0.6" marker-end="url(#m22-ah)"/>
+
+                  <g filter="url(#m22-glow)"><rect x="345" y="105" width="180" height="70" rx="14" fill="#0e1622" stroke="url(#m22-grad)" stroke-width="2.5"/></g>
+                  <text x="435" y="133" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">adapt-instructions</text>
+                  <text x="435" y="155" text-anchor="middle" fill="#bfdbfe" font-size="12">grep -vE / grep -E</text>
+
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6">
+                    <path d="M525,125 C610,125 620,70 700,70" marker-end="url(#m22-ahc)"/>
+                    <path d="M525,155 C610,155 620,210 700,210" marker-end="url(#m22-ahc)"/>
+                  </g>
+
+                  <g class="wf-a"><rect x="700" y="30" width="270" height="86" rx="14" fill="#0e1622" stroke="#60a5fa" stroke-width="2.5"/></g>
+                  <text x="835" y="58" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">AGENTS.proposto.md</text>
+                  <text x="835" y="80" text-anchor="middle" fill="#bfdbfe" font-size="13">71 portable lines</text>
+                  <text x="835" y="100" text-anchor="middle" fill="#bfdbfe" font-size="11">git, author, semver, key paths</text>
+
+                  <g class="wf-a"><rect x="700" y="170" width="270" height="86" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2.5"/></g>
+                  <text x="835" y="198" text-anchor="middle" fill="#38bdf8" font-size="15" font-weight="600">CLAUDE.proposto.md</text>
+                  <text x="835" y="220" text-anchor="middle" fill="#bfe6ff" font-size="13">@AGENTS.md + 7 lines</text>
+                  <text x="835" y="240" text-anchor="middle" fill="#bfe6ff" font-size="11">AskUserQuestion, plugins, hooks</text>
+
+                  <text x="435" y="220" text-anchor="middle" fill="#9ca3af" font-size="11">never overwrites the original</text>
+                  <text x="435" y="238" text-anchor="middle" fill="#9ca3af" font-size="11">writes *.proposto.md alongside</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Look at the two numbers on the right: in this machine's global CLAUDE.md the cut produced <span class="text-blue-400">71 portable lines</span> versus <span class="text-sky-400">7 of residue</span>. Almost everything you wrote was never about Claude — it was about your work.</p>
+           </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Portable (goes into AGENTS.md)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Publishing rules: "publishing = commit + push; the deploy belongs to the webhook, not to me".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Commit authorship: which account and which e-mail for each target repository.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Versioning: the <code>vX.XX.YY</code> scheme and when each digit resets to zero.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Paths: where the keys live, where the artifacts go, where the portal lives.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Language, tone and expected response format.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Not portable (stays in the residue)</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Names of exclusive tools: <code>AskUserQuestion</code>, <code>Artifact</code>, <code>advisor</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Plugin names: <code>superpowers</code>, <code>context-mode</code>, <code>claude-mem</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Hook configuration and precedence over hook injections.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Slash commands that only exist in one runtime (<code>/code-review</code>).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Any secret value — that goes nowhere at all.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> New here?</h3>
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Runtime</strong> is the program that executes the agent: Claude Code, Codex CLI, Gemini CLI, OpenCode. <strong class="text-primary">Instruction</strong> is the Markdown file the runtime reads before acting — <code>CLAUDE.md</code> in Claude, <code>AGENTS.md</code> in the rest. <strong class="text-primary">Portable</strong> means the text doesn't depend on which program is reading it. <strong class="text-primary">Residue</strong> is what's left after you remove the portable part: small, specific and disposable when you switch executors.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Portable</span><p class="text-sm text-neutral-400 mt-1">Holds for any executor; it's about your work.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Residue</span><p class="text-sm text-neutral-400 mt-1">Only makes sense inside a specific runtime.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">The switch test</span><p class="text-sm text-neutral-400 mt-1">"Is it still true with another executor?"</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Real ratio</span><p class="text-sm text-neutral-400 mt-1">71 portable to 7 residue on this machine.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-2-2#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🧪 What Claude residue is</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t2-p1">Residue is not garbage. These are legitimate, useful instructions — they're just tied to one program. The kit's script recognizes residue through a list of keywords, which is literally a regular expression inside the file: <code>AskUserQuestion</code>, <code>superpowers</code>, <code>context-mode</code>, <code>fable-mindset</code>, <code>claude-mem</code>, <code>ultrareview</code>, <code>/code-review</code>, <code>Artifact</code>, <code>advisor</code>, <code>plugin</code> and <code>hook</code>. Every line matching one of these terms goes to the residue; all the others go to the portable file.</p>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code><span class="text-neutral-500"># inside scripts/adapt-instructions.sh — the cut rule, in one line:</span>
+CLAUDE_ONLY='AskUserQuestion|superpowers|context-mode|fable-mindset|claude-mem|ultrareview|/code-review|Artifact|advisor|plugin|hook'</code></pre>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t2-p2">Notice what this implies. The rule "never use AskUserQuestion (interactive menu), always ask in free text" is residue because of the tool name — but the <em>intent</em> ("I prefer to answer in text, not pick from a menu") is portable. The script can't tell intent from name: it cuts by word. That's why the result is a <strong class="text-blue-400">proposal</strong>, not a final file. When you review it, rewrite the intent in neutral language and leave the tool name in the residue.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> See the residue before cutting</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> find out, without writing anything, how many lines of your file are Claude-specific and which ones they are.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/<span class="text-primary">&lt;your-project&gt;</span>
+
+<span class="text-neutral-500"># how many lines in total</span>
+wc -l CLAUDE.md
+
+<span class="text-neutral-500"># which lines are residue (same regex as the script)</span>
+grep -nE 'AskUserQuestion|superpowers|context-mode|fable-mindset|claude-mem|ultrareview|/code-review|Artifact|advisor|plugin|hook' CLAUDE.md</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to check:</strong> add up the lines <code>grep</code> showed and compare with <code>wc -l</code>. In the global CLAUDE.md on this machine the result was 7 residue out of 78 lines — 71 portable. If in your project the residue exceeds a third of the file, there's probably tool configuration where there should be work rules.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Named tools</h4><p class="text-sm text-neutral-400"><code>AskUserQuestion</code>, <code>Artifact</code>, <code>advisor</code>. Codex doesn't have these tools; citing their names in an AGENTS.md only creates confusion.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Plugins</h4><p class="text-sm text-neutral-400"><code>superpowers</code>, <code>context-mode</code>, <code>claude-mem</code>, <code>fable-mindset</code>. A plugin is Claude Code packaging; there's no equivalent concept in Codex CLI.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Hooks and precedence</h4><p class="text-sm text-neutral-400">Rules like "this file wins over whatever the hook injects". They make sense where a session hook exists; in Codex, <code>SessionStart</code> doesn't even exist.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Slash commands</h4><p class="text-sm text-neutral-400"><code>/code-review</code>, <code>/formato-curso-v5</code>. Slash routing is an interface convention, not content. Translate it to the skill name when migrating.</p></div>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">The cut regex</span><p class="text-sm text-neutral-400 mt-1">Eleven terms decide what is residue. It's in the script, you can edit it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Intent vs name</span><p class="text-sm text-neutral-400 mt-1">The intent is almost always portable; the tool name is not.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Line-by-line cut</span><p class="text-sm text-neutral-400 mt-1">The script works line by line, without understanding paragraphs.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Proposal</span><p class="text-sm text-neutral-400 mt-1">The result calls for human review; it's not a deliverable.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-2-2#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">⚙️ adapt-instructions.sh and the .proposto.md files</h2>
+           </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t3-p1">The script takes a project folder and looks for a <code>CLAUDE.md</code> inside it. If it doesn't find one, it says so and exits with code 0 — that's not an error, it's "nothing to adapt". If it does find one, it writes two files <strong class="text-blue-400">next to</strong> the original, with the suffix <code>.proposto.md</code>. That detail is the safety guarantee of the whole module: <strong>the script never overwrites anything</strong>. You read, fix, and only then rename by hand.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Generate the pair of proposals</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> produce <code>AGENTS.proposto.md</code> and <code>CLAUDE.proposto.md</code> in a project of yours, without touching the original file.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># 1. rehearsal: generates, shows the counts and deletes the files</span>
+scripts/adapt-instructions.sh ~/projetos/<span class="text-primary">&lt;your-project&gt;</span> --dry-run
+
+<span class="text-neutral-500"># 2. for real: leaves the two .proposto.md in the project folder</span>
+scripts/adapt-instructions.sh ~/projetos/<span class="text-primary">&lt;your-project&gt;</span>
+
+<span class="text-neutral-500"># Proposed (review and rename manually):
+#   ~/projetos/&lt;your-project&gt;/AGENTS.proposto.md  (71 lines)
+#   ~/projetos/&lt;your-project&gt;/CLAUDE.proposto.md   (7 lines)</span>
+
+<span class="text-neutral-500"># 3. see what changed before accepting</span>
+diff ~/projetos/<span class="text-primary">&lt;your-project&gt;</span>/CLAUDE.md \
+     ~/projetos/<span class="text-primary">&lt;your-project&gt;</span>/AGENTS.proposto.md | head -40</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to verify:</strong> the original <code>CLAUDE.md</code> remains identical (<code>git status</code> shows no modification to it, only two new untracked files). The two counts added together, plus the header the script adds, roughly match the original's total.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Practical tip</h3>
+              <p class="text-sm text-neutral-300">Always run <code>--dry-run</code> first. It generates, prints the two counts and then removes the files. You learn the project's portable/residue ratio without cluttering the folder — useful when you're going to sweep dozens of projects to decide where to start.</p>
+            </div>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t3-p2">This is worth scaling up. On this machine, <strong class="text-blue-400">165 projects</strong> have a <code>CLAUDE.md</code>, <strong class="text-blue-400">54</strong> already have an <code>AGENTS.md</code> and <strong class="text-blue-400">39</strong> have both. In other words: 15 projects have AGENTS.md without CLAUDE.md (born portable) and 126 are still tied to a single runtime. On top of that, <strong class="text-blue-400">13 projects marked as trusted in Codex have no AGENTS.md</strong> — those are the obvious pilot candidates, because Codex can already work in them but doesn't yet know the rules.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ What the script guarantees</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Never overwrites an existing <code>CLAUDE.md</code> or <code>AGENTS.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Exits with code 0 and a clear message when there's nothing to adapt.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Always inserts the reading order at the top of the portable file.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Puts <code>@AGENTS.md</code> as the first line of the residue.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>--dry-run</code> cleans up the files it just created.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ What it does NOT do</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Understand paragraphs: the split is line by line, with no context.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Rename <code>.proposto.md</code> to the final name — that's on you.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Tell intent apart from a tool name.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Preserve mentions of <code>CLAUDE.md</code> from other projects (see topic 6).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Prove that any agent read the result — that's the readback, in 2.5.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">.proposto.md</span><p class="text-sm text-neutral-400 mt-1">Output for review, next to the original. You rename it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">--dry-run</span><p class="text-sm text-neutral-400 mt-1">Measures the ratio without leaving a file behind.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Idempotent</span><p class="text-sm text-neutral-400 mt-1">Running it twice produces the same pair; nothing accumulates.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Scale</span><p class="text-sm text-neutral-400 mt-1">165 CLAUDE.md on this machine; start with the 13 trusted ones.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-2-2#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🔗 @AGENTS.md: Claude importing the portable file</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t4-p1">The question everyone asks at this point: "if I pull the rules out of CLAUDE.md, does Claude stop knowing them?". No. Claude Code understands an <strong class="text-blue-400">import</strong> line: an <code>@</code> followed by the path of another Markdown file pulls that file's contents into the instructions. So the new <code>CLAUDE.md</code> starts with <code>@AGENTS.md</code> and continues with the seven lines of residue. Claude reads both. Codex reads only the AGENTS.md. Neither one loses anything that concerns it.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="AGENTS.md in the center is read directly by Codex, Gemini and OpenCode, while Claude Code reaches the same file through an at-AGENTS.md import line inside its CLAUDE.md">
+                <defs>
+                  <linearGradient id="m22b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m22b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m22b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m22b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m22b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m22b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m22b-glow)"><rect x="390" y="110" width="220" height="80" rx="16" fill="#0e1622" stroke="url(#m22b-grad)" stroke-width="3"/></g>
+                  <text x="500" y="143" text-anchor="middle" fill="#60a5fa" font-size="18" font-weight="700">AGENTS.md</text>
+                  <text x="500" y="167" text-anchor="middle" fill="#bfdbfe" font-size="12">portable rules · single source</text>
+
+                  <g class="wf-a"><rect x="760" y="20" width="210" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="865" y="43" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">Codex CLI</text><text x="865" y="61" text-anchor="middle" fill="#7dd3fc" font-size="11">reads directly</text></g>
+                  <g class="wf-a"><rect x="760" y="124" width="210" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="865" y="147" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">Gemini CLI</text><text x="865" y="165" text-anchor="middle" fill="#7dd3fc" font-size="11">reads directly</text></g>
+                  <g class="wf-a"><rect x="760" y="228" width="210" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="865" y="251" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">OpenCode</text><text x="865" y="269" text-anchor="middle" fill="#7dd3fc" font-size="11">reads directly</text></g>
+
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6">
+                    <path d="M610,135 C690,135 690,46 755,46" marker-end="url(#m22b-ahc)"/>
+                    <path d="M610,150 L755,150" marker-end="url(#m22b-ahc)"/>
+                    <path d="M610,165 C690,165 690,254 755,254" marker-end="url(#m22b-ahc)"/>
+                  </g>
+
+                  <rect x="30" y="98" width="250" height="104" rx="14" fill="#0e1622" stroke="#60a5fa" stroke-width="2.5"/>
+                  <text x="155" y="126" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">Claude Code</text>
+                  <text x="155" y="150" text-anchor="middle" fill="#bfdbfe" font-size="13">CLAUDE.md</text>
+                  <text x="155" y="172" text-anchor="middle" fill="#93c5fd" font-size="13" font-weight="600">@AGENTS.md</text>
+                  <text x="155" y="192" text-anchor="middle" fill="#bfdbfe" font-size="11">+ 7 lines of residue</text>
+
+                  <path d="M280,150 L385,150" fill="none" stroke="#60a5fa" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#m22b-ah)"/>
+                  <text x="332" y="138" text-anchor="middle" fill="#93c5fd" font-size="11">import</text>
+
+                  <text x="500" y="228" text-anchor="middle" fill="#9ca3af" font-size="12">one source, four readers</text>
+                  <text x="500" y="248" text-anchor="middle" fill="#9ca3af" font-size="11">edit here and they all change together</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Compare the two sides: on the right, three runtimes reading the file <span class="text-sky-400">directly</span>; on the left, Claude reaching the same file through the dashed <span class="text-blue-400">import</span> arrow. What matters is that there is a single central block — if there were two, you'd have two truths to maintain.</p>
+           </div>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Accept the proposals safely</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> promote the <code>.proposto.md</code> files to real files, keeping the original as a dated backup.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/<span class="text-primary">&lt;your-project&gt;</span>
+
+<span class="text-neutral-500"># 1. back up the original, with the date in the name</span>
+cp CLAUDE.md CLAUDE.md.bak-$(date +%Y%m%d)
+
+<span class="text-neutral-500"># 2. promote the ALREADY REVIEWED proposals</span>
+mv AGENTS.proposto.md AGENTS.md
+mv CLAUDE.proposto.md CLAUDE.md
+
+<span class="text-neutral-500"># 3. the new CLAUDE.md must start with the import</span>
+head -1 CLAUDE.md
+<span class="text-neutral-500"># @AGENTS.md</span></code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to verify:</strong> open a new Claude session in that folder and ask "quote the commit authorship rule and tell me which file it came from". The answer must cite <code>AGENTS.md</code>. If it cites <code>CLAUDE.md</code>, the import was not resolved — check that the path is right and that the <code>@</code> is on the first line.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Import (@)</span><p class="text-sm text-neutral-400 mt-1">One line pulls another Markdown file into Claude's instructions.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Single source</span><p class="text-sm text-neutral-400 mt-1">The rules live in one file only; nobody duplicates them.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Dated backup</span><p class="text-sm text-neutral-400 mt-1">Before promoting, keep the original with the date.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Proof of reading</span><p class="text-sm text-neutral-400 mt-1">Asking where the rule came from reveals which file was loaded.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-2-2#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🧭 Explicit reading order at the top</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t5-p1">Here is the detail that separates a workspace that works from one that only looks organized: <strong class="text-blue-400">nothing auto-loads</strong>. The runtime reads the instruction file — and that's it. The <code>context/</code>, <code>tasks/</code> and <code>handoffs/</code> folders are a human convention; no program will open them on its own. If you want the agent to read them, you write that it must, at the top of AGENTS.md. That is why the script injects this line automatically into every portable file it generates.</p>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code># AGENTS.md — portable project instructions
+
+&gt; Reading order for any agent: 1) this file, 2) context/overview.md,
+&gt; 3) context/current-state.md, 4) tasks/current.md, 5) handoffs/latest.md.
+&gt; These names are a convention: nothing is loaded automatically outside of
+&gt; AGENTS.md/CLAUDE.md.</code></pre>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">AGENTS.md</h4><p class="text-sm text-neutral-400">The rules. How to work, what never to do, where things live. The only file the runtime actually loads by itself.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">context/overview.md</h4><p class="text-sm text-neutral-400">What this project is, who it is for, with which dated facts. Stable: it changes over weeks, not hours.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">context/current-state.md</h4><p class="text-sm text-neutral-400">Where things stand right now: what already runs, what is broken, what was decided and not yet implemented.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">tasks/current.md</h4><p class="text-sm text-neutral-400">Goal, owner, definition of done, concrete next action, blockers. One task at a time, with a real file name.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">5</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">handoffs/latest.md</h4><p class="text-sm text-neutral-400">What the last session did and what the next one needs to know. It is the bridge between runtimes: Claude writes, Codex picks up.</p></div>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Practical tip</h3>
+              <p class="text-sm text-neutral-300">Order is a hierarchy of trust, not just a sequence. When <code>tasks/current.md</code> contradicts <code>overview.md</code>, the one that is wrong is the overview — it has aged. Write this into AGENTS.md: "in case of conflict, the more specific and more recent one wins, and report the conflict instead of choosing silently". An agent that points out a contradiction is worth more than an agent that guesses.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Nothing auto-loads</span><p class="text-sm text-neutral-400 mt-1">Outside of AGENTS.md/CLAUDE.md, nobody opens anything on their own.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Convention</span><p class="text-sm text-neutral-400 mt-1">The folder names are an agreement between humans.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Order = trust</span><p class="text-sm text-neutral-400 mt-1">The more specific and recent one wins in a conflict.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Injected by the script</span><p class="text-sm text-neutral-400 mt-1">Every AGENTS.proposto.md is born with the order at the top.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-2-2#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🪤 The sed trap</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-2-t6-p1">When building the portable file, the script does two things: it filters out the residue lines and, on what remains, runs <code>sed 's/CLAUDE\.md/AGENTS.md/g'</code>. The replacement is global and blind. It does not distinguish "the CLAUDE.md of <em>this</em> project" from "the CLAUDE.md of <em>that other</em> project" — and the second mention should not change, because that other project still has a real CLAUDE.md on disk. The script's own header warns about this in a comment line.</p>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code><span class="text-neutral-500"># what the script does with the portable part:</span>
+grep -vE "$CLAUDE_ONLY" "$SRC" | sed 's/CLAUDE\.md/AGENTS.md/g'
+
+<span class="text-neutral-500"># before (correct):
+#   See the portal's `CLAUDE.md` for the update step by step.
+#   Each project can have its own `CLAUDE.md` saying which account to use.
+# after (broken — these files do not exist):
+#   See the portal's `AGENTS.md` for the update step by step.
+#   Each project can have its own `AGENTS.md` saying which account to use.</span></code></pre>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> Why this really hurts</h3>
+             <p class="text-neutral-300 text-sm">An agent that reads "see the portal's AGENTS.md" will try to open <code>~/projetos/portal/AGENTS.md</code>. The file does not exist. From there it does one of two bad things: it invents the content, or it declares that there are no instructions for the portal and carries on without them — which is exactly the scenario where the commit goes out with the wrong author. A harmless text substitution became a lost rule.</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Review the sed before renaming</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> list every mention that <code>sed</code> replaced and decide, one by one, whether the replacement was right.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/<span class="text-primary">&lt;your-project&gt;</span>
+
+<span class="text-neutral-500"># 1. where the original talked about CLAUDE.md</span>
+grep -n 'CLAUDE\.md' CLAUDE.md
+
+<span class="text-neutral-500"># 2. where the proposal now talks about AGENTS.md</span>
+grep -n 'AGENTS\.md' AGENTS.proposto.md
+
+<span class="text-neutral-500"># 3. the two lists side by side: every extra line is a replacement to check</span>
+diff &lt;(grep -c 'CLAUDE\.md' CLAUDE.md) &lt;(grep -c 'AGENTS\.md' AGENTS.proposto.md)
+
+<span class="text-neutral-500"># 4. revert a mention that belonged to ANOTHER project</span>
+sed -i 's|AGENTS.md do portal|CLAUDE.md do portal|' AGENTS.proposto.md</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to verify:</strong> after step 4, <code>grep -n 'do portal' AGENTS.proposto.md</code> cites <code>CLAUDE.md</code> again. Rule of thumb: every mention that comes with a project name ("do portal", "do inemavox", "de cada projeto", i.e. "the portal's", "inemavox's", "each project's") is an external reference and must be reverted; standalone mentions ("this file", "this repo's CLAUDE.md") are internal and the replacement is correct.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Correct replacement</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>"the rules in this CLAUDE.md" → refers to the local file, which became AGENTS.md.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>"write it in the current project's CLAUDE.md" → the current one is precisely the one you migrated.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Section titles that name the file itself.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Replacement to revert</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"the portal's CLAUDE.md" → another repository, which was not migrated.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>"each project may have its own CLAUDE.md" → refers to third-party projects.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Literal paths such as <code>~/.claude/CLAUDE.md</code> — it is a real path on disk.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Quotes from external documentation that use Claude's file name.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Practical tip</h3>
+              <p class="text-sm text-neutral-300">When you finish the review, log the round: one line in <code>FALHAS.md</code> if something broke ("the sed replaced the reference to the portal's CLAUDE.md; smallest fix: revert the line; category: prompt") and a paragraph in <code>handoffs/latest.md</code> saying which projects already have a promoted AGENTS.md. Without that, two weeks from now you will not remember which of the 165 projects have already been through this.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Blind substitution</span><p class="text-sm text-neutral-400 mt-1"><code>sed</code> replaces text; it does not understand references.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">External reference</span><p class="text-sm text-neutral-400 mt-1">A mention of another project's file: it must not change.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Literal path</span><p class="text-sm text-neutral-400 mt-1"><code>~/.claude/CLAUDE.md</code> exists on disk; preserve it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Review before renaming</span><p class="text-sm text-neutral-400 mt-1">The proposal only becomes the file after you have read it.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-2-2#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Self-check (optional): <code>AGENTS.proposto.md</code> ended up with the sentence "see the portal's AGENTS.md to update the card". What should you do?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Nothing: the script already converted everything correctly, just rename the files.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Revert to <code>CLAUDE.md</code>: it is a reference to another project, which was not migrated and whose file still has that name.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Create an empty <code>AGENTS.md</code> in the portal just so the reference is not broken.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-blue-900/40 via-dark-800 to-dark-800 rounded-xl border border-blue-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Module summary</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Portable vs residue</strong><span class="text-neutral-400"> — the question is "would it still be true with another executor?". In this machine's global CLAUDE.md: 71 portable, 7 residue.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">adapt-instructions.sh</strong><span class="text-neutral-400"> — generates <code>AGENTS.proposto.md</code> and <code>CLAUDE.proposto.md</code> next to the original and never overwrites anything.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">@AGENTS.md</strong><span class="text-neutral-400"> — Claude imports the portable part and keeps only the residue; Codex, Gemini and OpenCode read AGENTS.md directly.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Reading order and the sed trap</strong><span class="text-neutral-400"> — nothing auto-loads, so write the order at the top; and review every replaced mention before renaming.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-400 mb-2">Next module:</h3>
+                <p class="text-neutral-300">2.3 — Install the portable core: init-core.sh without overwriting</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Back to the Track</a>
+                <a href="modulo-2-3.html" class="flex-1 text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors">Next module →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migrate or go agnostic</p>
+      <p>Module 2.2 · Track 2 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-2-2#q1', {
+          answer: 1,
+          explain: {
+            0: 'No. sed is a global, blind substitution: it even replaces mentions of files from other projects, which still exist under the old name.',
+            1: 'That\'s it. A mention that comes with a project name is an external reference; revert it to CLAUDE.md before renaming the proposal.',
+            2: 'No. Creating an empty file in another repository only spreads the problem. The portal has its own CLAUDE.md and it must be cited by its real name.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

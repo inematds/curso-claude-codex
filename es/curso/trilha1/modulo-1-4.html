@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Módulo 1.4 · Anatomía de un workspace portátil | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'emerald' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'emerald');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['emerald'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha1/modulo-1-4.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha1/modulo-1-4.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha1/modulo-1-4.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-emerald-400 bg-emerald-500/10"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Púrpura"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-emerald-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-emerald-400">Inicio</a><span>/</span>
+          <a href="index.html" class="hover:text-emerald-400">Ruta 1</a><span>/</span>
+          <span class="text-emerald-400">Módulo 1.4</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full mb-4">MÓDULO 1.4</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">📁 Anatomía de un workspace portátil</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">AGENTS.md, context/, tasks/, handoffs/. El módulo anterior dijo que la capa duradera es Markdown común dentro del proyecto. Este módulo muestra exactamente qué archivos son, qué va en cada uno, quién los lee y en qué orden. Es el árbol que el kit instala con <code>init-core.sh</code> y que los mega-prompts mandan construir. Los nombres son convención: nada de esto se carga solo, y vas a ver cómo resolverlo.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">6</div><div class="text-xs text-neutral-400">Temas</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">~30</div><div class="text-xs text-neutral-400">Minutos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">Básico</div><div class="text-xs text-neutral-400">Nivel</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">Teoría</div><div class="text-xs text-neutral-400">Tipo</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Índice de la página" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Sección <span class="inema-toc-pos" data-inema-section-counter>1</span> de 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">1. README vs AGENTS.md</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">2. overview y current-state</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">3. sources y decisions</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">4. tasks/current.md</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">5. handoffs/latest.md</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">6. skills, scripts y convención</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:1-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 1.4">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-emerald-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-1-4#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">📄 README.md vs AGENTS.md: humano vs agente</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t1-p1">Un workspace portátil empieza con dos archivos en la raíz, y es fácil confundirlos. El <strong>README.md</strong> es para <strong class="text-emerald-400">personas</strong>: onboarding humano, cómo ejecutar, cómo probar, qué hay en cada carpeta. El <strong>AGENTS.md</strong> es para <strong class="text-emerald-400">agentes</strong>: instrucciones concisas, reglas estables y, en la parte superior, un <strong>orden de lectura explícito</strong> que le dice al agente qué archivos abrir antes de actuar.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t1-p2">Este es el árbol completo que propone el kit. Vas a reconocer cada carpeta a lo largo de este módulo:</p>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code>meu-projeto/
+├── README.md              # onboarding humano
+├── AGENTS.md              # instrucciones + orden de lectura (Codex, Gemini, GLM)
+├── CLAUDE.md              # "@AGENTS.md" + residuo específico de Claude
+├── context/
+│   ├── overview.md        # qué es, hechos verificados, preferencias, hipótesis
+│   ├── current-state.md   # qué funciona y qué está pendiente
+│   ├── sources.md         # de dónde vino cada información + regla de refresh
+│   └── decisions/         # una decisión aceptada por archivo
+├── tasks/
+│   └── current.md         # objetivo, responsable, criterio de listo, próxima acción
+├── handoffs/
+│   └── latest.md          # continuación para la próxima sesión
+├── .agents/
+│   └── skills/            # skills canónicas del proyecto
+└── scripts/
+    └── check.sh           # verificación mínima</code></pre>
+
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Árbol del workspace como cajas anidadas: la caja del proyecto contiene README para humanos, AGENTS.md para agentes, y las carpetas context, tasks, handoffs, .agents/skills y scripts">
+                <defs>
+                  <linearGradient id="m14-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                  <filter id="m14-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m14-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#10b981" opacity="0.12"/></pattern>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m14-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m14-glow)"><rect x="40" y="30" width="920" height="245" rx="18" fill="url(#m14-grad)" opacity="0.10" stroke="url(#m14-grad)" stroke-width="2.5"/></g>
+                  <text x="70" y="58" fill="#34d399" font-size="15" font-weight="600">meu-projeto/</text>
+                  <rect x="70" y="80" width="200" height="56" rx="10" fill="#26201a" stroke="#9ca3af" stroke-width="2"/>
+                  <text x="170" y="103" text-anchor="middle" fill="#e5e7eb" font-size="13" font-weight="600">README.md</text>
+                  <text x="170" y="123" text-anchor="middle" fill="#9ca3af" font-size="11">para personas</text>
+                  <rect x="290" y="80" width="200" height="56" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="390" y="103" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">AGENTS.md</text>
+                  <text x="390" y="123" text-anchor="middle" fill="#bfe6ff" font-size="11">para agentes · orden de lectura</text>
+                  <rect x="510" y="80" width="200" height="56" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2" stroke-dasharray="5 4"/>
+                  <text x="610" y="103" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">CLAUDE.md</text>
+                  <text x="610" y="123" text-anchor="middle" fill="#bfe6ff" font-size="11">@AGENTS.md + residuo</text>
+                  <g font-size="12.5" font-weight="600" fill="#a7f3d0">
+                    <g class="wf-a"><rect x="70" y="165" width="160" height="72" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/><text x="150" y="190" text-anchor="middle">context/</text><text x="150" y="210" text-anchor="middle" font-size="10.5" font-weight="400">overview · state · sources · decisions</text></g>
+                    <g class="wf-a"><rect x="250" y="165" width="160" height="72" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/><text x="330" y="190" text-anchor="middle">tasks/</text><text x="330" y="210" text-anchor="middle" font-size="10.5" font-weight="400">current.md</text></g>
+                    <g class="wf-a"><rect x="430" y="165" width="160" height="72" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/><text x="510" y="190" text-anchor="middle">handoffs/</text><text x="510" y="210" text-anchor="middle" font-size="10.5" font-weight="400">latest.md</text></g>
+                    <g class="wf-a"><rect x="610" y="165" width="160" height="72" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/><text x="690" y="190" text-anchor="middle">.agents/skills/</text><text x="690" y="210" text-anchor="middle" font-size="10.5" font-weight="400">skills canónicas</text></g>
+                    <g class="wf-a"><rect x="790" y="165" width="140" height="72" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/><text x="860" y="190" text-anchor="middle">scripts/</text><text x="860" y="210" text-anchor="middle" font-size="10.5" font-weight="400">check.sh</text></g>
+                  </g>
+                  <text x="500" y="262" text-anchor="middle" fill="#a7f3d0" font-size="11">todo dentro del proyecto · Markdown común · nada depende de un plugin</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">La caja grande es el proyecto. En la primera línea, los archivos de entrada: <span class="text-neutral-300">README</span> para personas, <span class="text-sky-400">AGENTS.md</span> para agentes, y el <span class="text-sky-400">CLAUDE.md</span> punteado porque solo importa el AGENTS.md. En la segunda línea, las cinco carpetas <span class="text-emerald-400">portátiles</span> que el resto del módulo explica.</p>
+           </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> "README" es el archivo que todo repositorio muestra en la página inicial; está escrito para una persona que llega sin contexto. "AGENTS.md" es una convención adoptada por Codex, Gemini y otros: un archivo de instrucciones que el agente lee al iniciar en el proyecto. Los dos pueden decir cosas parecidas, pero el README explica y el AGENTS.md ordena.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Va en el AGENTS.md</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Orden de lectura: "lee 1) este archivo, 2) context/overview.md, 3) current-state, 4) tasks/current.md, 5) handoffs/latest.md".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Reglas estables: autor del commit, versionado, dónde están las keys, qué nunca hacer.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Tabla de responsables: quién actualiza cada archivo y cuándo.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ No va en el AGENTS.md</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Tutorial de instalación y prosa larga: eso es README.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Estado actual y tarea en curso: cambian en cada sesión, tienen archivo propio.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Cualquier cosa específica de un runtime (plugin, hook, menú interactivo): eso es residuo del CLAUDE.md.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">README.md</span><p class="text-sm text-neutral-400 mt-1">Onboarding humano. Explica.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">AGENTS.md</span><p class="text-sm text-neutral-400 mt-1">Instrucciones concisas para agentes. Ordena.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Orden de lectura</span><p class="text-sm text-neutral-400 mt-1">Lista explícita al inicio del AGENTS.md.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">@AGENTS.md</span><p class="text-sm text-neutral-400 mt-1">Primera línea del CLAUDE.md: importa lo portátil.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-1-4#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🧭 context/overview.md y current-state.md</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t2-p1">La carpeta <code>context/</code> es el conocimiento duradero del proyecto. Los dos primeros archivos responden a preguntas diferentes. El <strong>overview.md</strong> responde <strong class="text-emerald-400">"¿qué es esto?"</strong>: qué hace el proyecto, para quién, los hechos verificados (cada uno con fuente y fecha), las preferencias del dueño y las hipótesis aún no confirmadas. Cambia despacio. El <strong>current-state.md</strong> responde <strong class="text-emerald-400">"¿cómo está ahora?"</strong>: qué funciona, qué está roto o pendiente, qué cambió desde el overview. Cambia en cada sesión.</p>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> "Overview" es la visión general estable. "Current state" (estado actual) es la fotografía del momento. Separarlos evita el error clásico de un solo archivo que mezcla "el proyecto es X" con "hoy el build está roto": el agente no sabe qué sigue siendo válido. Un hecho verificado es el que tiene fuente y fecha al lado; sin eso, es hipótesis.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-dark-800 rounded-xl border border-dark-600 p-6">
+                <h4 class="font-bold text-emerald-400 mb-3">overview.md</h4>
+                <pre class="bg-dark-900 border border-dark-600 rounded-lg p-3 text-xs overflow-x-auto"><code># Overview
+- ID: overview | Alcance: proyecto
+- Fuente: | Fecha de observación:
+- Estado: borrador | Revisar en:
+
+## Qué es
+## Para quién
+## Hechos verificados (con fuente y fecha)
+## Preferencias (del dueño del proyecto)
+## Hipótesis (no verificadas)</code></pre>
+                <p class="text-xs text-neutral-400 mt-2">Encabezado con ID, alcance, fuente, fecha y estado. Es lo que permite decir si el archivo sigue siendo válido.</p>
+              </div>
+              <div class="bg-dark-800 rounded-xl border border-dark-600 p-6">
+                <h4 class="font-bold text-emerald-400 mb-3">current-state.md</h4>
+                <pre class="bg-dark-900 border border-dark-600 rounded-lg p-3 text-xs overflow-x-auto"><code># Estado actual — AAAA-MM-DD
+- Última sesión:
+- Qué funciona:
+- Qué está roto / pendiente:
+- Hechos que cambiaron desde el overview:</code></pre>
+                <p class="text-xs text-neutral-400 mt-2">Corto y fechado. Si un hecho de aquí se estabiliza, sube al overview; si un hecho del overview cambia, el current-state avisa.</p>
+              </div>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> Ejemplo real: el overview del propio kit (2026-09-13)</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Hecho verificado:</strong> "Codex CLI 0.154.0 no tiene comando import; el import 'de un clic' es de la app de escritorio."</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Hecho verificado:</strong> "Claude Code 2.1.270 con 116 skills; Codex con 27."</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Hipótesis:</strong> "La clasificación heurística de 71 skills como reutilizables es correcta en la mayoría; necesita muestreo."</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Fíjate: el hecho tiene versión y fecha; la hipótesis dice qué falta para convertirse en hecho.</span></li>
+              </ul>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">overview.md</span><p class="text-sm text-neutral-400 mt-1">"¿Qué es esto?" Estable, con hechos fechados.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">current-state.md</span><p class="text-sm text-neutral-400 mt-1">"¿Cómo está ahora?" Cambia en cada sesión.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Hecho verificado</span><p class="text-sm text-neutral-400 mt-1">Tiene fuente y fecha. Sin eso es hipótesis.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Encabezado de nota</span><p class="text-sm text-neutral-400 mt-1">ID, alcance, fuente, fecha, estado, revisar en.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-1-4#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🔗 context/sources.md y context/decisions/</h2>
+           </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t3-p1">Dos archivos que casi nadie crea y que resuelven el problema más común de contexto: <em>"¿cuál de las varias versiones de esta información es la correcta?"</em> El <strong>sources.md</strong> es una tabla de <strong class="text-emerald-400">de dónde vino cada cosa</strong>: ruta o URL, tipo (archivo local, export fechado o conexión viva), fecha, alcance y la regla de refresh. La carpeta <strong>decisions/</strong> guarda <strong class="text-emerald-400">una decisión aceptada por archivo</strong>, con contexto, la decisión en sí y las consecuencias.</p>
+
+            <div class="bg-dark-800 rounded-xl border border-dark-600 p-6 mb-6">
+              <h4 class="font-bold text-emerald-400 mb-3">sources.md del kit, tal como está hoy</h4>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs text-neutral-300">
+                  <thead><tr class="text-neutral-400 border-b border-dark-600"><th class="text-left py-2 pr-3">ID</th><th class="text-left py-2 pr-3">Fuente</th><th class="text-left py-2 pr-3">Tipo</th><th class="text-left py-2 pr-3">Fecha</th><th class="text-left py-2 pr-3">Alcance</th><th class="text-left py-2">Refresh</th></tr></thead>
+                  <tbody class="divide-y divide-dark-600">
+                    <tr><td class="py-2 pr-3">S1</td><td class="py-2 pr-3">docs/migrar-claude-para-codex...md</td><td class="py-2 pr-3">export local</td><td class="py-2 pr-3">2026-09-13</td><td class="py-2 pr-3">filosofía</td><td class="py-2">manual</td></tr>
+                    <tr><td class="py-2 pr-3">S3</td><td class="py-2 pr-3">docs/mega-prompts.pdf</td><td class="py-2 pr-3">export local</td><td class="py-2 pr-3">2026-09-13</td><td class="py-2 pr-3">prompts A/B</td><td class="py-2">manual</td></tr>
+                    <tr><td class="py-2 pr-3">S4</td><td class="py-2 pr-3">relatorios/auditoria-*.md</td><td class="py-2 pr-3">generado por script</td><td class="py-2 pr-3">cada ronda</td><td class="py-2 pr-3">máquina local</td><td class="py-2">ejecutar script</td></tr>
+                    <tr><td class="py-2 pr-3">S5</td><td class="py-2 pr-3">wifi/DIAGNOSTICO-CLAUDE-CODEX...md</td><td class="py-2 pr-3">diagnóstico</td><td class="py-2 pr-3">2026-09-14</td><td class="py-2 pr-3">máquina local</td><td class="py-2">ejecutar doctor/audit</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="text-xs text-neutral-400 mt-3">Cuando dos informaciones entran en conflicto, miras la tabla: cuál tiene la fuente más confiable y la regla de refresh más reciente. No cuál tiene el timestamp mayor.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> "Sources" (fuentes) es el registro de procedencia: sin él, un hecho es solo una frase suelta. "Decisions" (decisiones) son registros cortos y fechados de lo que se decidió y por qué; el patrón viene de los ADRs, "architecture decision records", usados en ingeniería. "Export fechado" es una copia de un documento externo tomada en una fecha; "conexión viva" es cuando el agente va a buscar al sistema original cada vez.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Una buena decisión en decisions/</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Nombre fechado: <code>2026-09-13-docs-fora-do-git.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Estado explícito: propuesta, aceptada o revocada.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Contexto, decisión y consecuencias en tres bloques cortos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Nunca se borra: si cambia, una nueva decisión la revoca.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Lo que no funciona</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Decisión enterrada en medio de un chat de 300 turnos.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Editar la decisión antigua en el mismo lugar: se pierde el historial de por qué cambió.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Sin estado: el agente no sabe si todavía vale o si es solo una idea.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Fuente sin fecha: imposible saber si envejeció.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">sources.md</span><p class="text-sm text-neutral-400 mt-1">Tabla de procedencia con regla de refresh.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">decisions/</span><p class="text-sm text-neutral-400 mt-1">Una decisión fechada por archivo, con estado.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">La procedencia vence al timestamp</span><p class="text-sm text-neutral-400 mt-1">El conflicto se resuelve por la fuente, no por la fecha mayor.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Revocar, no borrar</span><p class="text-sm text-neutral-400 mt-1">El historial de decisiones es parte del contexto.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-1-4#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🎯 tasks/current.md: dueño y criterio de terminado</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t4-p1">El texto original observa que mucha gente habla de memoria y de handoff, pero se olvida del <strong>trabajo actual</strong>. El <code>tasks/current.md</code> es eso: <strong class="text-emerald-400">qué estamos haciendo ahora, quién es responsable y cuál es el criterio de terminado</strong>. Hace que el agente entienda no solo el historial, sino lo que tiene que pasar en esta sesión. Y es el archivo que la pregunta 1 del readback ("¿cuál es el objetivo y el criterio de aceptación?") va a buscar.</p>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t4-p2">Este es el <code>tasks/current.md</code> real del kit, el día en que se escribió este curso. Fíjate en que cada línea responde a una pregunta que un agente nuevo haría:</p>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code># Tarea actual
+- Objetivo: validar el piloto — skill `session-handoff` portada a Codex
+  vía polyskill y readback pasando en los dos runtimes.
+- Dueño: Nei (decide piloto y skills); el agente ejecuta.
+- Criterio de terminado: `scripts/readback-test.sh . both` genera respuestas que
+  citan AGENTS.md/tasks/handoffs en ambos; `scripts/sync-skills.sh drift`
+  sin DRIFT.
+- Próxima acción concreta: Fase 0 del plan en
+  `~/projetos/wifi/DIAGNOSTICO-CLAUDE-CODEX-2026-09-14.md` —
+  `scripts/adapt-instructions.sh ~/.claude`, revisar, guardar
+  `~/.codex/AGENTS.md`, readback en `~/projetos/wifi`.
+- Bloqueos: ninguno (publicación ya hecha; docs/ sigue fuera del git).</code></pre>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> "Criterio de terminado" (o criterio de aceptación) es la frase que permite decir, sin discusión, si la tarea se acabó. Un buen criterio es verificable: "el comando X genera la salida Y". Un mal criterio es opinión: "está bien". "Dueño" es quien decide; el agente ejecuta, pero no cambia el objetivo por su cuenta. "Próxima acción concreta" es el primer comando o edición, no una intención.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">El humano define</h4><p class="text-sm text-neutral-400">Objetivo, dueño y criterio de terminado los escribe quien manda en el proyecto. El agente puede proponer, no decidir.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">El agente marca</h4><p class="text-sm text-neutral-400">Durante la sesión, el agente actualiza "próxima acción" y "bloqueos" a medida que avanza, y registra lo que ejecutó.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Terminado solo con evidencia</h4><p class="text-sm text-neutral-400">La tarea se cierra cuando el criterio se ejecutó y el resultado está en el handoff. "Debería funcionar" no cierra nada.</p></div>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">tasks/current.md</span><p class="text-sm text-neutral-400 mt-1">El trabajo de ahora, no el historial.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Dueño</span><p class="text-sm text-neutral-400 mt-1">Quien decide objetivo y criterio.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Criterio de terminado</span><p class="text-sm text-neutral-400 mt-1">Verificable por comando, no por opinión.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Próxima acción concreta</span><p class="text-sm text-neutral-400 mt-1">El primer comando, con ruta.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+         </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-1-4#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🔁 handoffs/latest.md: la continuación</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t5-p1">El handoff es el archivo que cierra una sesión y abre la siguiente. El texto original describe el flujo: <strong>sesión → <code>/handoff</code> → Markdown → <code>/prime</code> → nueva sesión</strong>. El comando de handoff analiza la sesión buscando decisiones tomadas, tareas inconclusas, próximos pasos y rutas de archivo, y guarda todo en Markdown. Un archivo llamado <code>latest.md</code> apunta siempre al más reciente. El <code>/prime</code> lee ese contexto de vuelta. Así no tienes que buscar información en archivos JSONL, y el resumen viaja a cualquier proveedor.</p>
+
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 200" class="w-full h-auto" role="img" aria-label="Orden de lectura de una sesión nueva: AGENTS.md, luego context/overview.md, current-state.md, tasks/current.md y por último handoffs/latest.md, desde donde la sesión continúa">
+                <defs>
+                  <linearGradient id="m14b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                  <filter id="m14b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m14b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#10b981" opacity="0.12"/></pattern>
+                  <marker id="m14b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#34d399"/></marker>
+                  <marker id="m14b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="200" fill="url(#m14b-grid)"/>
+                <g font-family="Inter,sans-serif" font-size="12.5" font-weight="600">
+                  <rect x="30" y="70" width="150" height="56" rx="10" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="105" y="94" text-anchor="middle" fill="#9ad6ff">1 · AGENTS.md</text>
+                  <text x="105" y="112" text-anchor="middle" fill="#bfe6ff" font-size="10.5" font-weight="400">reglas + orden</text>
+                  <path d="M180,98 L215,98" fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.6" marker-end="url(#m14b-ah)"/>
+                  <rect x="220" y="70" width="150" height="56" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/>
+                  <text x="295" y="94" text-anchor="middle" fill="#a7f3d0">2 · overview.md</text>
+                  <text x="295" y="112" text-anchor="middle" fill="#a7f3d0" font-size="10.5" font-weight="400">qué es</text>
+                  <path d="M370,98 L405,98" fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.6" marker-end="url(#m14b-ah)"/>
+                  <rect x="410" y="70" width="150" height="56" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/>
+                  <text x="485" y="94" text-anchor="middle" fill="#a7f3d0">3 · current-state</text>
+                  <text x="485" y="112" text-anchor="middle" fill="#a7f3d0" font-size="10.5" font-weight="400">cómo está</text>
+                  <path d="M560,98 L595,98" fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.6" marker-end="url(#m14b-ah)"/>
+                  <rect x="600" y="70" width="150" height="56" rx="10" fill="#0e2018" stroke="#34d399" stroke-width="2"/>
+                  <text x="675" y="94" text-anchor="middle" fill="#a7f3d0">4 · tasks/current</text>
+                  <text x="675" y="112" text-anchor="middle" fill="#a7f3d0" font-size="10.5" font-weight="400">qué hacer</text>
+                  <path d="M750,98 L785,98" fill="none" stroke="#34d399" stroke-width="1.8" opacity="0.6" marker-end="url(#m14b-ah)"/>
+                  <g filter="url(#m14b-glow)"><rect x="790" y="64" width="180" height="68" rx="12" fill="url(#m14b-grad)" opacity="0.16" stroke="url(#m14b-grad)" stroke-width="2.5"/></g>
+                  <text x="880" y="92" text-anchor="middle" fill="#34d399" font-size="13.5" font-weight="700">5 · handoffs/latest</text>
+                  <text x="880" y="112" text-anchor="middle" fill="#a7f3d0" font-size="10.5" font-weight="400">desde dónde continuar</text>
+                  <path d="M880,132 C880,170 105,170 105,132" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="6 6" opacity="0.55" marker-end="url(#m14b-ahc)"/>
+                  <text x="500" y="178" text-anchor="middle" fill="#9ad6ff" font-size="11" font-weight="400">fin de la sesión: nuevo handoff → la próxima sesión vuelve a empezar por el AGENTS.md</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Lee de izquierda a derecha: la sesión nueva abre el <span class="text-sky-400">AGENTS.md</span>, que manda leer los cuatro siguientes en orden, y llega al <span class="text-emerald-400">handoff</span>, destacado, desde donde continúa. La flecha punteada de vuelta es el ciclo: al cerrar, se escribe un handoff nuevo.</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-900/30 to-dark-800 rounded-xl border border-emerald-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-emerald-400 mb-3 flex items-center"><span class="mr-2">📝</span> Las siete secciones de la plantilla de handoff del kit</h3>
+              <div class="grid sm:grid-cols-2 gap-2 text-sm text-neutral-300">
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600"><strong class="text-neutral-100">Proyecto y alcance</strong><br>lo que cubrió esta sesión</div>
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600"><strong class="text-neutral-100">Objetivo actual</strong><br>apunta a tasks/current.md</div>
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600"><strong class="text-neutral-100">Estado aceptado</strong><br>lo que está confirmado, con commit</div>
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600"><strong class="text-neutral-100">Archivos modificados</strong><br>rutas, no descripciones vagas</div>
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600"><strong class="text-neutral-100">Checks ejecutados y resultado</strong><br>pasó / falló / no ejecutado</div>
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600"><strong class="text-neutral-100">Preguntas abiertas</strong><br>lo que solo el dueño decide</div>
+                <div class="bg-dark-800/60 rounded-lg p-3 border border-dark-600 sm:col-span-2"><strong class="text-neutral-100">Próxima acción exacta</strong><br>el comando que la próxima sesión ejecuta primero</div>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Consejo práctico</h3>
+              <p class="text-sm text-neutral-300">Un buen handoff preserva las fallas no resueltas y no afirma que los cambios sin commit "están disponibles" en otro lugar. Cuando Claude hizo el readback del propio kit, señaló exactamente eso: el handoff decía "commit inicial" mientras seis archivos estaban editados sin commit. Se corrigió el handoff, no la regla.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">handoffs/latest.md</span><p class="text-sm text-neutral-400 mt-1">Siempre el más reciente; la próxima sesión empieza aquí.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">/handoff y /prime</span><p class="text-sm text-neutral-400 mt-1">Escribir al cerrar, leer al abrir.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Viaja entre proveedores</span><p class="text-sm text-neutral-400 mt-1">Claude escribe, Codex retoma, y viceversa.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Sin JSONL</span><p class="text-sm text-neutral-400 mt-1">El resumen estructurado reemplaza la relectura del log en bruto.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-1-4#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🧩 .agents/skills/, scripts/ y la regla de la convención</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-4-t6-p1">Las dos últimas carpetas guardan capacidad, no conocimiento. <code>.agents/skills/</code> es donde viven las <strong>skills canónicas</strong> del proyecto (Codex ya busca ahí; Claude recibe una copia generada). <code>scripts/</code> guarda comandos reproducibles, como el <code>check.sh</code> que verifica si los archivos obligatorios existen y no están vacíos. Y aquí viene el aviso más importante del módulo, directo del Prompt B: <strong class="text-emerald-400">esos nombres son convenciones; dile explícitamente a cada agente qué leer. No des por hecho que los cargan solos.</strong></p>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">¿Nuevo aquí?</strong> "Auto-load" (carga automática) es cuando el runtime lee un archivo sin que nadie lo pida. Claude Code lo hace con <code>CLAUDE.md</code>; Codex, con <code>AGENTS.md</code>. Nada más. Una carpeta llamada <code>context/</code> es bonita, pero ningún agente la abre por su cuenta. "Convención" es un nombre acordado entre humanos; se convierte en comportamiento solo cuando el AGENTS.md manda leerla.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Se carga solo</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>CLAUDE.md</code> en Claude Code (global y del proyecto).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>AGENTS.md</code> en Codex (y en Gemini).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Skills en <code>~/.claude/skills</code>, <code>~/.codex/skills</code>, <code>.agents/skills/</code>: descubiertas por nombre.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ No se carga solo</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span><code>context/</code>, <code>tasks/</code>, <code>handoffs/</code>: solo si el AGENTS.md manda leerlas.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span><code>README.md</code>: el agente puede ni siquiera abrirlo.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Cualquier carpeta bonita tipo <code>brain/</code>, <code>knowledge/</code>, <code>memory/</code> sin instrucción explícita.</span></li>
+                </ul>
+              </div>
+           </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> El error a evitar</h3>
+              <p class="text-neutral-300 text-sm">Armar el árbol completo, sentirse orgulloso de la estructura y nunca probar si el agente lo usa. El Prompt B es explícito: un directorio generado no es prueba de que un agente lo lea. La prueba es el readback (módulo 2.5): sesión nueva, cinco preguntas, y las respuestas citando <code>AGENTS.md</code>, <code>tasks/current.md</code> y <code>handoffs/latest.md</code>.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🔬</span> Cómo lo resuelve el kit</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>El <code>AGENTS.md</code> de la plantilla abre con la frase: "Orden de lectura para cualquier agente: 1) este archivo, 2) context/overview.md, 3) context/current-state.md, 4) tasks/current.md, 5) handoffs/latest.md. Estos nombres son convención de este repo, no se cargan automáticamente: léelos."</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>El <code>scripts/check.sh</code> verifica que los siete archivos obligatorios existan y no estén vacíos: <code>[ok]</code> o <code>[FALTA]</code>.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>El <code>readback-test.sh</code> prueba que el agente leyó, y no solo que el archivo existe.</span></li>
+              </ul>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Conceptos clave</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">.agents/skills/</span><p class="text-sm text-neutral-400 mt-1">Skills canónicas del proyecto; Codex ya busca aquí.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">scripts/check.sh</span><p class="text-sm text-neutral-400 mt-1">Verificación mínima: los archivos existen y no están vacíos.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Convención</span><p class="text-sm text-neutral-400 mt-1">Nombre acordado; se vuelve comportamiento solo por instrucción.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Auto-load</span><p class="text-sm text-neutral-400 mt-1">Solo CLAUDE.md y AGENTS.md. El resto, el AGENTS.md manda leerlo.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-1-4#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Autoevaluación (opcional): creaste <code>context/overview.md</code> y <code>tasks/current.md</code> en un proyecto. ¿Codex los va a leer al iniciar?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Sí, esos nombres son estándar y todo runtime los carga.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Solo si el AGENTS.md manda leerlos, en el orden correcto; y la prueba es el readback, no la existencia del archivo.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">No, Codex solo lee README.md.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Marcar como leído</span><span class="inema-label-done">Leído ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-emerald-900/40 via-dark-800 to-dark-800 rounded-xl border border-emerald-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Resumen del módulo</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">README vs AGENTS.md</strong><span class="text-neutral-400"> — uno explica para personas, el otro ordena para agentes, con el orden de lectura al inicio.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">context/</strong><span class="text-neutral-400"> — overview (qué es, con hechos fechados), current-state (cómo está), sources (de dónde vino) y decisions (qué se decidió, nunca se borra).</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">tasks/current.md</strong><span class="text-neutral-400"> — objetivo, dueño, criterio de terminado verificable y próxima acción concreta.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">handoffs/latest.md</strong><span class="text-neutral-400"> — cierra la sesión y abre la siguiente en cualquier proveedor.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Convención no es auto-load</strong><span class="text-neutral-400"> — solo CLAUDE.md y AGENTS.md se cargan solos; el resto el AGENTS.md manda leerlo, y el readback lo prueba.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-emerald-400 mb-2">Próximo módulo:</h3>
+                <p class="text-neutral-300">1.5 — Dueños de la información: hecho, preferencia, hipótesis, decisión</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Volver a la Ruta</a>
+                <a href="modulo-1-5.html" class="flex-1 text-center px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-500 transition-colors">Próximo módulo →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o quédate agnóstico</p>
+      <p>Módulo 1.4 · Ruta 1 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-1-4#q1', {
+          answer: 1,
+          explain: {
+            0: 'No. Solo CLAUDE.md y AGENTS.md se cargan solos. context/ y tasks/ son convención de este repo.',
+            1: 'Eso es. El AGENTS.md dicta el orden de lectura, y la prueba de que funcionó es el readback en una sesión nueva.',
+            2: 'Codex lee AGENTS.md al iniciar, no el README. Y lee los demás solo si el AGENTS.md lo manda.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

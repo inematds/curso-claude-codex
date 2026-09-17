@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-es">
+  <title>Ruta 3 · Proyectos | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-es",
+    "tracks": [
+      { "n": "1", "title": "Fundamentos", "modules": [
+        { "id": "1-1", "title": "Por qué separar el cerebro del modelo", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "El vocabulario: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "Los tres niveles de migración", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomía de un workspace portátil", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Dueños de la información", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit antes de implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Manos a la obra", "modules": [
+        { "id": "2-1", "title": "Diagnóstico del entorno", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Instalar el núcleo portátil", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Skills canónicas con polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: probar en una sesión nueva", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff y prime: el ciclo diario", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Proyectos", "modules": [
+        { "id": "3-1", "title": "Proyecto 1: migrar tu primer proyecto real", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Proyecto 2: MCP y hooks entre Claude y Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Proyecto 3: memoria curada", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Proyecto 4: tercer ejecutor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Proyecto 5: workspace de cliente", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Proyecto 6: la mentalidad", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .hover\:border-purple-500\/30:hover { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Saltar al contenido</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/index.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/index.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/index.html" class="text-yellow-400 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Manos a la obra</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Proyectos</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Mi recorrido"><span aria-hidden="true">◷</span><span class="hidden md:inline">Recorrido</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Apariencia"><span aria-hidden="true">◑</span><span class="hidden md:inline">Apariencia</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tema</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Oscuro</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Claro</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Enfoque</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Alto contraste</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Fuente</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sistema</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Lectura</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Tamaño</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Interlineado</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compacto</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Cómodo</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Acento</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Esmeralda"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Azul"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Púrpura"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Ámbar"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Verde azulado"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rosa"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Alternar claro/oscuro">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Inicio</a><span>/</span><span class="text-purple-400">Ruta 3</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">RUTA 3</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🚀 Proyectos</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl mb-6">Seis proyectos paso a paso sobre un sistema real (el diagnóstico del 2026-09-14 de esta máquina): migrar el primer proyecto, llevar MCP y hooks entre Claude y Codex, curar la memoria, conectar un tercer ejecutor, aislar un workspace de cliente — y cerrar con la mentalidad que hace que todo esto perdure. Cada proyecto tiene objetivo, comandos, criterio de aceptación y riesgos.</p>
+
+        <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+          <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="El núcleo portátil (AGENTS.md, context, skills, handoff) está en el centro; cuatro ejecutores alrededor — Claude, Codex, dsh local y openpcbotv3 — leen el mismo núcleo y le devuelven trabajo">
+            <defs>
+              <linearGradient id="t3h-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+              <filter id="t3h-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              <pattern id="t3h-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+              <marker id="t3h-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+              <marker id="t3h-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+            </defs>
+            <rect x="0" y="0" width="1000" height="300" fill="url(#t3h-grid)"/>
+            <g font-family="Inter,sans-serif">
+              <!-- núcleo portátil (foco) -->
+              <g filter="url(#t3h-glow)"><rect x="370" y="80" width="260" height="140" rx="18" fill="#1a1230" stroke="url(#t3h-grad)" stroke-width="2.5"/></g>
+              <text x="500" y="108" text-anchor="middle" fill="#c084fc" font-size="16" font-weight="600">Núcleo portátil</text>
+              <g font-size="12" fill="#e9d5ff">
+                <rect x="388" y="122" width="108" height="26" rx="7" fill="#241a3d" stroke="#c084fc" stroke-width="1.5"/><text x="442" y="139" text-anchor="middle">AGENTS.md</text>
+                <rect x="504" y="122" width="108" height="26" rx="7" fill="#241a3d" stroke="#c084fc" stroke-width="1.5"/><text x="558" y="139" text-anchor="middle">context/</text>
+                <rect x="388" y="156" width="108" height="26" rx="7" fill="#241a3d" stroke="#c084fc" stroke-width="1.5"/><text x="442" y="173" text-anchor="middle">skills/</text>
+                <rect x="504" y="156" width="108" height="26" rx="7" fill="#241a3d" stroke="#c084fc" stroke-width="1.5"/><text x="558" y="173" text-anchor="middle">handoffs/</text>
+              </g>
+              <text x="500" y="204" text-anchor="middle" fill="#d8b4fe" font-size="11">Markdown común · no depende de ningún modelo</text>
+              <!-- executores (ciano) -->
+              <g font-size="13" font-weight="600">
+                <g class="wf-a"><rect x="60" y="40" width="170" height="44" rx="11" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="145" y="60" text-anchor="middle" fill="#bfe6ff">Claude Code</text><text x="145" y="76" text-anchor="middle" fill="#9ad6ff" font-size="10.5" font-weight="400">lee @AGENTS.md</text></g>
+                <g class="wf-a"><rect x="770" y="40" width="170" height="44" rx="11" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="855" y="60" text-anchor="middle" fill="#bfe6ff">Codex CLI</text><text x="855" y="76" text-anchor="middle" fill="#9ad6ff" font-size="10.5" font-weight="400">lee AGENTS.md</text></g>
+                <g class="wf-a"><rect x="60" y="216" width="170" height="44" rx="11" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="145" y="236" text-anchor="middle" fill="#bfe6ff">dsh local</text><text x="145" y="252" text-anchor="middle" fill="#9ad6ff" font-size="10.5" font-weight="400">contenedor · modo local</text></g>
+                <g class="wf-a"><rect x="770" y="216" width="170" height="44" rx="11" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="855" y="236" text-anchor="middle" fill="#bfe6ff">openpcbotv3</text><text x="855" y="252" text-anchor="middle" fill="#9ad6ff" font-size="10.5" font-weight="400">vault curado · tiers</text></g>
+              </g>
+              <!-- executores → núcleo (purple, leem) -->
+              <g fill="none" stroke="#c084fc" stroke-width="1.8" opacity="0.5">
+                <path d="M230,62 C300,62 320,110 370,110" marker-end="url(#t3h-ah)"/>
+                <path d="M770,62 C700,62 680,110 630,110" marker-end="url(#t3h-ah)"/>
+                <path d="M230,238 C300,238 320,190 370,190" marker-end="url(#t3h-ah)"/>
+                <path d="M770,238 C700,238 680,190 630,190" marker-end="url(#t3h-ah)"/>
+              </g>
+              <!-- núcleo → executores (ciano, devolvem handoff) -->
+              <g fill="none" stroke="#38bdf8" stroke-width="1.8" opacity="0.5" stroke-dasharray="6 5">
+                <path d="M370,130 C320,130 300,84 230,84"/>
+                <path d="M630,130 C680,130 700,84 770,84"/>
+                <path d="M370,170 C320,170 300,216 230,216"/>
+                <path d="M630,170 C680,170 700,216 770,216"/>
+              </g>
+              <text x="300" y="150" text-anchor="middle" fill="#9ca3af" font-size="10.5">leen ↔ devuelven handoff</text>
+              <text x="700" y="150" text-anchor="middle" fill="#9ca3af" font-size="10.5">leen ↔ devuelven handoff</text>
+            </g>
+          </svg>
+          <p class="text-xs text-neutral-400 mt-1 px-1">Léelo del centro hacia afuera: el <span class="text-purple-400">núcleo portátil</span> es uno solo; los cuatro <span class="text-sky-400">ejecutores</span> (Claude, Codex, dsh local, openpcbotv3) leen el mismo AGENTS.md y context/ y devuelven trabajo en forma de handoff. Cambiar de modelo no mueve el centro.</p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Proyectos</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">36</div><div class="text-xs text-neutral-400">Temas</div></div>
+         <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~4h</div><div class="text-xs text-neutral-400">Duración</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Interm.</div><div class="text-xs text-neutral-400">Nivel</div></div>
+        </div>
+
+        <div class="mt-6 max-w-md" data-inema-meter="trilha:3" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso de la ruta 3">
+          <div class="flex items-center justify-between mb-1"><span class="text-xs text-neutral-400">Progreso de la ruta</span><span class="text-xs font-bold text-purple-400" data-inema-meter-pct>0%</span></div>
+          <div class="inema-bar h-2 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+          <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 36</span> temas</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+      <!-- MAPA DA TRILHA -->
+      <section class="mb-12">
+        <h2 class="text-2xl font-bold mb-6">Mapa de la ruta</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <a href="#modulo-3-1" class="group bg-dark-800 rounded-xl border border-dark-600 hover:border-purple-500/30 p-5 transition-all">
+            <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold text-sm">3.1</span><span class="text-xs text-neutral-500">~40 min</span></div>
+            <h3 class="font-semibold mb-1 group-hover:text-purple-400 transition-colors">🚀 Primer proyecto real</h3>
+            <p class="text-xs text-neutral-400">Fase 0 y Fase 2 del plan</p>
+          </a>
+          <a href="#modulo-3-2" class="group bg-dark-800 rounded-xl border border-dark-600 hover:border-purple-500/30 p-5 transition-all">
+            <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold text-sm">3.2</span><span class="text-xs text-neutral-500">~40 min</span></div>
+            <h3 class="font-semibold mb-1 group-hover:text-purple-400 transition-colors">🔌 MCP y hooks</h3>
+            <p class="text-xs text-neutral-400">Las herramientas viajan, los eventos no</p>
+          </a>
+          <a href="#modulo-3-3" class="group bg-dark-800 rounded-xl border border-dark-600 hover:border-purple-500/30 p-5 transition-all">
+            <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold text-sm">3.3</span><span class="text-xs text-neutral-500">~40 min</span></div>
+            <h3 class="font-semibold mb-1 group-hover:text-purple-400 transition-colors">🗃️ Memoria curada</h3>
+            <p class="text-xs text-neutral-400">El agente propone, tú apruebas</p>
+          </a>
+          <a href="#modulo-3-4" class="group bg-dark-800 rounded-xl border border-dark-600 hover:border-purple-500/30 p-5 transition-all">
+            <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold text-sm">3.4</span><span class="text-xs text-neutral-500">~40 min</span></div>
+            <h3 class="font-semibold mb-1 group-hover:text-purple-400 transition-colors">🐳 Tercer ejecutor</h3>
+            <p class="text-xs text-neutral-400">dsh-sandbox y modelo local</p>
+          </a>
+          <a href="#modulo-3-5" class="group bg-dark-800 rounded-xl border border-dark-600 hover:border-purple-500/30 p-5 transition-all">
+            <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold text-sm">3.5</span><span class="text-xs text-neutral-500">~40 min</span></div>
+            <h3 class="font-semibold mb-1 group-hover:text-purple-400 transition-colors">👥 Workspace de cliente</h3>
+            <p class="text-xs text-neutral-400">Venn, alcance y canarios</p>
+          </a>
+          <a href="#modulo-3-6" class="group bg-dark-800 rounded-xl border border-dark-600 hover:border-purple-500/30 p-5 transition-all">
+            <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold text-sm">3.6</span><span class="text-xs text-neutral-500">~40 min</span></div>
+            <h3 class="font-semibold mb-1 group-hover:text-purple-400 transition-colors">🧭 La mentalidad</h3>
+            <p class="text-xs text-neutral-400">Todo esto es iterativo</p>
+          </a>
+        </div>
+      </section>
+
+      <h2 class="text-2xl font-bold mb-6">Contenido detallado</h2>
+
+      <!-- MÓDULO 3.1 -->
+      <div id="modulo-3-1" data-inema-module="3-1" data-inema-track="3" class="bg-dark-800 rounded-xl border border-dark-600 mb-6">
+        <div class="p-6 border-b border-dark-600">
+          <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold">3.1</span><span class="text-xs text-neutral-500">~40 min</span></div>
+          <h3 class="text-2xl font-bold mb-2">🚀 Proyecto 1: migrar tu primer proyecto real</h3>
+          <p class="text-neutral-400 text-sm mb-3">Las Fases 0 y 2 del plan de migración aplicadas a un proyecto de verdad: elegir el piloto entre los 13 proyectos en los que Codex ya confía pero donde entra "a ciegas", crear el AGENTS.md global, hacer la limpieza, correr los cinco scripts y probarlo con readback en los dos runtimes.</p>
+          <div data-inema-meter="modulo:3-1" class="max-w-xs" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.1"><div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div><span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span></div>
+        </div>
+        <div class="divide-y divide-dark-600">
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t31-1" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span class="text-lg">🎯</span><div><span class="font-medium">Elegir el piloto</span><span class="text-neutral-500 text-sm ml-2">- los 13 trusted sin AGENTS.md</span></div>
+            </button>
+            <div id="t31-1" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El diagnóstico encontró 55 proyectos marcados como <em>trusted</em> en Codex; 13 de ellos tienen CLAUDE.md pero ningún AGENTS.md (wifi, portal, inemapro-mono, timesmkt2, timesmkt3, inemacert, promoavatar2, skool-roast, imkt4, iccmonit, ATIA, claude-session-kit, agentes-fronteiros). En esos, cada sesión de Codex empieza desde cero.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El piloto correcto es pequeño, se usa todas las semanas y tiene CLAUDE.md propio — así el readback mide algo real, no un ejemplo de juguete.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Trusted en Codex, proyecto "a ciegas", orden por uso, tarea representativa.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t31-2" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span class="text-lg">🌐</span><div><span class="font-medium">Base global de Codex</span><span class="text-neutral-500 text-sm ml-2">- ~/.codex/AGENTS.md a partir del CLAUDE.md global</span></div>
+            </button>
+            <div id="t31-2" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">La Fase 0: correr <code>adapt-instructions.sh ~/.claude</code>, revisar las 71 líneas portables, guardar <code>~/.codex/AGENTS.md</code> y dejar el CLAUDE.md global empezando con <code>@AGENTS.md</code> más las 7 líneas de residuo.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Sin base global, reglas como el autor del commit y dónde están las keys no llegan a Codex en ningún proyecto.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Instrucción global vs por proyecto, @AGENTS.md, residuo Claude, .proposto.md.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t31-3" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span class="text-lg">🧹</span><div><span class="font-medium">Limpieza</span><span class="text-neutral-500 text-sm ml-2">- un CLAUDE.md de 300+ líneas se vuelve un AGENTS.md compacto</span></div>
+            </button>
+            <div id="t31-3" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Archivos como el CLAUDE.md de ruflo (1.391 líneas) o el de timesmkt2 (427) se convierten en ruido en cualquier runtime. Las reglas estables quedan en el AGENTS.md; decisiones, fuentes y runbooks van a <code>context/</code>.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Migrar en crudo solo transporta ruido. La limpieza es el paso que el texto fuente llama "Marie Kondo para tus carpetas".</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Archivar por defecto, traer de vuelta solo cuando haga falta, instrucción corta y contexto separado.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t31-4" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+              <span class="text-lg">⚙️</span><div><span class="font-medium">Correr los 5 scripts en orden</span><span class="text-neutral-500 text-sm ml-2">- doctor, audit, adapt, init-core, sync-skills</span></div>
+            </button>
+            <div id="t31-4" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">La secuencia del kit aplicada al piloto: diagnóstico, inventario, adaptación de las instrucciones, núcleo portable sin sobrescribir nada y la skill session-handoff portada vía polyskill.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Cada script es reversible y produce evidencia; saltarse uno de ellos es exactamente donde la migración se vuelve "intuición".</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Orden fijo, salida en relatorios/, backup al lado, drift cero.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t31-5" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+              <span class="text-lg">✅</span><div><span class="font-medium">Readback en los dos runtimes</span><span class="text-neutral-500 text-sm ml-2">- las 5 preguntas en sesión nueva</span></div>
+           </button>
+            <div id="t31-5" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm"><code>readback-test.sh &lt;projeto&gt; both</code> abre una sesión nueva en Claude y en Codex y pregunta objetivo, regla con fuente, última decisión, próxima acción y conflictos. La respuesta cruda queda en relatorios/.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Es la única prueba de que el agente encontró, leyó, entendió y usó el contexto — que el archivo exista no cuenta.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Sesión nueva, cita AGENTS.md / tasks / handoffs, pasó / falló / no ejecutado.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t31-6" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">6</span>
+              <span class="text-lg">📦</span><div><span class="font-medium">Aceptación y handoff</span><span class="text-neutral-500 text-sm ml-2">- cerrar con evidencia, no con promesas</span></div>
+            </button>
+            <div id="t31-6" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Criterios del plan: readback aprobado en los dos runtimes, drift cero, el clon aislado pasa el check.sh, setup de Claude intacto. Todo registrado en tasks/current.md y handoffs/latest.md.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El handoff es lo que permite que la próxima sesión — en cualquier runtime — continúe desde el punto correcto sin releer JSONL.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Criterio de terminado verificable, handoff con checks ejecutados, próxima acción exacta.</p></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="p-4 bg-dark-700/30 flex justify-start space-x-3">
+          <button onclick="openModal('modal-3-1')" class="px-4 py-2 text-sm bg-dark-600 hover:bg-dark-500 rounded-lg transition-colors">Ver en Modal</button>
+          <a href="modulo-3-1.html" class="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors">Ver Completo</a>
+        </div>
+      </div>
+
+      <!-- MÓDULO 3.2 -->
+      <div id="modulo-3-2" data-inema-module="3-2" data-inema-track="3" class="bg-dark-800 rounded-xl border border-dark-600 mb-6">
+        <div class="p-6 border-b border-dark-600">
+          <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold">3.2</span><span class="text-xs text-neutral-500">~40 min</span></div>
+          <h3 class="text-2xl font-bold mb-2">🔌 Proyecto 2: MCP y hooks entre Claude y Codex</h3>
+          <p class="text-neutral-400 text-sm mb-3">Las herramientas viajan, los eventos no. Claude tiene magnific y metricool registrados; Codex tiene cero MCP. Los hooks de SessionStart no existen en Codex. Este proyecto registra lo que se puede, traduce lo que no se puede y destraba las 15 skills marcadas como "adaptador".</p>
+          <div data-inema-meter="modulo:3-2" class="max-w-xs" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.2"><div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div><span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span></div>
+        </div>
+        <div class="divide-y divide-dark-600">
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t32-1" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span class="text-lg">📋</span><div><span class="font-medium">Inventario de MCP</span><span class="text-neutral-500 text-sm ml-2">- magnific y metricool en Claude, cero en Codex</span></div>
+            </button>
+            <div id="t32-1" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El <code>~/.claude.json</code> tiene magnific y metricool globales, más klingai (wifi) y cerebro-vip (2cerebrox) por proyecto. El <code>config.toml</code> de Codex no tiene ningún bloque <code>[mcp_servers]</code>.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">MCP da acceso a herramientas y datos; no migra historial ni resuelve memoria. Saber exactamente qué ve cada runtime evita esperar de Codex algo que no tiene.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">MCP global vs por proyecto, .mcp.json, config.toml, alcance de cuenta.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t32-2" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span class="text-lg">🔑</span><div><span class="font-medium">codex mcp add sin copiar secretos</span><span class="text-neutral-500 text-sm ml-2">- keys referenciadas desde el .env</span></div>
+            </button>
+            <div id="t32-2" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Registrar el servidor en Codex apuntando a la misma key que ya vive en <code>~/projetos/openpcbotv2/.env</code>, cargada en runtime — nunca pegada en el config ni en el repo.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El Prompt A es explícito: traducir MCP conservando el alcance de cuenta y la referencia de credencial, sin copiar el valor.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Referencia vs valor, cargar en runtime, secretos fuera de lo portable.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t32-3" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span class="text-lg">🔓</span><div><span class="font-medium">Skills de adaptador destrabadas</span><span class="text-neutral-500 text-sm ml-2">- heygen, printing-press y compañía</span></div>
+            </button>
+            <div id="t32-3" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Las 15 skills clasificadas como "adaptador" (avatar-heygen-nei, heygen-cli, heygen-mcp, espiona-ads, ugc-seedance25, website-intelligence, comfy-relay y las 8 printing-press) solo funcionan en Codex después de que el MCP correspondiente esté registrado.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El bloqueo real de la portabilidad es MCP, no el formato del SKILL.md — 72 de las 89 skills migran sin tocar nada.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Reutilizable vs adaptador, dependencia de herramienta, portar después del MCP.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t32-4" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+              <span class="text-lg">🪝</span><div><span class="font-medium">Hooks: eventos distintos</span><span class="text-neutral-500 text-sm ml-2">- sin SessionStart en Codex</span></div>
+            </button>
+            <div id="t32-4" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Claude dispara 2 hooks en SessionStart (context-mode, fable-mindset). El <code>~/.codex/hooks.json</code> conoce PostToolUse y Stop (usados por impeccable), pero no tiene evento de inicio de sesión.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Nunca asumas que hooks con nombre parecido tienen la misma semántica. La lógica reutilizable va a un script común; cada evento nativo se valida por separado.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Evento, payload, trust hash, script común + disparador nativo.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t32-5" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+              <span class="text-lg">📝</span><div><span class="font-medium">fable-mindset se vuelve texto</span><span class="text-neutral-500 text-sm ml-2">- el playbook entra en el AGENTS.md</span></div>
+            </button>
+            <div id="t32-5" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El hook que inyecta la "regla de ritmo" en Claude no tiene equivalente en Codex; la solución portable es transformar el playbook en una sección del AGENTS.md global, leída por instrucción.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Cuando el mecanismo nativo no existe, el contenido igual puede viajar — como Markdown común. Lo mismo vale para silver-platter.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Nativo → texto, instrucción en vez de inyección, residuo de Claude.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t32-6" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">6</span>
+              <span class="text-lg">🎭</span><div><span class="font-medium">Los subagentes se vuelven skills de rol</span><span class="text-neutral-500 text-sm ml-2">- el consejo sin Agent tool</span></div>
+            </button>
+            <div id="t32-6" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Los 7 subagentes de Claude (conselho, advogado-do-diabo, analista-neutro, diretor-ecossistema…) no tienen equivalente 1:1 en Codex. Cada rol se vuelve una skill con prompt propio — el mismo diseño que openpcbotv3 usa en <code>agents/</code> y <code>personalidades/</code>.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El rol es contenido; la orquestación es mecanismo. El contenido es portable, el mecanismo queda fuera del núcleo durable.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Skill de rol, prompt de persona, orquestación fuera del núcleo.</p></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="p-4 bg-dark-700/30 flex justify-start space-x-3">
+          <button onclick="openModal('modal-3-2')" class="px-4 py-2 text-sm bg-dark-600 hover:bg-dark-500 rounded-lg transition-colors">Ver en Modal</button>
+          <a href="modulo-3-2.html" class="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors">Ver Completo</a>
+        </div>
+      </div>
+
+      <!-- MÓDULO 3.3 -->
+      <div id="modulo-3-3" data-inema-module="3-3" data-inema-track="3" class="bg-dark-800 rounded-xl border border-dark-600 mb-6">
+        <div class="p-6 border-b border-dark-600">
+          <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold">3.3</span><span class="text-xs text-neutral-500">~40 min</span></div>
+         <h3 class="text-2xl font-bold mb-2">🗃️ Proyecto 3: memoria curada</h3>
+          <p class="text-neutral-400 text-sm mb-3">El agente propone, tú apruebas. La memoria de Claude (869 archivos, 227 carpetas) es materia prima sin aprobación; el vault de openpcbotv3 (MEMORY.md y USER.md) ya tiene el flujo correcto. Este proyecto convierte el vault en el resumen global de hechos que Claude, Codex y dsh leen.</p>
+          <div data-inema-meter="modulo:3-3" class="max-w-xs" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.3"><div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div><span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span></div>
+        </div>
+        <div class="divide-y divide-dark-600">
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t33-1" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span class="text-lg">🧱</span><div><span class="font-medium">La memoria en bruto es materia prima</span><span class="text-neutral-500 text-sm ml-2">- 869 archivos que solo Claude lee</span></div>
+            </button>
+            <div id="t33-1" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Los archivos en <code>~/.claude/projects/*/memory</code> fueron escritos por el modelo, sin revisión humana, y ningún otro runtime los ve. Copiarlos en masa transporta los errores junto con los aciertos.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El plan es claro: promover hecho por hecho, deliberadamente, cuando se toque el proyecto — nunca copia en masa.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Memoria nativa vs fuente, promoción deliberada, evidencia en bruto separada.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t33-2" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span class="text-lg">🏦</span><div><span class="font-medium">El vault de openpcbotv3</span><span class="text-neutral-500 text-sm ml-2">- MEMORY.md y USER.md como resumen global</span></div>
+            </button>
+            <div id="t33-2" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">En <code>~/vault/</code>, el bot v3 mantiene MEMORY.md y USER.md curados: él propone entradas y tú las apruebas por Telegram. USER.md entra en todos los prompts del bot.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Es el único lugar de la máquina con hechos personales aprobados por un humano — exactamente lo que el Prompt B llama "promover hechos verificados".</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Vault curado, resumen global, hecho verificado con aprobación.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t33-3" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span class="text-lg">✋</span><div><span class="font-medium">Flujo propone → aprueba</span><span class="text-neutral-500 text-sm ml-2">- nada se escribe sin tu sí</span></div>
+            </button>
+            <div id="t33-3" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El agente clasifica la frase (semántica o episódica), propone la entrada, y solo <code>/memoria aprovar &lt;id&gt;</code> la graba en el vault. Las preguntas nunca se convierten en hechos.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Separa hecho de preferencia, hipótesis y decisión en la entrada — el problema que la Ruta 1 llamó "¿cuál de las versiones es la correcta?".</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Propuesta, aprobación humana, semántico vs episódico, dedupe.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t33-4" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+              <span class="text-lg">🕰️</span><div><span class="font-medium">superseded_by</span><span class="text-neutral-500 text-sm ml-2">- nunca borra, oculta</span></div>
+            </button>
+            <div id="t33-4" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">La consolidación nocturna del v3 detecta contradicciones por fecha y marca la entrada antigua con <code>superseded_by</code>. La antigua sale del contexto, pero sigue en la base de datos.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Es la regla de conflicto del plan en la práctica: la procedencia y la decisión aceptada vencen al timestamp, y nada se pierde por error.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Contradicción por fecha, ocultar vs borrar, backup antes de la ronda.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t33-5" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+              <span class="text-lg">👁️</span><div><span class="font-medium">Todos leyendo el mismo USER.md</span><span class="text-neutral-500 text-sm ml-2">- Claude, Codex y dsh por instrucción</span></div>
+            </button>
+            <div id="t33-5" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El v3 ya inyecta USER.md en todos los prompts. Claude y Codex hacen lo mismo por una instrucción de lectura en el AGENTS.md global; el dsh, vía la skill de prime. Un hecho personal, una fuente, tres ejecutores.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Criterio de aceptación del sistema: en una sesión nueva, cada runtime cita USER.md como fuente de un hecho personal.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Fuente única, lectura por instrucción, sin auto-load, readback con fuente.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t33-6" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">6</span>
+              <span class="text-lg">🗜️</span><div><span class="font-medium">Archivar sesiones antiguas</span><span class="text-neutral-500 text-sm ml-2">- 2,3 GB de JSONL después de que el ciclo funcione</span></div>
+            </button>
+            <div id="t33-6" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">6.859 sesiones de Claude (2,3 GB) y 209 de Codex (601 MB) son historial, no fuente. Con handoff/prime funcionando, las sesiones de más de 90 días pueden archivarse.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Solo después de que el ciclo esté en pie: el handoff sustituye la dependencia de los JSONL, no al revés.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Historial vs fuente, archivar por defecto, orden de operaciones.</p></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="p-4 bg-dark-700/30 flex justify-start space-x-3">
+          <button onclick="openModal('modal-3-3')" class="px-4 py-2 text-sm bg-dark-600 hover:bg-dark-500 rounded-lg transition-colors">Ver en Modal</button>
+          <a href="modulo-3-3.html" class="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors">Ver Completo</a>
+        </div>
+      </div>
+
+      <!-- MÓDULO 3.4 -->
+      <div id="modulo-3-4" data-inema-module="3-4" data-inema-track="3" class="bg-dark-800 rounded-xl border border-dark-600 mb-6">
+        <div class="p-6 border-b border-dark-600">
+          <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold">3.4</span><span class="text-xs text-neutral-500">~40 min</span></div>
+          <h3 class="text-2xl font-bold mb-2">🐳 Proyecto 4: tercer ejecutor</h3>
+          <p class="text-neutral-400 text-sm mb-3">El dsh-sandbox (DeepSeek en contenedor) ya lleva 12 días corriendo en esta máquina, con 3 skills copiadas a mano y sin capa de contexto. Este proyecto lo transforma en ejecutor de segunda línea: mismo núcleo, skills generadas por la fuente canónica, y seguridad preservada.</p>
+          <div data-inema-meter="modulo:3-4" class="max-w-xs" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.4"><div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div><span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span></div>
+        </div>
+        <div class="divide-y divide-dark-600">
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t34-1" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span class="text-lg">🐳</span><div><span class="font-medium">Qué es el dsh-sandbox</span><span class="text-neutral-500 text-sm ml-2">- modos local, remoto y remoto-projetos</span></div>
+            </button>
+            <div id="t34-1" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm"><code>@deepseek-ai/dsh</code> en Docker, panel en 127.0.0.1:9080. <code>./dsh local</code> monta ~/projetos y usa solo Ollama; <code>remoto</code> usa OpenRouter sin proyectos; <code>remoto-projetos</code> exige escribir CONFIRMO.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Es un tercer runtime real, con un harness más débil — el caso en que el texto fuente dice que vale la pena cuidar el propio harness.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Contenedor, proveedor intercambiable, montaje atado al proveedor, modelo local.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t34-2" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span class="text-lg">📉</span><div><span class="font-medium">Copias a mano = drift garantizado</span><span class="text-neutral-500 text-sm ml-2">- las 3 skills en dsh-skills</span></div>
+            </button>
+            <div id="t34-2" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">formato-curso-v2, formato-curso-v5 y capa-inema fueron copiadas a <code>~/projetos/dsh-skills</code>. Cuando el original en formato-curso-inema cambia, la copia no lo sigue.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Con cuatro consumidores de skills (Claude 117, Codex 27, dsh 3, openpcbotv3 16), sin fuente canónica cada uno diverge por su cuenta.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Drift, fuente canónica, cuatro consumidores, copia generada vs manual.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t34-3" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span class="text-lg">🎯</span><div><span class="font-medium">Destino --dsh en sync-skills.sh</span><span class="text-neutral-500 text-sm ml-2">- dist/claude se convierte en /work/.dsh/skills</span></div>
+           </button>
+            <div id="t34-3" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El dsh acepta el mismo SKILL.md de Claude, así que el destino nuevo copia <code>dist/claude/&lt;skill&gt;</code> a <code>~/projetos/dsh-skills/&lt;skill&gt;</code> y el drift check pasa a cubrir los 4 destinos (claude, codex, dsh, v3).</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Las 3 copias manuales de hoy pasan a ser generadas — el criterio de aceptación es <code>drift</code> sin DRIFT en todos los destinos.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Adaptador de destino, mismo formato, drift en 4 lugares.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t34-4" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+              <span class="text-lg">📖</span><div><span class="font-medium">Darle contexto al dsh</span><span class="text-neutral-500 text-sm ml-2">- una skill de prime</span></div>
+            </button>
+            <div id="t34-4" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El dsh escanea <code>$DSH_HOME/skills</code>, pero no lee AGENTS.md por sí solo. Una skill de prime le indica leer AGENTS.md, context/ y handoffs/latest.md del proyecto montado en modo local.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Los nombres de archivo son convención; ningún runtime los carga automáticamente. Quien no tiene mecanismo nativo obtiene la lectura por medio de una skill.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Prime como skill, puentes de ruta en work/, lectura explícita.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t34-5" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+              <span class="text-lg">🔐</span><div><span class="font-medium">Seguridad: 269 secretos</span><span class="text-neutral-500 text-sm ml-2">- nunca remoto-projetos para readback</span></div>
+            </button>
+            <div id="t34-5" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">~/projetos tiene 269 archivos de secretos (incluye wifi/.env y openpcbotv2/.env). Montar eso con un proveedor remoto enviaría todo hacia afuera; por eso montaje y proveedor van atados y el dsh se niega a exponer la red.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Seguridad del plan: readback en el dsh solo en modo local. La carpeta es organización; permiso, montaje y credencial son lo que impone el acceso.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Modos exclusivos, network_mode host, versión congelada, túnel SSH.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t34-6" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">6</span>
+              <span class="text-lg">📏</span><div><span class="font-medium">Expectativa realista</span><span class="text-neutral-500 text-sm ml-2">- cita los archivos correctos, prosa peor</span></div>
+            </button>
+            <div id="t34-6" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Readback en el dsh desde el panel, con las mismas 5 preguntas. El criterio es citar AGENTS.md, tasks y handoffs — no la calidad de la redacción. Un modelo local rinde menos; eso es un límite del modelo, no de la portabilidad.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Comparar en modo remoto antes de concluir que la estructura falló. Las skills escritas para Claude pueden quedarse cortas en un modelo pequeño.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Criterio de aceptación ajustado, límite del modelo vs límite de la estructura, comparación controlada.</p></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="p-4 bg-dark-700/30 flex justify-start space-x-3">
+          <button onclick="openModal('modal-3-4')" class="px-4 py-2 text-sm bg-dark-600 hover:bg-dark-500 rounded-lg transition-colors">Ver en Modal</button>
+          <a href="modulo-3-4.html" class="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors">Ver Completo</a>
+        </div>
+      </div>
+
+      <!-- MÓDULO 3.5 -->
+      <div id="modulo-3-5" data-inema-module="3-5" data-inema-track="3" class="bg-dark-800 rounded-xl border border-dark-600 mb-6">
+        <div class="p-6 border-b border-dark-600">
+          <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold">3.5</span><span class="text-xs text-neutral-500">~40 min</span></div>
+          <h3 class="text-2xl font-bold mb-2">👥 Proyecto 5: workspace de cliente</h3>
+          <p class="text-neutral-400 text-sm mb-3">Venn, alcance y canarios. Dos clientes imaginarios (North Star y Harbor): lo que tienen en común va al centro; lo que es exclusivo queda en un repo privado por cliente, con snapshot de contexto fechado. El add-on de cliente del Prompt B, paso a paso — y la prueba que demuestra el aislamiento.</p>
+          <div data-inema-meter="modulo:3-5" class="max-w-xs" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.5"><div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div><span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span></div>
+        </div>
+        <div class="divide-y divide-dark-600">
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t35-1" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span class="text-lg">⭕</span><div><span class="font-medium">North Star y Harbor</span><span class="text-neutral-500 text-sm ml-2">- el Diagrama de Venn</span></div>
+            </button>
+            <div id="t35-1" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Descubre qué tienen en común los dos clientes (patrones de entrega, skills, procesos), centraliza esa parte y mantén carpetas específicas solo para lo que es exclusivo de cada uno.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Cuanto mayor es el área del medio, más reutilizable es el sistema — y menos reescribes por cliente.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Compartido vs exclusivo, template genérico, área común grande.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t35-2" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span class="text-lg">🔒</span><div><span class="font-medium">Repo privado por cliente</span><span class="text-neutral-500 text-sm ml-2">- snapshot con ID, fuente y fecha</span></div>
+            </button>
+            <div id="t35-2" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Cada proyecto de cliente recibe su repositorio privado (o una frontera equivalente) y comienza con un snapshot aprobado de contexto que registra ID del cliente, fuente, fecha y regla de refresh. Las fuentes de otro cliente se rechazan.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Una carpeta llamada "harbor" describe organización; solo el permiso de repo, el montaje y la credencial imponen el acceso.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Frontera impuesta, snapshot fechado, client ID, refresh deliberado.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t35-3" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span class="text-lg">🚫</span><div><span class="font-medium">Nada de cliente en lo global</span><span class="text-neutral-500 text-sm ml-2">- ni instrucción, ni memoria universal</span></div>
+            </button>
+            <div id="t35-3" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Hechos, credenciales, registros y logs de cliente nunca entran en el CLAUDE.md/AGENTS.md global ni en el vault personal. El trabajo mixto corre en pilotos separados, con raíces separadas.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">La memoria universal filtra contexto de un cliente a otro sin que nadie se dé cuenta — es el error más caro del modelo agnóstico.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Alcance global vs de cliente, raíces separadas, pilotos separados.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t35-4" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+              <span class="text-lg">📄</span><div><span class="font-medium">Add-on de cliente del Prompt B</span><span class="text-neutral-500 text-sm ml-2">- el texto que pegas</span></div>
+            </button>
+            <div id="t35-4" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El bloque "Client workspace" que se agrega al Prompt B: un cliente nombrado, un piloto, patrones genéricos reutilizados, verificación de acceso al repo, montajes, conectores, permisos de retrieval y backups.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Empieza en MODE: audit, como todo: el agente devuelve árbol, dueños y pruebas antes de tocar cualquier archivo.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">CLIENT_SCOPE, audit primero, verificación de acceso, un cliente a la vez.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t35-5" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+              <span class="text-lg">🐤</span><div><span class="font-medium">Canarios sintéticos</span><span class="text-neutral-500 text-sm ml-2">- la negativa del modelo no es aislamiento</span></div>
+            </button>
+            <div id="t35-5" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Planta un dato falso y único en el cliente A; pídelo en una sesión del cliente B. Si aparece, el backend filtró. Si el modelo "se niega educadamente", eso no prueba nada sobre el backend.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Sin canario solo tienes la palabra del modelo. Un enforcement no verificado debe etiquetarse como tal.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Canario, dato sintético, prueba de backend, etiqueta "no verificado".</p></div>
+            </div></div>
+         </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t35-6" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">6</span>
+              <span class="text-lg">📈</span><div><span class="font-medium">Expandir solo después del piloto</span><span class="text-neutral-500 text-sm ml-2">- repetir el add-on por cliente</span></div>
+            </button>
+            <div id="t35-6" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">La plantilla solo pasa al segundo cliente cuando el primero aprobó en standalone, readback y canario. Para varios clientes, el add-on se repite con un ID específico cada vez.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Un dueño y un worktree por cambio concurrente; una carpeta compartida no es un lock y el worktree no impone aislamiento por cliente.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Piloto aprobado, un ID por ronda, worktree ≠ aislamiento.</p></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="p-4 bg-dark-700/30 flex justify-start space-x-3">
+          <button onclick="openModal('modal-3-5')" class="px-4 py-2 text-sm bg-dark-600 hover:bg-dark-500 rounded-lg transition-colors">Ver en Modal</button>
+          <a href="modulo-3-5.html" class="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors">Ver Completo</a>
+        </div>
+      </div>
+
+      <!-- MÓDULO 3.6 -->
+      <div id="modulo-3-6" data-inema-module="3-6" data-inema-track="3" class="bg-dark-800 rounded-xl border border-dark-600 mb-6">
+        <div class="p-6 border-b border-dark-600">
+          <div class="flex items-center justify-between mb-2"><span class="text-purple-400 font-bold">3.6</span><span class="text-xs text-neutral-500">~40 min</span></div>
+          <h3 class="text-2xl font-bold mb-2">🧭 Proyecto 6: la mentalidad</h3>
+          <p class="text-neutral-400 text-sm mb-3">Todo esto es iterativo. Cada cambio mejora un modelo y rompe otro; los modelos cerrados pueden dejar de necesitar skills; pasas a administrar contexto, estado, herramientas, procesos y validación — no prompts. Cierra con el changelog de fallas y qué hacer mañana.</p>
+          <div data-inema-meter="modulo:3-6" class="max-w-xs" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Progreso del módulo 3.6"><div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div><span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 de 6</span> · <span data-inema-meter-pct>0%</span></span></div>
+        </div>
+        <div class="divide-y divide-dark-600">
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t36-1" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">1</span>
+              <span class="text-lg">⚖️</span><div><span class="font-medium">Mejora uno, rompe otro</span><span class="text-neutral-500 text-sm ml-2">- el escenario sigue cambiando</span></div>
+            </button>
+            <div id="t36-1" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Una edición en una skill puede dejarla mejor para Claude y peor para Codex o para un modelo local. No existe una versión final; existe la versión probada hoy.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Sin readback y drift por runtime, no descubres la regresión hasta el día en que la necesitas.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Iteración, regresión cruzada, prueba por runtime.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t36-2" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">2</span>
+              <span class="text-lg">📡</span><div><span class="font-medium">Seguir a cada proveedor</span><span class="text-neutral-500 text-sm ml-2">- lo que cada uno exige, a lo largo del tiempo</span></div>
+            </button>
+            <div id="t36-2" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Rutas de descubrimiento, formatos de config, eventos de hook y permisos cambian de versión en versión. Los prompts mandan verificar el comportamiento instalado con <code>--help</code> y la documentación oficial, nunca inventar un comando de import.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">El Codex CLI 0.154 no tiene import; la app sí. Ese tipo de detalle solo aparece cuando miras.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Verificar antes de convertir, doc oficial, versión instalada.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t36-3" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">3</span>
+              <span class="text-lg">🔮</span><div><span class="font-medium">¿Un futuro sin skills?</span><span class="text-neutral-500 text-sm ml-2">- los cerrados tal vez no; los locales sí</span></div>
+            </button>
+            <div id="t36-3" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">Si los modelos cerrados se entrenan con tus conversaciones y absorben las capacidades, muchas skills se vuelven innecesarias. Los modelos locales probablemente seguirán dependiendo de ellas.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Construir agnóstico no es apostar contra nadie: es mantener la estructura funcionando mientras cambia lo que cada proveedor exige.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Capacidad absorbida, skill como muleta temporal, estructura que sobrevive.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t36-4" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">4</span>
+              <span class="text-lg">🎛️</span><div><span class="font-medium">Administrar contexto, no prompts</span><span class="text-neutral-500 text-sm ml-2">- estado, herramientas, procesos, validación</span></div>
+            </button>
+            <div id="t36-4" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El cambio de trabajo: en vez de coleccionar prompts, mantienes contexto, estado actual, herramientas registradas, procesos escritos y criterios de validación. El prompt se vuelve consecuencia.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Es lo que el segundo texto fuente llama pasar de la filosofía al proceso: AUDITAR → ORGANIZAR → FUENTE DE LA VERDAD → ADAPTAR → PROBAR → HANDOFF.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Gestión de agentes, seis verbos del proceso, prompt como derivado.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t36-5" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">5</span>
+              <span class="text-lg">🧾</span><div><span class="font-medium">El changelog de fallas</span><span class="text-neutral-500 text-sm ml-2">- una línea, la menor corrección, prompt o infra</span></div>
+            </button>
+            <div id="t36-5" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">FALHAS.md: fecha, qué se rompió, la menor corrección posible, y si fue un problema de prompt o de infra. El kit ya tiene dos líneas reales: el sandbox bwrap forzado y el conteo equivocado del audit.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Después de unas diez líneas el patrón aparece — y dejas de reconstruir cosas que solo necesitaban una protección.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Menor corrección, prompt vs infra, patrón en diez líneas.</p></div>
+            </div></div>
+          </div>
+          <div class="topic-item">
+            <button onclick="toggleTopic(this)" aria-expanded="false" aria-controls="t36-6" class="w-full px-6 py-4 flex items-center space-x-3 hover:bg-dark-700/50 transition-colors text-left">
+              <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 text-sm font-bold flex items-center justify-center flex-shrink-0">6</span>
+              <span class="text-lg">🌅</span><div><span class="font-medium">Una frase y qué hacer mañana</span><span class="text-neutral-500 text-sm ml-2">- no migres el cerebro; sepáralo del modelo</span></div>
+            </button>
+            <div id="t36-6" class="topic-explanation px-6 pb-4"><div class="bg-dark-700/50 rounded-lg p-4 space-y-3 ml-9">
+              <div><span class="text-purple-400 font-semibold">Qué es:</span><p class="text-neutral-300 text-sm">El resumen del curso en una frase y la próxima acción concreta: Fase 0 con <code>adapt-instructions.sh ~/.claude</code>, guardar el AGENTS.md global y correr el primer readback en un proyecto real.</p></div>
+              <div><span class="text-purple-400 font-semibold">Por qué aprenderlo:</span><p class="text-neutral-300 text-sm">Un curso que termina sin una próxima acción exacta se vuelve teoría. El handoff también vale para ti.</p></div>
+              <div><span class="text-purple-400 font-semibold">Conceptos clave:</span><p class="text-neutral-300 text-sm">Ejecutores sobre capa portátil, próxima acción exacta, el menor paso restante.</p></div>
+            </div></div>
+          </div>
+        </div>
+        <div class="p-4 bg-dark-700/30 flex justify-start space-x-3">
+          <button onclick="openModal('modal-3-6')" class="px-4 py-2 text-sm bg-dark-600 hover:bg-dark-500 rounded-lg transition-colors">Ver en Modal</button>
+          <a href="modulo-3-6.html" class="px-4 py-2 text-sm bg-purple-600 hover:bg-purple-500 text-white rounded-lg transition-colors">Ver Completo</a>
+        </div>
+      </div>
+
+      <!-- Navegação entre trilhas -->
+      <div class="flex flex-col sm:flex-row gap-4 mt-10">
+        <a href="../trilha2/index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Ruta 2: Manos a la obra</a>
+        <a href="../../index.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Inicio →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migra o quédate agnóstico</p>
+     <p>Ruta 3 · Proyectos · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <!-- MODAIS (iframe lazy) -->
+  <div id="modal-3-1" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/80" onclick="if(event.target===this) closeModal()"><div class="bg-dark-800 rounded-xl w-full max-w-6xl h-[95vh] flex flex-col border border-dark-600"><div class="flex items-center justify-between px-4 py-3 border-b border-dark-600"><span class="font-semibold">Módulo 3.1</span><button onclick="closeModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm">Cerrar (ESC)</button></div><iframe data-src="modulo-3-1.html" title="Módulo 3.1" class="flex-1 w-full rounded-b-xl bg-dark-900"></iframe></div></div>
+  <div id="modal-3-2" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/80" onclick="if(event.target===this) closeModal()"><div class="bg-dark-800 rounded-xl w-full max-w-6xl h-[95vh] flex flex-col border border-dark-600"><div class="flex items-center justify-between px-4 py-3 border-b border-dark-600"><span class="font-semibold">Módulo 3.2</span><button onclick="closeModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm">Cerrar (ESC)</button></div><iframe data-src="modulo-3-2.html" title="Módulo 3.2" class="flex-1 w-full rounded-b-xl bg-dark-900"></iframe></div></div>
+  <div id="modal-3-3" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/80" onclick="if(event.target===this) closeModal()"><div class="bg-dark-800 rounded-xl w-full max-w-6xl h-[95vh] flex flex-col border border-dark-600"><div class="flex items-center justify-between px-4 py-3 border-b border-dark-600"><span class="font-semibold">Módulo 3.3</span><button onclick="closeModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm">Cerrar (ESC)</button></div><iframe data-src="modulo-3-3.html" title="Módulo 3.3" class="flex-1 w-full rounded-b-xl bg-dark-900"></iframe></div></div>
+  <div id="modal-3-4" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/80" onclick="if(event.target===this) closeModal()"><div class="bg-dark-800 rounded-xl w-full max-w-6xl h-[95vh] flex flex-col border border-dark-600"><div class="flex items-center justify-between px-4 py-3 border-b border-dark-600"><span class="font-semibold">Módulo 3.4</span><button onclick="closeModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm">Cerrar (ESC)</button></div><iframe data-src="modulo-3-4.html" title="Módulo 3.4" class="flex-1 w-full rounded-b-xl bg-dark-900"></iframe></div></div>
+  <div id="modal-3-5" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/80" onclick="if(event.target===this) closeModal()"><div class="bg-dark-800 rounded-xl w-full max-w-6xl h-[95vh] flex flex-col border border-dark-600"><div class="flex items-center justify-between px-4 py-3 border-b border-dark-600"><span class="font-semibold">Módulo 3.5</span><button onclick="closeModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm">Cerrar (ESC)</button></div><iframe data-src="modulo-3-5.html" title="Módulo 3.5" class="flex-1 w-full rounded-b-xl bg-dark-900"></iframe></div></div>
+  <div id="modal-3-6" class="modal hidden fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 bg-black/80" onclick="if(event.target===this) closeModal()"><div class="bg-dark-800 rounded-xl w-full max-w-6xl h-[95vh] flex flex-col border border-dark-600"><div class="flex items-center justify-between px-4 py-3 border-b border-dark-600"><span class="font-semibold">Módulo 3.6</span><button onclick="closeModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-dark-600 text-sm">Cerrar (ESC)</button></div><iframe data-src="modulo-3-6.html" title="Módulo 3.6" class="flex-1 w-full rounded-b-xl bg-dark-900"></iframe></div></div>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init(); }</script>
+</body>
+</html>

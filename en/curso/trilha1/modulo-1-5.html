@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-en">
+  <title>Module 1.5 · Owners of the information | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'emerald' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'emerald');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['emerald'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-en",
+    "tracks": [
+      { "n": "1", "title": "Fundamentals", "modules": [
+        { "id": "1-1", "title": "Why separate the brain from the model", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "The vocabulary: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "The three levels of migration", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomy of a portable workspace", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Owners of the information", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit before implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Hands-on", "modules": [
+        { "id": "2-1", "title": "Environment diagnosis", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Installing the portable core", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Canonical skills with polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: proving it in a fresh session", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff and prime: the daily cycle", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projects", "modules": [
+        { "id": "3-1", "title": "Project 1: migrate your first real project", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Project 2: MCP and hooks between Claude and Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Project 3: curated memory", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Project 4: third executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Project 5: client workspace", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Project 6: the mindset", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Skip to content</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha1/modulo-1-5.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha1/modulo-1-5.html" class="text-yellow-400 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha1/modulo-1-5.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-emerald-400 bg-emerald-500/10"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Foundations</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Hands-on</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projects</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="My journey"><span aria-hidden="true">◷</span><span class="hidden md:inline">Journey</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Appearance"><span aria-hidden="true">◑</span><span class="hidden md:inline">Appearance</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Theme</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Dark</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Light</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Focus</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">High contrast</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Font</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">System</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Reading</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Size</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Line spacing</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compact</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Comfortable</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Accent</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Toggle light/dark">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-emerald-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-emerald-400">Home</a><span>/</span>
+          <a href="index.html" class="hover:text-emerald-400">Track 1</a><span>/</span>
+          <span class="text-emerald-400">Module 1.5</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-full mb-4">MODULE 1.5</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🏷️ Owners of information</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Fact, preference, hypothesis, decision. When you have three versions of the same information scattered across memory, CLAUDE.md and old sessions, which one counts? This module gives the answer: every kind of information has an owner, an origin, a date and an update rule. That is what lets the "brain" survive a model switch without turning into a mess.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">6</div><div class="text-xs text-neutral-400">Topics</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">~30</div><div class="text-xs text-neutral-400">Minutes</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">Basic</div><div class="text-xs text-neutral-400">Level</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-emerald-400">Foundation</div><div class="text-xs text-neutral-400">Type</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <!-- TOC sticky -->
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Page index" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Section <span class="inema-toc-pos" data-inema-section-counter>1</span> of 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">1. The four types</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">2. Origin, scope, date</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">3. Provenance beats timestamp</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">4. Promoting a fact</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">5. Rebuildable indexes</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-emerald-400">6. Secrets stay out</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:1-5" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Module 1.5 progress">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-emerald-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 of 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-1-5#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧩 The four types and why mixing them breaks things</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t1-p1">Every piece of information living in your workspace is one of four types: a <strong class="text-emerald-400">fact</strong> (something verified, with a source), a <strong class="text-emerald-400">preference</strong> (how you like things to be done), a <strong class="text-emerald-400">hypothesis</strong> (something that seems true, but nobody has confirmed) or a <strong class="text-emerald-400">decision</strong> (an accepted choice, with context and consequences). The most common mistake among people who use agents is throwing everything into the same bag: Claude's automatic memory records "the user prefers X" next to "the server port is 8000" next to "I think the build broke because of the cache". Three different types, treated as equals.</p>
+
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 250" class="w-full h-auto" role="img" aria-label="Four boxes side by side: fact, preference, hypothesis and decision, each with its owner and its update rule">
+                <defs>
+                  <linearGradient id="m15-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#34d399"/><stop offset="1" stop-color="#10b981"/></linearGradient>
+                  <filter id="m15-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m15-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#10b981" opacity="0.12"/></pattern>
+                </defs>
+                <rect x="0" y="0" width="1000" height="250" fill="url(#m15-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m15-glow)"><rect x="30" y="40" width="215" height="170" rx="14" fill="#0e2018" stroke="url(#m15-grad)" stroke-width="2.5"/></g>
+                  <text x="137" y="72" text-anchor="middle" fill="#34d399" font-size="17" font-weight="600">Fact</text>
+                  <text x="137" y="98" text-anchor="middle" fill="#a7f3d0" font-size="12">"inemaimg runs on port 8000"</text>
+                  <text x="137" y="128" text-anchor="middle" fill="#e5e7eb" font-size="12">owner: whoever verified it</text>
+                  <text x="137" y="150" text-anchor="middle" fill="#9ca3af" font-size="11.5">rule: only changes with a new source</text>
+                  <text x="137" y="180" text-anchor="middle" fill="#34d399" font-size="11.5">lives in context/overview.md</text>
+
+                  <rect x="275" y="40" width="215" height="170" rx="14" fill="#0e2018" stroke="#34d399" stroke-width="2"/>
+                  <text x="382" y="72" text-anchor="middle" fill="#34d399" font-size="17" font-weight="600">Preference</text>
+                  <text x="382" y="98" text-anchor="middle" fill="#a7f3d0" font-size="12">"never use an interactive menu"</text>
+                  <text x="382" y="128" text-anchor="middle" fill="#e5e7eb" font-size="12">owner: the human</text>
+                  <text x="382" y="150" text-anchor="middle" fill="#9ca3af" font-size="11.5">rule: only the human changes it</text>
+                  <text x="382" y="180" text-anchor="middle" fill="#34d399" font-size="11.5">lives in AGENTS.md</text>
+
+                  <rect x="520" y="40" width="215" height="170" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2" stroke-dasharray="7 5"/>
+                  <text x="627" y="72" text-anchor="middle" fill="#9ad6ff" font-size="17" font-weight="600">Hypothesis</text>
+                  <text x="627" y="98" text-anchor="middle" fill="#bfe6ff" font-size="12">"I think 71 skills will port"</text>
+                  <text x="627" y="128" text-anchor="middle" fill="#e5e7eb" font-size="12">owner: whoever proposed it</text>
+                  <text x="627" y="150" text-anchor="middle" fill="#9ca3af" font-size="11.5">rule: becomes a fact or dies</text>
+                  <text x="627" y="180" text-anchor="middle" fill="#9ad6ff" font-size="11.5">lives in overview "Hypotheses"</text>
+
+                  <rect x="765" y="40" width="215" height="170" rx="14" fill="#1f1604" stroke="#FACC15" stroke-width="2"/>
+                  <text x="872" y="72" text-anchor="middle" fill="#FACC15" font-size="17" font-weight="600">Decision</text>
+                  <text x="872" y="98" text-anchor="middle" fill="#fde68a" font-size="12">"docs/ stays out of git"</text>
+                  <text x="872" y="128" text-anchor="middle" fill="#e5e7eb" font-size="12">owner: the human accepts it</text>
+                  <text x="872" y="150" text-anchor="middle" fill="#9ca3af" font-size="11.5">rule: a new decision revokes it</text>
+                  <text x="872" y="180" text-anchor="middle" fill="#FACC15" font-size="11.5">lives in context/decisions/</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Read each box top to bottom: the type, a real example from this course, who owns it, the rule that changes the information, and where it lives. Only the <span class="text-emerald-400">fact</span> has a glow because it is the only one that requires a source; the <span class="text-sky-400">hypothesis</span> has a dashed border because it is provisional by definition.</p>
+           </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> "Source" is where the information came from: a file, a command you ran, a page. A fact without a source is just a sentence someone wrote one day. "Provenance" is the technical word for this: the origin trail of a piece of data. We'll use it a lot in this module.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Separated by type</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>A new agent knows what it can trust and what it needs to check.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>A preference doesn't turn into a "truth about the world".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Hypotheses age out and get discarded without mercy.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Decisions have context: you can revoke them knowing why.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Everything in the same bag</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>An "I think" from three months ago becomes a mandatory instruction.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>The agent cites a guess as if it were a verified fact.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Nobody knows who is allowed to change what.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>When you switch models, the noise migrates along with the signal.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Fact</span><p class="text-sm text-neutral-400 mt-1">Verified, with source and date. Changes only with a new source.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Preference</span><p class="text-sm text-neutral-400 mt-1">How the owner wants it. Only the owner changes it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Hypothesis</span><p class="text-sm text-neutral-400 mt-1">Provisional. Either becomes a fact or gets discarded.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Decision</span><p class="text-sm text-neutral-400 mt-1">An accepted choice with context and consequences.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-1-5#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">📇 Origin, scope, date, status, update rule</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t2-p1">Prompt B (the portable-workspace mega-prompt) requires every <strong>durable note</strong> to record five things: an <strong class="text-emerald-400">ID</strong>, the <strong class="text-emerald-400">scope</strong> (does it apply to this project? to this client? to everything?), the <strong class="text-emerald-400">source</strong>, the <strong class="text-emerald-400">observation date</strong> and the <strong class="text-emerald-400">status</strong> (draft, accepted, revoked), plus a rule for when to review or expire it. It looks like bureaucracy. It isn't: it's the minimum needed for an agent that has never seen the project to answer "where did this come from and is it still valid?".</p>
+
+            <div class="bg-dark-900 border border-dark-600 rounded-lg p-4 mb-6 overflow-x-auto">
+              <p class="text-xs text-neutral-500 mb-2">Sample durable note — the header that the kit's <code class="text-emerald-400">context/overview.md</code> template already ships with</p>
+<pre class="text-sm text-neutral-300"><code># Overview — agente-claude-codex
+- ID: overview | Scope: this repo | Source: docs/ (3 texts + PDF) and local audit
+- Observation date: 2026-09-13 | Status: accepted | Review when: Codex or Claude Code version changes
+
+## Verified facts (2026-09-13)
+- Codex CLI 0.154.0 has no `import` command; the "one-click" import belongs to the desktop app.
+- polyskill 0.1.0 installed globally.
+
+## Owner preferences
+- Audit first, no bulk copying, secrets kept out.
+
+## Hypotheses (unverified)
+- The heuristic classification of 71 skills as "reusable" is correct for most; needs sampling.</code></pre>
+            </div>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t2-p2">Notice that the same file has three separate sections: facts (with dates), preferences and hypotheses. An agent reading this knows exactly how much weight to give each line. And the "Review when" field says when the fact may have gone stale: when Codex changes version, the line about <code>import</code> needs to be checked again.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">ID and scope</h4><p class="text-sm text-neutral-400">A stable name so other files can cite it, and the answer to "where does it apply?". A client fact never has global scope.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Source and observation date</h4><p class="text-sm text-neutral-400">Where it came from and when it was seen. "Observation date" is not "writing date": it's when reality was checked.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Status and review rule</h4><p class="text-sm text-neutral-400">Draft, accepted or revoked. And the review trigger: a date, or an event ("when Codex updates").</p></div>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> "Scope" is the reach of a piece of information: global (applies to you in any project), project (applies only here) or client (applies only to that client). Mixing up scope is like putting a client's password in the general rules file: the right information, in the wrong place, becomes a problem.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Durable note</span><p class="text-sm text-neutral-400 mt-1">Information that outlives the session and needs metadata.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Observation date</span><p class="text-sm text-neutral-400 mt-1">When reality was checked, not when the text was typed.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Status</span><p class="text-sm text-neutral-400 mt-1">Draft, accepted, revoked. Tells you whether to trust it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Review rule</span><p class="text-sm text-neutral-400 mt-1">The trigger that forces you to re-check the fact.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-1-5#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">⚖️ Provenance beats timestamp</h2>
+           </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t3-p1">When two versions of a piece of information contradict each other, the instinct is to keep the most recent one. Prompt B forbids exactly that: <strong class="text-emerald-400">resolve conflicts by provenance and accepted decision, not by "which timestamp is newer"</strong>. Why? Because the newer version may be a guess from a rushed session, and the older one may be a verified fact with a source. Write date does not measure reliability.</p>
+
+            <div class="rounded-2xl border border-emerald-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 230" class="w-full h-auto" role="img" aria-label="Two versions of the same fact: the old one, verified, wins and gets a glow; the new one, without a source, is marked as superseded_by and becomes dashed">
+                <defs>
+                  <filter id="m15b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m15b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#10b981" opacity="0.12"/></pattern>
+                  <marker id="m15b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#34d399"/></marker>
+                  <marker id="m15b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="230" fill="url(#m15b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <text x="500" y="30" text-anchor="middle" fill="#9ca3af" font-size="13" font-weight="600">Same fact, two versions: "which port does inemaimg run on?"</text>
+
+                  <g filter="url(#m15b-glow)"><rect x="60" y="70" width="320" height="110" rx="14" fill="#0e2018" stroke="#34d399" stroke-width="2.5"/></g>
+                  <text x="220" y="98" text-anchor="middle" fill="#34d399" font-size="15" font-weight="600">Version A · 2026-08-20</text>
+                  <text x="220" y="122" text-anchor="middle" fill="#a7f3d0" font-size="12.5">"port 8000" · source: curl localhost:8000/health</text>
+                  <text x="220" y="144" text-anchor="middle" fill="#e5e7eb" font-size="12">status: accepted</text>
+                  <text x="220" y="166" text-anchor="middle" fill="#34d399" font-size="12" font-weight="600">✓ WINS (has provenance)</text>
+
+                  <rect x="620" y="70" width="320" height="110" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2" stroke-dasharray="8 6" opacity="0.7"/>
+                  <text x="780" y="98" text-anchor="middle" fill="#9ad6ff" font-size="15" font-weight="600">Version B · 2026-09-10</text>
+                  <text x="780" y="122" text-anchor="middle" fill="#bfe6ff" font-size="12.5">"I think it's 8080" · source: none</text>
+                  <text x="780" y="144" text-anchor="middle" fill="#e5e7eb" font-size="12">status: hypothesis</text>
+                  <text x="780" y="166" text-anchor="middle" fill="#f87171" font-size="12" font-weight="600">superseded_by: A</text>
+
+                  <path d="M620,125 L390,125" fill="none" stroke="#38bdf8" stroke-width="1.8" opacity="0.55" stroke-dasharray="6 6" marker-end="url(#m15b-ahc)"/>
+                  <text x="500" y="115" text-anchor="middle" fill="#9ca3af" font-size="11.5">newer, but loses</text>
+                  <text x="500" y="205" text-anchor="middle" fill="#9ca3af" font-size="12">B is not deleted: it stays hidden, pointing to A. If B ever gains a source, the link flips.</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">The version on the <span class="text-emerald-400">left is older and wins</span> because it has a source and accepted status. The one on the <span class="text-sky-400">right is newer and loses</span>: without a source, it is a hypothesis. It receives <code>superseded_by</code> and becomes dashed, but it is not deleted.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🔬</span> How openpcbotv3 actually does this</h3>
+              <p class="text-neutral-300 text-sm mb-3">The v3 bot on this machine has a nightly memory consolidation. It merges duplicates and, when it detects a contradiction between two memories, <strong>the old one receives <code>superseded_by</code> pointing to the new one, and is never deleted</strong>. The same mechanism works the other way around: if the "new" one is the loser, it is the one that gets the mark. The point is that nothing disappears; only what is in force changes.</p>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Deleting destroys the trail. You lose the "why we thought that".</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Hiding preserves the trail and keeps only one version active.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span>Backup before every consolidation round, because a mistake here erases context.</span></li>
+              </ul>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> A "timestamp" is the date-and-time stamp of when something was recorded. "Superseded" is the state of a piece of information that has been replaced by a more reliable one. Keeping the superseded one with a pointer to the winner is what makes it possible to reconstruct the history later.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Provenance</span><p class="text-sm text-neutral-400 mt-1">The origin trail. Decides who wins a conflict.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Accepted decision</span><p class="text-sm text-neutral-400 mt-1">Beats any version without acceptance, new or old.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">superseded_by</span><p class="text-sm text-neutral-400 mt-1">Marks the version that lost, without deleting it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Timestamp is not trust</span><p class="text-sm text-neutral-400 mt-1">Recent does not mean correct.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-1-5#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">⬆️ Promoting a fact: from raw memory to approved overview</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t4-p1">Claude Code writes memory on its own: on this machine there are 869 files in 227 folders. None went through approval. That is not a source of truth; it is <strong class="text-emerald-400">raw material</strong>. Prompt B says "deliberately promote verified facts from native memory or from conversations". Promoting is the conscious act of taking a line from raw memory, verifying it, giving it a source and a date, and only then writing it into <code>context/overview.md</code> as an accepted fact.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Raw memory written</h4><p class="text-sm text-neutral-400">The agent wrote "the user uses flux2-klein by default" in some random session. No source, no date.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Proposal</h4><p class="text-sm text-neutral-400">When touching the project, the agent proposes: "this looks like a stable preference; promote it to the overview?"</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Verification and human approval</h4><p class="text-sm text-neutral-400">You confirm (or correct: "it's a preference, not a fact"). It gains a source ("global rule in CLAUDE.md"), a date and accepted status.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><span class="text-emerald-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Written in the right place</h4><p class="text-sm text-neutral-400">It goes to the correct section of the overview. The raw memory keeps existing as evidence, kept separate.</p></div>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-900/30 to-dark-800 rounded-xl border border-emerald-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-emerald-400 mb-3 flex items-center"><span class="mr-2">🗃️</span> The openpcbotv3 vault: "the bot proposes, you approve"</h3>
+              <p class="text-neutral-300 text-sm mb-3">The v3 bot keeps two curated files, <code>~/vault/MEMORY.md</code> and <code>USER.md</code>. The bot <strong>proposes</strong> entries; nothing is written without your approval. <code>USER.md</code> goes into every prompt. It is the same promotion idea, already running: the database's automatic memory is raw material; the vault is the approved overview. This machine's migration plan uses that vault as the global overview of personal facts.</p>
+              <p class="text-neutral-400 text-xs">In Track 3, Project 3, you connect Claude, Codex and dsh to read the same <code>USER.md</code>.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Promote</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>One fact at a time, when touching the project.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>With verification and human approval.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Gains an ID, scope, source, date, status.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Raw evidence preserved separately.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Bulk copy</h4>
+               <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Dumping the 869 memory files into <code>context/</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Carrying guesses, duplicates and dead facts along with it.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>No source: the new agent doesn't know what to trust.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Claude's noise becomes Codex's noise.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Raw material</span><p class="text-sm text-neutral-400 mt-1">Native memory and sessions: evidence, not source.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Promotion</span><p class="text-sm text-neutral-400 mt-1">A deliberate act of verifying and recording with metadata.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Propose → approve</span><p class="text-sm text-neutral-400 mt-1">The agent suggests, the human decides. Nothing automatic.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Curated vault</span><p class="text-sm text-neutral-400 mt-1">MEMORY.md and USER.md: the approved overview of openpcbotv3.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-1-5#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">🔁 Indexes rebuildable from the sources</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t5-p1">Semantic search, embeddings, vector databases, summary caches: all of that is an <strong class="text-emerald-400">index</strong>, and an index is derived. Prompt B closes the ownership section with a simple rule: <strong>"make search indexes rebuildable from the source records you own"</strong>. If the index gets corrupted, or you switch tools or embedding models, you run the build again and it comes back. If the only copy of the information lives inside the index, you've lost it.</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> Real examples from this machine</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>openpcbotv3:</strong> <code>bge-m3</code> vectors are reindexed by cron every 15 min from the memories table. Deleting the index loses nothing.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>INEMA catalog:</strong> <code>courses.data.json</code>, <code>cursos.json</code>, <code>base.json</code> are all generated. The source is <code>courses.ts</code> and <code>Portal.tsx</code>. Editing the generated file by hand is the mistake the portal skill forbids.</span></li>
+                <li class="flex items-start gap-2"><span class="text-blue-400">•</span><span><strong>Migration kit:</strong> <code>relatorios/auditoria-*.md</code> is generated by <code>audit.sh</code>. Run it again, it's rebuilt.</span></li>
+              </ul>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> An "embedding" is a way of turning text into numbers so a program can find similar texts. An "index" is any structure built to find things faster. Both are transformed copies of the original. Rule of thumb: if you can't delete it and regenerate it, it's not an index, it's a source in disguise.</p>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> The mistake to avoid</h3>
+              <p class="text-neutral-300 text-sm">Letting the agent's memory live only in a proprietary vector database. Switch models, and the old embedding is useless. Switch tools, and the database won't open. Without the source in Markdown, the "brain" disappears along with the model. It's the opposite of what this course teaches.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Source vs derived</span><p class="text-sm text-neutral-400 mt-1">Source is what you edit; derived is what the build generates.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Rebuildable</span><p class="text-sm text-neutral-400 mt-1">Delete and regenerate without loss. The definitive test.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Index</span><p class="text-sm text-neutral-400 mt-1">Search, vectors, cache. Always derived.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Markdown as source</span><p class="text-sm text-neutral-400 mt-1">Opens anywhere, with any model.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-1-5#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🔐 Secrets and raw material stay out</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m1-5-t6-p1">Two kinds of content never enter the portable core: <strong class="text-emerald-400">secrets</strong> (API keys, tokens, passwords) and <strong class="text-emerald-400">raw native state</strong> (JSONL sessions, Claude's memory database, entire chat exports). The mega-prompts repeat this in almost every section: "keep secrets and raw private memory out of reports and repositories", "preserve raw evidence separately". The portable core is what you would publish; everything else stays where it is, referenced, never copied.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Goes in the core</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The rule "keys live in <code>~/projetos/openpcbotv2/.env</code>" (the reference).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Promoted facts, decisions, tasks, handoffs.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The name of the registered MCP (magnific, metricool).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>A curated, dated snapshot of context.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Stays out</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>The value of the key (never printed, never copied).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>The 2.3 GB of Claude JSONL sessions.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>The <code>~/.claude</code> or <code>~/.codex</code> folder copied in full.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Third-party material without a license (the kit's <code>docs/</code> was kept out of git for this reason).</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-emerald-900/30 to-dark-800 rounded-xl border border-emerald-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-emerald-400 mb-3 flex items-center"><span class="mr-2">🧭</span> The dsh-sandbox case</h3>
+              <p class="text-neutral-300 text-sm mb-3">The <code>~/projetos</code> folder on this machine holds 269 secret files. That's why dsh-sandbox ties mount and provider together: <code>local</code> mode mounts the projects but only talks to Ollama; <code>remoto</code> mode talks to OpenRouter but can't see the projects. Combining the two requires typing "CONFIRMO". It's the rule of this topic turned into a mechanism: the secret may exist on the machine, but the executor that talks to the outside can't see it.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">New here?</strong> "Raw evidence" is the original, untreated material: the full transcript, the complete log, the chat export. It's valuable for auditing later, but it's not meant to be read in every session. It stays archived, with a pointer in <code>context/sources.md</code> saying where it is and when it's from.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Reference, don't copy</span><p class="text-sm text-neutral-400 mt-1">The core says where the key is, never what it is.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Raw native state</span><p class="text-sm text-neutral-400 mt-1">Sessions and automatic memory stay where they were born.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Curated snapshot</span><p class="text-sm text-neutral-400 mt-1">An approved excerpt, with source and date, instead of the raw material.</p></div>
+             <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-emerald-400 font-semibold text-sm">Publishable by construction</span><p class="text-sm text-neutral-400 mt-1">If it can't go into a repo, it's not in the core.</p></div>
+            </div>
+
+            <!-- CHECAGEM LEVE -->
+            <div data-inema-check="modulo-1-5#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Self-check (optional): two notes contradict each other. The August one says "port 8000" with a source; the September one says "I think it's 8080" with no source. Which one wins?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">The September one, because it's the most recent.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">The August one, because it has provenance; the September one gets superseded_by and is kept on file.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Neither; delete both and ask the user again.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-emerald-900/40 via-dark-800 to-dark-800 rounded-xl border border-emerald-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Module summary</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Four types</strong><span class="text-neutral-400"> — fact, preference, hypothesis and decision have different owners and rules; mixing them breaks things.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Minimal metadata</strong><span class="text-neutral-400"> — ID, scope, source, observation date, state and review rule.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Provenance beats timestamp</strong><span class="text-neutral-400"> — conflicts are resolved by source and accepted decision; the loser gets superseded_by, never deleted.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Promote, don't copy</strong><span class="text-neutral-400"> — native memory is raw material; the curated vault (propose → approve) is the overview.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-emerald-400 mt-1">✓</span><div><strong class="text-neutral-100">Rebuildable indexes, secrets out</strong><span class="text-neutral-400"> — derived data gets regenerated; keys and raw state stay referenced, never in the core.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-emerald-400 mb-2">Next module:</h3>
+                <p class="text-neutral-300">1.6 — Audit before implement: analyze → plan → simulate</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Back to the Track</a>
+                <a href="modulo-1-6.html" class="flex-1 text-center px-6 py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-500 transition-colors">Next module →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migrate or go agnostic</p>
+      <p>Module 1.5 · Track 1 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-1-5#q1', {
+          answer: 1,
+          explain: {
+            0: 'No. Timestamp doesn\'t measure confidence: the newer one is an "I think" with no source.',
+            1: 'That\'s it! Provenance and accepted decision win. The version without a source gets superseded_by and is kept on file, not deleted.',
+            2: 'Deleting destroys the trail. You lose the "why we thought that". Hiding with superseded_by preserves the history.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

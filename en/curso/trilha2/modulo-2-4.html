@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-en">
+  <title>Module 2.4 · Canonical skills with polyskill | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'blue' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'blue');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['blue'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-en",
+    "tracks": [
+      { "n": "1", "title": "Fundamentals", "modules": [
+        { "id": "1-1", "title": "Why separate the brain from the model", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "The vocabulary: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "The three levels of migration", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomy of a portable workspace", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Owners of the information", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit before implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Hands-on", "modules": [
+        { "id": "2-1", "title": "Environment diagnosis", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Installing the portable core", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Canonical skills with polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: proving it in a fresh session", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff and prime: the daily cycle", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projects", "modules": [
+        { "id": "3-1", "title": "Project 1: migrate your first real project", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Project 2: MCP and hooks between Claude and Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Project 3: curated memory", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Project 4: third executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Project 5: client workspace", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Project 6: the mindset", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Skip to content</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha2/modulo-2-4.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha2/modulo-2-4.html" class="text-yellow-400 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha2/modulo-2-4.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Foundations</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-400 bg-blue-500/10"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Hands-on</span></a>
+          <a href="../trilha3/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-purple-400 hover:bg-purple-500/10 transition-colors"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projects</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="My journey"><span aria-hidden="true">◷</span><span class="hidden md:inline">Journey</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Appearance"><span aria-hidden="true">◑</span><span class="hidden md:inline">Appearance</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Theme</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Dark</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Light</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Focus</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">High contrast</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Font</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">System</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Reading</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Size</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Line spacing</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compact</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Comfortable</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Accent</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Toggle light/dark">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-blue-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-blue-400">Home</a><span>/</span>
+          <a href="index.html" class="hover:text-blue-400">Track 2</a><span>/</span>
+          <span class="text-blue-400">Module 2.4</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-blue-500/20 text-blue-400 text-xs font-semibold rounded-full mb-4">MODULE 2.4</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🧩 Canonical skills with polyskill</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">One source, N runtimes. Hand-copying a skill to a second executor works on day one and rots by month two. Here you turn a <code class="text-blue-400">SKILL.md</code> into a portable definition, generate the copies through a build, install them into both runtimes with a backup alongside, and measure the <code class="text-blue-400">drift</code> — the gap between what you wrote and what is installed.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">6</div><div class="text-xs text-neutral-400">Topics</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">~30</div><div class="text-xs text-neutral-400">Minutes</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Interm.</div><div class="text-xs text-neutral-400">Level</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-blue-400">Practice</div><div class="text-xs text-neutral-400">Type</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Page contents" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Section <span class="inema-toc-pos" data-inema-section-counter>1</span> of 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">1. Why copies diverge</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">2. import</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">3. build</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">4. install --both</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">5. drift</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-blue-400">6. Adapter skills</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:2-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Module 2.4 progress">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-blue-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 of 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- TÓPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-2-4#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧬 Why manual copies diverge</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t1-p1">This case is real and documented on this machine. To give skills to <strong class="text-blue-400">dsh-sandbox</strong> (a third executor, with a model running in a container), three skills were hand-copied to <code>~/projetos/dsh-skills</code>: <code>formato-curso-v2</code>, <code>formato-curso-v5</code> and <code>capa-inema</code>, which the other two depend on. The documentation warns in plain words: <em>"These are COPIES — Claude keeps using the originals in <code>~/projetos/formato-curso-inema</code> via symlink in <code>~/.claude/skills/</code>"</em>. Two folders, two truths, no mechanism linking them.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t1-p2">On the day of the copy, both sides are identical. Then you fix a prompt bug in the original — Claude's skill improves, the dsh copy doesn't. Then you tweak a path in the copy because inside the container <code>~/projetos</code> resolves differently — now the copy has a fix the original lacks. Two weeks later nobody knows which one is right, and "right" has become a question with no answer. That's <strong class="text-blue-400">drift</strong>: silent divergence between copies that should be the same thing.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Two timelines compared: on top, a manual copy that drifts away from the original with every edit; below, a canonical source regenerated by a build that keeps the runtimes identical">
+                <defs>
+                  <linearGradient id="m24-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m24-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m24-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m24-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m24-ahr" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#f87171"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m24-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <text x="30" y="30" fill="#f87171" font-size="14" font-weight="700">manual copy</text>
+                  <text x="30" y="48" fill="#9ca3af" font-size="11">time pulls the two folders apart</text>
+                  <circle cx="150" cy="95" r="10" fill="#0e1622" stroke="#60a5fa" stroke-width="2.5"/>
+                  <text x="150" y="72" text-anchor="middle" fill="#bfdbfe" font-size="11">day 0 · identical</text>
+                  <path d="M160,92 C300,75 420,60 560,52" fill="none" stroke="#60a5fa" stroke-width="2.5"/>
+                  <path d="M160,98 C300,118 420,140 560,150" fill="none" stroke="#f87171" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#m24-ahr)"/>
+                  <circle cx="330" cy="66" r="6" fill="#60a5fa"/><text x="330" y="52" text-anchor="middle" fill="#bfdbfe" font-size="10">prompt fix</text>
+                  <circle cx="380" cy="130" r="6" fill="#f87171"/><text x="380" y="152" text-anchor="middle" fill="#fecaca" font-size="10">path tweak</text>
+                  <text x="600" y="56" fill="#bfdbfe" font-size="12">original (Claude)</text>
+                  <text x="600" y="156" fill="#fecaca" font-size="12">copy (dsh) · diverged</text>
+                  <text x="600" y="176" fill="#9ca3af" font-size="10">which one is right?</text>
+
+                  <line x1="30" y1="196" x2="970" y2="196" stroke="#374151" stroke-width="1.5"/>
+
+                  <text x="30" y="224" fill="#60a5fa" font-size="14" font-weight="700">canonical source + build</text>
+                  <g filter="url(#m24-glow)"><rect x="150" y="242" width="150" height="44" rx="12" fill="#0e1622" stroke="url(#m24-grad)" stroke-width="2.5"/></g>
+                  <text x="225" y="270" text-anchor="middle" fill="#60a5fa" font-size="13" font-weight="600">definition.md</text>
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.65">
+                    <path d="M300,258 C380,258 390,246 450,246" marker-end="url(#m24-ah)"/>
+                    <path d="M300,264 L450,264" marker-end="url(#m24-ah)"/>
+                    <path d="M300,270 C380,270 390,282 450,282" marker-end="url(#m24-ah)"/>
+                  </g>
+                  <g class="wf-a"><rect x="455" y="232" width="140" height="28" rx="8" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="525" y="251" text-anchor="middle" fill="#bfe6ff" font-size="12" font-weight="600">dist/claude</text></g>
+                  <g class="wf-a"><rect x="455" y="268" width="140" height="28" rx="8" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="525" y="287" text-anchor="middle" fill="#bfe6ff" font-size="12" font-weight="600">dist/codex</text></g>
+                  <text x="650" y="252" fill="#bfdbfe" font-size="12">regenerating is cheap</text>
+                  <text x="650" y="272" fill="#bfdbfe" font-size="12">divergence has nowhere to take root</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Compare the two halves. On top, the <span class="text-blue-400">blue</span> and <span class="text-red-400">dashed red</span> lines start from the same point and pull apart with every edit — nobody programmed that, it's just time passing. Below, everything comes out of a single block: the output is disposable and can be rebuilt at any moment.</p>
+           </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> New here?</h3>
+              <p class="text-sm text-neutral-300">A <strong class="text-primary">Skill</strong> is a folder with a <code>SKILL.md</code> inside: instructions the agent loads on demand to carry out a type of task. The <strong class="text-primary">Runtime</strong> is the program that runs the agent (Claude Code, Codex CLI, dsh-sandbox). The <strong class="text-primary">Canonical source</strong> is the only place you edit — everything else is generated from it. <strong class="text-primary">Drift</strong> is when a copy no longer matches the source. <strong class="text-primary">MCP</strong> (Model Context Protocol) is the standard through which an agent gains external tools: generating an image, publishing a post, querying an API.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Manual copy</span><p class="text-sm text-neutral-400 mt-1">Works today, diverges tomorrow, without warning.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Canonical source</span><p class="text-sm text-neutral-400 mt-1">The only file you edit by hand.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Generated output</span><p class="text-sm text-neutral-400 mt-1"><code>dist/</code> is disposable: deleting and rebuilding it is free.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Real case</span><p class="text-sm text-neutral-400 mt-1">Three skills copied by hand into <code>~/projetos/dsh-skills</code>.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-2-4#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">📥 import: SKILL.md becomes a portable definition</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t2-p1">The kit's <code>sync-skills.sh</code> is a thin wrapper around <strong class="text-blue-400">polyskill</strong>. The <code>import</code> command takes a skill that already exists in <code>~/.claude/skills/&lt;nome&gt;</code> and translates it into the portable format inside <code>skills/&lt;nome&gt;/</code>, in the kit's repository. Two files come out of it: <code>definition.md</code>, with YAML frontmatter and a Markdown body, and <code>polyskill.yaml</code>, which states which runtimes this skill should serve.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t2-p2">Two guarantees matter here. First: import <strong>never bulk-copies <code>~/.claude</code> or <code>~/.codex</code></strong> — you name skills one by one, on purpose, because migrating 117 skills at once is like moving an entire wardrobe without opening the drawers. Second: the round-trip is lossless for the core of the spec (<code>name</code>, <code>description</code>, body, <code>scripts/</code>, <code>references/</code>, <code>assets/</code>) and comes with a warning for each runtime's extensions. If something doesn't survive the translation, polyskill tells you.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Import your first skill</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> turn the <code>session-handoff</code> skill — the same one from the pilot recorded in <code>tasks/current.md</code> — into a canonical source inside the kit.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># prerequisite, only once on this machine</span>
+npm i -g polyskill
+polyskill --version   <span class="text-neutral-500"># 0.1.0</span>
+
+cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># import from Claude into the portable format</span>
+scripts/sync-skills.sh import session-handoff
+<span class="text-neutral-500"># importada: skills/session-handoff</span>
+
+<span class="text-neutral-500"># what was created</span>
+ls skills/session-handoff/
+<span class="text-neutral-500"># definition.md  polyskill.yaml</span>
+
+<span class="text-neutral-500"># replace with the name of any of your skills</span>
+scripts/sync-skills.sh import <span class="text-primary">&lt;your-skill&gt;</span></code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to check:</strong> <code>head -12 skills/session-handoff/definition.md</code> shows the frontmatter with <code>name</code> and <code>description</code> matching the original <code>SKILL.md</code>. If the script replies <code>skip &lt;nome&gt;: não existe em ~/.claude/skills</code>, check the spelling — the name is the folder's, not the slash command's.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Good candidates to import</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Skills classified as <strong>reusable</strong> in the module 2.1 audit.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The ones you use every week — the payoff shows up fast.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The ones already hand-copied somewhere (stop the bleeding first).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Small skills, to learn the cycle before tackling the big ones.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Leave for later</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span><strong>Adapter</strong> skills: without the MCP on the target, they don't run (topic 6).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Skills classified as <strong>native</strong>: they depend on a hook Codex doesn't have.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Folders without <code>SKILL.md</code>: there's nothing to import; handle them by hand.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Batches of 50: import 5 at a time and run the drift check between batches.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">definition.md</span><p class="text-sm text-neutral-400 mt-1">YAML frontmatter + Markdown body. The source.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">polyskill.yaml</span><p class="text-sm text-neutral-400 mt-1">Which runtimes this skill serves.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Round-trip</span><p class="text-sm text-neutral-400 mt-1">Lossless at the core; warnings on extensions.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Skill by skill</span><p class="text-sm text-neutral-400 mt-1">Never bulk-copies the runtime folders.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-2-4#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🏗️ build: dist/claude and dist/codex</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t3-p1"><code>build</code> walks through every folder in <code>skills/</code> and, for each one, asks polyskill to emit the optimized version for each configured runtime. The result goes to <code>skills/&lt;nome&gt;/dist/claude/&lt;nome&gt;/</code> and <code>skills/&lt;nome&gt;/dist/codex/&lt;nome&gt;/</code>. Two outputs, one source. The golden rule of the whole module fits in one sentence: <strong class="text-blue-400">you edit <code>definition.md</code>; you never edit anything inside <code>dist/</code></strong>.</p>
+
+            <div class="rounded-2xl border border-blue-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Fan-out from the canonical source: definition.md and polyskill.yaml pass through adapters and generate the copies installed in Claude Code, Codex CLI and dsh-sandbox">
+                <defs>
+                  <linearGradient id="m24b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#60a5fa"/><stop offset="1" stop-color="#3b82f6"/></linearGradient>
+                  <filter id="m24b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m24b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#3b82f6" opacity="0.12"/></pattern>
+                  <marker id="m24b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#60a5fa"/></marker>
+                  <marker id="m24b-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m24b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <g filter="url(#m24b-glow)"><rect x="30" y="105" width="210" height="90" rx="16" fill="#0e1622" stroke="url(#m24b-grad)" stroke-width="3"/></g>
+                  <text x="135" y="136" text-anchor="middle" fill="#60a5fa" font-size="16" font-weight="700">skills/&lt;nome&gt;/</text>
+                  <text x="135" y="158" text-anchor="middle" fill="#bfdbfe" font-size="12">definition.md</text>
+                  <text x="135" y="178" text-anchor="middle" fill="#bfdbfe" font-size="12">polyskill.yaml</text>
+                  <text x="135" y="215" text-anchor="middle" fill="#9ca3af" font-size="11">canonical source · you edit here</text>
+
+                  <path d="M240,150 L330,150" fill="none" stroke="#60a5fa" stroke-width="2.5" marker-end="url(#m24b-ah)"/>
+                  <rect x="335" y="118" width="150" height="64" rx="14" fill="#0e1622" stroke="#60a5fa" stroke-width="2.5"/>
+                  <text x="410" y="146" text-anchor="middle" fill="#60a5fa" font-size="15" font-weight="600">build</text>
+                  <text x="410" y="166" text-anchor="middle" fill="#bfdbfe" font-size="11">per-runtime adapters</text>
+
+                  <g fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.6">
+                    <path d="M485,135 C570,135 580,55 660,55" marker-end="url(#m24b-ahc)"/>
+                    <path d="M485,150 L660,150" marker-end="url(#m24b-ahc)"/>
+                    <path d="M485,165 C570,165 580,245 660,245" marker-end="url(#m24b-ahc)"/>
+                  </g>
+
+                  <g class="wf-a"><rect x="665" y="28" width="305" height="56" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="817" y="52" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">dist/claude → ~/.claude/skills</text><text x="817" y="72" text-anchor="middle" fill="#7dd3fc" font-size="11">Claude Code</text></g>
+                  <g class="wf-a"><rect x="665" y="122" width="305" height="56" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/><text x="817" y="146" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">dist/codex → ~/.codex/skills</text><text x="817" y="166" text-anchor="middle" fill="#7dd3fc" font-size="11">Codex CLI · mirrored in ~/.agents/skills</text></g>
+                  <g class="wf-a"><rect x="665" y="218" width="305" height="56" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2" stroke-dasharray="6 5"/><text x="817" y="242" text-anchor="middle" fill="#bfe6ff" font-size="14" font-weight="600">--dsh → ~/projetos/dsh-skills</text><text x="817" y="262" text-anchor="middle" fill="#7dd3fc" font-size="11">third executor · target still to be added</text></g>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">Notice there is only <span class="text-blue-400">one block on the left</span>. The three boxes on the right are outputs: deleting any of them loses nothing, because <code>build</code> rebuilds it. The third one is dashed because the <code>--dsh</code> target is still a planned item in the kit's <code>tasks/current.md</code>, not a ready-made option.</p>
+           </div>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Generate the copies for both runtimes</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> produce <code>dist/claude</code> and <code>dist/codex</code> from the imported definition, without touching any runtime folder yet.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+scripts/sync-skills.sh build
+<span class="text-neutral-500"># build: skills/session-handoff/</span>
+
+<span class="text-neutral-500"># check what was emitted</span>
+find skills/<span class="text-primary">&lt;your-skill&gt;</span>/dist -maxdepth 3 -type d
+<span class="text-neutral-500"># skills/&lt;your-skill&gt;/dist/claude/&lt;your-skill&gt;
+# skills/&lt;your-skill&gt;/dist/codex/&lt;your-skill&gt;</span>
+
+<span class="text-neutral-500"># if a file in dist/ was edited by hand, the build refuses;</span>
+<span class="text-neutral-500"># FORCE=1 regenerates over it (polyskill build --force)</span>
+FORCE=1 scripts/sync-skills.sh build</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to verify:</strong> both folders exist and each one contains the skill file in its runtime's format. Run <code>build</code> twice in a row without editing anything: the second run shouldn't change a single file — the build is deterministic, and that's what makes <code>drift</code> reliable.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Practical tip</h3>
+              <p class="text-sm text-neutral-300">Version <code>skills/</code> in git and ignore <code>dist/</code>. The source deserves history; the output doesn't. When someone clones the kit, one <code>build</code> rebuilds everything — and the repository diff goes back to showing only what you actually wrote, instead of hundreds of generated lines.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Runtime adapter</span><p class="text-sm text-neutral-400 mt-1">What knows how to translate the definition into each executor's format.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">dist/</span><p class="text-sm text-neutral-400 mt-1">Generated output. Never edit it; always regenerate.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">--force</span><p class="text-sm text-neutral-400 mt-1">Overwrites output someone edited by hand.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Determinism</span><p class="text-sm text-neutral-400 mt-1">Same source, same output — the foundation of drift.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-2-4#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">📦 install --both, with a backup alongside</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t4-p1"><code>install</code> is the only command in this module that writes outside the kit's repository. It copies <code>skills/&lt;name&gt;/dist/&lt;runtime&gt;/&lt;name&gt;/</code> to <code>~/.claude/skills/&lt;name&gt;</code> or <code>~/.codex/skills/&lt;name&gt;</code>, depending on the target you ask for: <code>--claude</code>, <code>--codex</code> or <code>--both</code>. Before overwriting any folder that already exists, it copies what was there to <code>.&lt;name&gt;.bak-&lt;timestamp&gt;</code>, in the same folder. You never lose the previous version without a way back.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t4-p2">There's a Codex-specific detail the script handles for you: besides <code>~/.codex/skills</code>, Codex also discovers skills in <code>~/.agents/skills</code>. When the target includes Codex and that folder exists, the script <strong class="text-blue-400">mirrors</strong> the installation there too. That's why the doctor from module 2.1 reports two different counts on this machine — 27 skills in <code>~/.codex/skills</code> and 29 in <code>~/.agents/skills</code>.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Install on both runtimes</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> put the same generated skill on both executors and confirm the backup exists.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># Codex only, if you want to go slowly</span>
+scripts/sync-skills.sh install session-handoff --codex
+
+<span class="text-neutral-500"># both at once</span>
+scripts/sync-skills.sh install session-handoff --both
+<span class="text-neutral-500"># installed: /home/&lt;user&gt;/.claude/skills/session-handoff (backup alongside if it already existed)
+# installed: /home/&lt;user&gt;/.codex/skills/session-handoff (backup alongside if it already existed)
+# mirrored: ~/.agents/skills/session-handoff</span>
+
+<span class="text-neutral-500"># backups are hidden, in the same folder</span>
+ls -d ~/.claude/skills/.session-handoff.bak-*
+
+<span class="text-neutral-500"># roll back, if you need to</span>
+rm -rf ~/.claude/skills/session-handoff
+cp -a ~/.claude/skills/.session-handoff.bak-<span class="text-primary">&lt;timestamp&gt;</span> \
+      ~/.claude/skills/session-handoff</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to verify:</strong> open a new session in each runtime and ask it to list the available skills; the name must show up in both. If the script says <code>rode build antes: skills/&lt;nome&gt;/dist/&lt;runtime&gt;/&lt;nome&gt;</code>, you skipped topic 3.</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Checks the output</h4><p class="text-sm text-neutral-400">If <code>dist/&lt;runtime&gt;/&lt;name&gt;</code> doesn't exist, the script stops with a message and exit code 1. It doesn't make up content.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Makes the backup</h4><p class="text-sm text-neutral-400">If the target already existed, it becomes <code>.&lt;name&gt;.bak-&lt;timestamp&gt;</code> alongside it. One per install, with the time in the name.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Copies</h4><p class="text-sm text-neutral-400"><code>cp -a</code> preserves permissions and structure — the skill's scripts stay executable.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Mirrors to Codex</h4><p class="text-sm text-neutral-400">If the target is Codex and <code>~/.agents/skills</code> exists, the same folder is copied there.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center"><span class="text-blue-400 font-bold">5</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Logs</h4><p class="text-sm text-neutral-400">Prints each installed path. Paste that output into <code>handoffs/latest.md</code>: it's the evidence that the step ran.</p></div>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">--both</span><p class="text-sm text-neutral-400 mt-1">Installs to Claude and Codex in the same run.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">.bak-&lt;timestamp&gt;</span><p class="text-sm text-neutral-400 mt-1">Hidden backup alongside; rolling back is a <code>cp -a</code>.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">~/.agents/skills</span><p class="text-sm text-neutral-400 mt-1">Second folder where Codex discovers skills.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Loud failure</span><p class="text-sm text-neutral-400 mt-1">Without a build, install stops and tells you what's missing.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+         </section>
+
+          <!-- TÓPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-2-4#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">📡 drift: [ok] or [DRIFT] per runtime</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t5-p1"><code>drift</code> is the shortest command and the most important one. For each skill in <code>skills/</code> and each runtime, it compares the generated output with what is installed, using <code>diff -rq</code>. Each line has three possible answers: <code>[ok]</code> when they are identical, <code>[DRIFT]</code> when they have diverged, and <code>[não instalada]</code> (not installed) when the folder is missing on one side or the other. It also exits with code 1 if any line shows DRIFT. So you can hook it into a <code>check.sh</code> or a weekly routine and get warned instead of finding out by accident.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Measure and resolve a drift</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> cause a DRIFT on purpose, watch it show up, and resolve it at the source, not in the copy.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>cd ~/projetos/agente-claude-codex
+
+<span class="text-neutral-500"># 1. clean state</span>
+scripts/sync-skills.sh drift; echo "exit=$?"
+<span class="text-neutral-500"># [ok] session-handoff → claude
+# [ok] session-handoff → codex
+# exit=0</span>
+
+<span class="text-neutral-500"># 2. someone edits the installed copy (this is how it starts)</span>
+echo "# anotação solta" &gt;&gt; ~/.codex/skills/session-handoff/SKILL.md
+
+<span class="text-neutral-500"># 3. drift flags it</span>
+scripts/sync-skills.sh drift; echo "exit=$?"
+<span class="text-neutral-500"># [ok]    session-handoff → claude
+# [DRIFT] session-handoff → codex
+# exit=1</span>
+
+<span class="text-neutral-500"># 4. decide: was the edit good? move it to the source and regenerate</span>
+$EDITOR skills/session-handoff/definition.md
+scripts/sync-skills.sh build
+scripts/sync-skills.sh install session-handoff --both
+scripts/sync-skills.sh drift; echo "exit=$?"   <span class="text-neutral-500"># back to exit=0</span></code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to check:</strong> the <code>exit=1</code> from step 3 and the <code>exit=0</code> from step 4. If <code>[não instalada]</code> shows up, the skill exists in the source but was never installed in that runtime, so run <code>install</code>. Replace <code>session-handoff</code> with <code>&lt;your-skill&gt;</code> to repeat this with your own.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ How to resolve a DRIFT</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Read the <code>diff</code> before deciding: the edit to the copy may be a good one.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>If it is, move it into <code>definition.md</code> and regenerate.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>If it isn't, reinstall over it. The backup keeps the previous version.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Run drift after each batch of installs, not just at the end.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ What turns drift into debt</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Editing directly in <code>~/.codex/skills</code> "just this once".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Running <code>FORCE=1</code> without reading what will be overwritten.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Leaving <code>[DRIFT]</code> on screen for weeks: it stops being a signal and becomes noise.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Treating <code>[não instalada]</code> as an error: it is often a deliberate choice.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">[ok]</span><p class="text-sm text-neutral-400 mt-1">Generated and installed are identical byte for byte.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">[DRIFT]</span><p class="text-sm text-neutral-400 mt-1">They diverged; someone edited the copy. Exit code 1.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">[não instalada]</span><p class="text-sm text-neutral-400 mt-1">The folder is missing on one side (not installed); not a failure.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Resolve at the source</span><p class="text-sm text-neutral-400 mt-1">You fix <code>definition.md</code>, never <code>dist/</code>.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TÓPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-2-4#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🔌 Adapter skills: only after MCP</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t6-p1">The audit in module 2.1 flagged 15 skills as <strong class="text-blue-400">adapter</strong> skills: <code>heygen</code>, <code>magnific</code>, the eight <code>printing-press</code> variants, and others. They don't depend on Claude on a whim. They depend on <strong>MCP tools</strong> that are currently registered only in Claude. The doctor is explicit about this: <em>"no MCP in Codex: skills marked 'adapter' only work after <code>codex mcp add</code>"</em>. Porting their Markdown before registering the server produces a skill that loads, tries to call a tool that doesn't exist and fails halfway through. That's worse than not porting it at all.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m2-4-t6-p2">So the order is: first <code>codex mcp add</code> on the target, then <code>import</code>, <code>build</code>, <code>install</code>, <code>drift</code>. Registering the MCP never copies the secret. The key stays where it has always been, in a <code>.env</code> referenced through an environment variable. The audit report follows the same rule: it lists MCP server names and never values.</p>
+
+            <div class="bg-gradient-to-br from-blue-900/30 to-dark-800 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🎯</span> Unlock an adapter skill</h3>
+              <p class="text-neutral-300 text-sm mb-3"><strong>Goal:</strong> register the MCP in Codex without copying the key, and only then port the skill that depends on it.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># 1. what already exists in Codex today</span>
+codex mcp list
+
+<span class="text-neutral-500"># 2. register it by referencing the variable, never the key's value</span>
+codex mcp add <span class="text-primary">&lt;server-name&gt;</span> \
+  --env API_KEY="$<span class="text-primary">&lt;YOUR_ENV_VARIABLE&gt;</span>" \
+  -- <span class="text-primary">&lt;server-command&gt;</span>
+
+<span class="text-neutral-500"># 3. confirm it shows up</span>
+codex mcp list | grep <span class="text-primary">&lt;server-name&gt;</span>
+
+<span class="text-neutral-500"># 4. now run the module's cycle</span>
+cd ~/projetos/agente-claude-codex
+scripts/sync-skills.sh import <span class="text-primary">&lt;adapter-skill&gt;</span>
+scripts/sync-skills.sh build
+scripts/sync-skills.sh install <span class="text-primary">&lt;adapter-skill&gt;</span> --codex
+scripts/sync-skills.sh drift</code></pre>
+              <p class="text-neutral-400 text-xs mt-3"><strong class="text-neutral-300">How to check:</strong> run <code>scripts/doctor.sh</code> again. The <code>[aviso] nenhum MCP no Codex</code> (no MCP in Codex) line should be gone. Then, in a new session, ask Codex to run the skill on a minimal task. If the tool doesn't show up, the server was registered but isn't starting. The problem is the command from step 2, not the skill.</p>
+            </div>
+
+            <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-red-400 mb-3 flex items-center"><span class="mr-2">⚠️</span> Honesty about the state of this step</h3>
+             <p class="text-neutral-300 text-sm mb-3">On <strong>2026-09-14</strong>, in the kit's README, the <code>sync-skills.sh</code> line was marked as <strong>"not run"</strong> — unlike <code>adapt-instructions.sh</code>, which had already passed a dry-run with the 71/7 from module 2.2. The command exists and has been read and reviewed, but nobody had run the full <code>import → build → install → drift</code> cycle on a real skill. That's not a flaw in the material: it's the difference between <em>written</em> and <em>proven</em>, which this course refuses to blur.</p>
+              <p class="text-neutral-300 text-sm">When you run it, you become the evidence. Write down the result (passed, failed or partial) and on which runtime. One paragraph in <code>handoffs/latest.md</code> changes the kit's status from "not run" to "run on such-and-such date, with such-and-such output".</p>
+            </div>
+
+            <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto mb-6"><code><span class="text-neutral-500"># handoffs/latest.md — the record that closes the module</span>
+## Session 2026-09-14 · polyskill
+
+- Run: `sync-skills.sh import session-handoff` → `build` → `install --both` → `drift`.
+- Result: `[ok] session-handoff → claude`, `[ok] session-handoff → codex`, exit=0.
+- Evidence: output pasted below; backups in `~/.claude/skills/.session-handoff.bak-*`.
+- Not run yet: adapter skills (they depend on `codex mcp add`; no MCP in Codex).
+- Next action: register the first MCP in Codex and repeat the cycle with an adapter skill.</code></pre>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <h3 class="text-base font-semibold text-primary mb-2 flex items-center"><span class="mr-2">💡</span> Practical tip</h3>
+              <p class="text-sm text-neutral-300">"Not run" is a legitimate state and deserves to be written down. What corrupts a project isn't admitting that a step hasn't been run yet — it's silence, which makes everyone assume it was. If something breaks during the cycle, also log it in <code>FALHAS.md</code>: one line with the date, what broke, the smallest possible fix and whether the cause was the prompt or the infrastructure.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Adapter skill</span><p class="text-sm text-neutral-400 mt-1">Depends on an MCP tool in the target runtime.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">codex mcp add</span><p class="text-sm text-neutral-400 mt-1">Registers the server before you port the skill.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Key by reference</span><p class="text-sm text-neutral-400 mt-1">An environment variable, never the value in the command.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-blue-400 font-semibold text-sm">Not run</span><p class="text-sm text-neutral-400 mt-1">An honest state; it becomes evidence when you run it.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-2-4#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Self-check (optional): <code>drift</code> returned <code>[DRIFT] minha-skill → codex</code>. What is the right first step?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Edit the file in <code>dist/codex/</code> until it matches the installed one.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Read the <code>diff</code>: if the edit to the copy is good, carry it into <code>definition.md</code> and regenerate; if it isn't, reinstall over it (the backup keeps the previous version).</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">Delete the skill from Codex and stop porting it: DRIFT means it's incompatible.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-500/20 border border-blue-500/30 text-blue-400 hover:bg-blue-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-blue-900/40 via-dark-800 to-dark-800 rounded-xl border border-blue-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Module summary</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Manual copies drift apart</strong><span class="text-neutral-400"> — the three skills copied by hand into <code>~/projetos/dsh-skills</code> show how two folders turn into two versions of the truth.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">import → build → install</strong><span class="text-neutral-400"> — <code>SKILL.md</code> becomes <code>definition.md</code> + <code>polyskill.yaml</code>; the build emits <code>dist/claude</code> and <code>dist/codex</code>; install copies with a backup alongside and mirrors to <code>~/.agents/skills</code>.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">drift</strong><span class="text-neutral-400"> — <code>[ok]</code>, <code>[DRIFT]</code> or <code>[não instalada]</code> per runtime, with exit code 1 on DRIFT. Always fix it at the source.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-blue-400 mt-1">✓</span><div><strong class="text-neutral-100">Adapter only after the MCP</strong><span class="text-neutral-400"> — <code>codex mcp add</code> first; and as of 2026-09-14 this step was still listed as "not run" in the kit. Run it and log it in <code>handoffs/latest.md</code>.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-blue-400 mb-2">Next module:</h3>
+                <p class="text-neutral-300">2.5 — Readback: prove it in a new session, with five questions and two runtimes</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Back to the Track</a>
+                <a href="modulo-2-5.html" class="flex-1 text-center px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-500 transition-colors">Next module →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migrate or stay agnostic</p>
+      <p>Module 2.4 · Track 2 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-2-4#q1', {
+          answer: 1,
+          explain: {
+            0: 'No. Nothing in dist/ should be edited by hand: it\'s generated output, and the next build wipes whatever you wrote there.',
+            1: 'Right. The diff is the information; the fix always goes back into definition.md, and the .bak-<timestamp> backup covers the case where you reinstall over it.',
+            2: 'No. DRIFT only says the installed copy differs from the generated one — usually because someone edited the copy. It\'s not a verdict of incompatibility.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

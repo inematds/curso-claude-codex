@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="inema-course" content="claude-codex-en">
+  <title>Project 3.2 · MCP and hooks between Claude and Codex | Claude → Codex</title>
+
+  <!-- ANTI-FOUC: bloqueante, ANTES do Tailwind. Default dark no erro. -->
+  <script>
+  (function () {
+    try {
+      var html = document.documentElement;
+      var DEF = { theme: 'inema-dark', font: 'inter', fontScale: 100, lineWidth: 68, leading: 1.7, accent: 'purple' };
+      function clone(o){var r={};for(var x in o)r[x]=o[x];return r;}
+      var p = clone(DEF);
+      try {
+        var raw = localStorage.getItem('inema.prefs');
+        if (raw) { var parsed = JSON.parse(raw); if (parsed && typeof parsed==='object'){ for (var k in DEF) if (parsed[k]!=null) p[k]=parsed[k]; } }
+        else { var legacy = localStorage.getItem('theme'); if (legacy==='light') p.theme='claro'; else if (legacy==='dark') p.theme='inema-dark'; }
+      } catch (e) { p = clone(DEF); }
+      var THEMES = { 'inema-dark':{dark:true,attr:null,cs:'dark'},'claro':{dark:false,attr:null,cs:'light'},'sepia':{dark:false,attr:'sepia',cs:'light'},'foco':{dark:null,attr:'foco',cs:null},'contraste':{dark:true,attr:'contraste',cs:'dark'} };
+      var t = THEMES[p.theme] || THEMES['inema-dark'];
+      if (t.dark===true) html.classList.add('dark'); else if (t.dark===false) html.classList.remove('dark');
+      if (t.attr) html.setAttribute('data-theme', t.attr); else html.removeAttribute('data-theme');
+      html.style.colorScheme = (t.cs ? t.cs : (html.classList.contains('dark') ? 'dark' : 'light'));
+      html.setAttribute('data-font', p.font || 'inter');
+      html.setAttribute('data-accent', p.accent || 'purple');
+      var s = html.style, scale = (+p.fontScale || 100);
+      s.setProperty('--inema-font-scale', (scale/100).toString());
+      s.setProperty('font-size', scale + '%');
+      s.setProperty('--measure', (+p.lineWidth || 68) + 'ch');
+      s.setProperty('--lh-body', (+p.leading || 1.7).toString());
+      var fam = p.font==='system' ? 'system-ui,-apple-system,"Segoe UI",Roboto,sans-serif' : (p.font==='leitura' ? '"Atkinson Hyperlegible","Inter",system-ui,sans-serif' : '"Inter",system-ui,sans-serif');
+      s.setProperty('--font-body', fam);
+      var ACC = { emerald:[152,76,45], blue:[217,91,60], purple:[258,90,66], amber:[38,92,50], teal:[174,72,41], rose:[350,89,60] };
+      var a = ACC[p.accent] || ACC['purple'];
+      s.setProperty('--accent-h', a[0]+''); s.setProperty('--accent-s', a[1]+'%'); s.setProperty('--accent-l', a[2]+'%');
+      s.setProperty('--accent', 'hsl('+a[0]+' '+a[1]+'% '+a[2]+'%)');
+    } catch (err) { try { document.documentElement.classList.add('dark'); document.documentElement.style.colorScheme='dark'; } catch(e){} }
+  })();
+  </script>
+
+  <!-- MANIFESTO do curso (IDÊNTICO em TODA página) -->
+  <script type="application/json" data-inema-manifest>
+  {
+    "course": "claude-codex-en",
+    "tracks": [
+      { "n": "1", "title": "Fundamentals", "modules": [
+        { "id": "1-1", "title": "Why separate the brain from the model", "topics": 6, "href": "curso/trilha1/modulo-1-1.html" },
+        { "id": "1-2", "title": "The vocabulary: runtime, harness, skill, MCP, hook, handoff", "topics": 6, "href": "curso/trilha1/modulo-1-2.html" },
+        { "id": "1-3", "title": "The three levels of migration", "topics": 6, "href": "curso/trilha1/modulo-1-3.html" },
+        { "id": "1-4", "title": "Anatomy of a portable workspace", "topics": 6, "href": "curso/trilha1/modulo-1-4.html" },
+        { "id": "1-5", "title": "Owners of the information", "topics": 6, "href": "curso/trilha1/modulo-1-5.html" },
+        { "id": "1-6", "title": "Audit before implement", "topics": 6, "href": "curso/trilha1/modulo-1-6.html" }
+      ]},
+      { "n": "2", "title": "Hands-on", "modules": [
+        { "id": "2-1", "title": "Environment diagnosis", "topics": 6, "href": "curso/trilha2/modulo-2-1.html" },
+        { "id": "2-2", "title": "CLAUDE.md → AGENTS.md", "topics": 6, "href": "curso/trilha2/modulo-2-2.html" },
+        { "id": "2-3", "title": "Installing the portable core", "topics": 6, "href": "curso/trilha2/modulo-2-3.html" },
+        { "id": "2-4", "title": "Canonical skills with polyskill", "topics": 6, "href": "curso/trilha2/modulo-2-4.html" },
+        { "id": "2-5", "title": "Readback: proving it in a fresh session", "topics": 6, "href": "curso/trilha2/modulo-2-5.html" },
+        { "id": "2-6", "title": "Handoff and prime: the daily cycle", "topics": 6, "href": "curso/trilha2/modulo-2-6.html" }
+      ]},
+      { "n": "3", "title": "Projects", "modules": [
+        { "id": "3-1", "title": "Project 1: migrate your first real project", "topics": 6, "href": "curso/trilha3/modulo-3-1.html" },
+        { "id": "3-2", "title": "Project 2: MCP and hooks between Claude and Codex", "topics": 6, "href": "curso/trilha3/modulo-3-2.html" },
+        { "id": "3-3", "title": "Project 3: curated memory", "topics": 6, "href": "curso/trilha3/modulo-3-3.html" },
+        { "id": "3-4", "title": "Project 4: third executor", "topics": 6, "href": "curso/trilha3/modulo-3-4.html" },
+        { "id": "3-5", "title": "Project 5: client workspace", "topics": 6, "href": "curso/trilha3/modulo-3-5.html" },
+        { "id": "3-6", "title": "Project 6: the mindset", "topics": 6, "href": "curso/trilha3/modulo-3-6.html" }
+      ]}
+    ]
+  }
+  </script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode:'class', theme:{ extend:{ colors:{ primary:'#FACC15', dark:{900:'#111827',800:'#1f2937',700:'#374151',600:'#4b5563'} } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/learn.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .dark body { background-color: #111827; }
+    .topic-explanation { display: none; }
+    .topic-explanation.active { display: block; }
+    [id] { scroll-margin-top: 4.5rem; }
+    /* ===== Light mode base ===== */
+    html:not(.dark) body { background-color: #f8fafc; }
+    html:not(.dark) .bg-dark-900 { background-color: #ffffff; }
+    html:not(.dark) .bg-dark-800 { background-color: #f9fafb; }
+    html:not(.dark) .bg-dark-700 { background-color: #f3f4f6; }
+    html:not(.dark) .bg-dark-600 { background-color: #e5e7eb; }
+    html:not(.dark) .text-neutral-100 { color: #111827; }
+    html:not(.dark) .text-neutral-300 { color: #4b5563; }
+    html:not(.dark) .text-neutral-400 { color: #6b7280; }
+    html:not(.dark) .text-neutral-500 { color: #9ca3af; }
+    html:not(.dark) .border-dark-600 { border-color: #d1d5db; }
+    html:not(.dark) .border-dark-700 { border-color: #e5e7eb; }
+    /* ===== Acentos das 3 trilhas (nav usa as 3 em toda página) ===== */
+    html:not(.dark) .text-emerald-400 { color: #059669; }
+    html:not(.dark) .bg-emerald-500\/20 { background-color: rgba(5,150,105,0.12); }
+    html:not(.dark) .bg-emerald-500\/10 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/20 { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .bg-emerald-900\/30 { background-color: rgba(5,150,105,0.10); }
+    html:not(.dark) .border-emerald-500\/30 { border-color: rgba(5,150,105,0.25); }
+    html:not(.dark) .hover\:bg-emerald-500\/30:hover { background-color: rgba(5,150,105,0.18); }
+    html:not(.dark) .hover\:bg-emerald-500\/10:hover { background-color: rgba(5,150,105,0.08); }
+    html:not(.dark) .hover\:text-emerald-400:hover { color: #059669; }
+    html:not(.dark) .group:hover .group-hover\:text-emerald-400 { color: #059669; }
+    html:not(.dark) .text-blue-400 { color: #2563eb; }
+    html:not(.dark) .bg-blue-500\/20 { background-color: rgba(37,99,235,0.12); }
+    html:not(.dark) .bg-blue-500\/10 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/20 { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .bg-blue-900\/30 { background-color: rgba(37,99,235,0.10); }
+    html:not(.dark) .border-blue-500\/30 { border-color: rgba(37,99,235,0.25); }
+    html:not(.dark) .hover\:bg-blue-500\/30:hover { background-color: rgba(37,99,235,0.18); }
+    html:not(.dark) .hover\:bg-blue-500\/10:hover { background-color: rgba(37,99,235,0.08); }
+    html:not(.dark) .hover\:text-blue-400:hover { color: #2563eb; }
+    html:not(.dark) .group:hover .group-hover\:text-blue-400 { color: #2563eb; }
+    html:not(.dark) .text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-purple-500\/20 { background-color: rgba(124,58,237,0.12); }
+    html:not(.dark) .bg-purple-500\/10 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/20 { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .bg-purple-900\/30 { background-color: rgba(124,58,237,0.10); }
+    html:not(.dark) .border-purple-500\/30 { border-color: rgba(124,58,237,0.25); }
+    html:not(.dark) .hover\:bg-purple-500\/30:hover { background-color: rgba(124,58,237,0.18); }
+    html:not(.dark) .hover\:bg-purple-500\/10:hover { background-color: rgba(124,58,237,0.08); }
+    html:not(.dark) .hover\:text-purple-400:hover { color: #7c3aed; }
+    html:not(.dark) .group:hover .group-hover\:text-purple-400 { color: #7c3aed; }
+    html:not(.dark) .bg-red-900\/20 { background-color: rgba(185,28,28,0.08); }
+    html:not(.dark) .border-red-500\/30 { border-color: rgba(185,28,28,0.25); }
+    /* ===== Remove gradientes + cores especiais ===== */
+    html:not(.dark) [class*="bg-gradient-to"] { background-image: none !important; }
+    html:not(.dark) .text-primary { color: #a16207; }
+    html:not(.dark) .bg-primary\/10 { background-color: rgba(161,98,7,0.08); }
+    html:not(.dark) .border-primary\/30 { border-color: rgba(161,98,7,0.25); }
+    html:not(.dark) .text-sky-400 { color: #0369a1; }
+    html:not(.dark) .text-yellow-400 { color: #a16207; }
+    html:not(.dark) .hover\:text-sky-300:hover { color: #0284c7; }
+    html:not(.dark) .hover\:text-yellow-300:hover { color: #854d0e; }
+    html:not(.dark) .text-red-400 { color: #b91c1c; }
+    /* ===== Nav ===== */
+    html:not(.dark) .bg-dark-900\/95 { background-color: rgba(255,255,255,0.95); }
+    /* ===== Dark: bordas/divisores suaves ===== */
+    .dark .border-dark-600 { border-color: #374151; }
+    .dark .divide-dark-600 > :not([hidden]) ~ :not([hidden]) { border-color: #374151; }
+    /* ===== SVG ilustrativo: conter intensidade no claro ===== */
+    html:not(.dark) svg[role="img"] { filter: saturate(0.82) brightness(0.96); }
+    @keyframes wf-pulse { 0%,100% { opacity:.5 } 50% { opacity:1 } }
+    @media (prefers-reduced-motion: no-preference) {
+      .wf-a { animation: wf-pulse 2.6s ease-in-out infinite; }
+      .wf-a:nth-child(2){animation-delay:.25s} .wf-a:nth-child(3){animation-delay:.5s} .wf-a:nth-child(4){animation-delay:.75s} .wf-a:nth-child(5){animation-delay:1s}
+    }
+  </style>
+</head>
+<body class="bg-dark-900 text-neutral-100 min-h-screen">
+
+  <a href="#conteudo" class="skip sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 focus:bg-primary focus:text-dark-900 focus:rounded-lg">Skip to content</a>
+
+  <nav class="sticky top-0 z-50 bg-dark-900/95 backdrop-blur-sm border-b border-dark-600">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-14">
+        <div class="flex items-center space-x-3">
+          <a href="../../index.html" class="flex items-center space-x-2 text-yellow-400 hover:text-yellow-300"><span class="text-2xl">🧠</span><span class="font-bold text-lg hidden sm:inline">Claude → Codex</span></a>
+          <span class="text-neutral-600">|</span>
+          <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
+          <span class="text-neutral-600">-</span>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../../curso/trilha3/modulo-3-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../../en/curso/trilha3/modulo-3-2.html" class="text-yellow-400 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../../es/curso/trilha3/modulo-3-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Español">ES</a></span>
+        </div>
+       <div class="flex items-center space-x-1 sm:space-x-2">
+          <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentals</span></a>
+          <a href="../trilha2/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors"><span class="sm:hidden">T2</span><span class="hidden sm:inline">Hands-on</span></a>
+          <a href="index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-purple-400 bg-purple-500/10"><span class="sm:hidden">T3</span><span class="hidden sm:inline">Projects</span></a>
+          <button type="button" data-inema-journey-open class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="My journey"><span aria-hidden="true">◷</span><span class="hidden md:inline">Journey</span><span class="inema-journey-badge hidden" data-inema-journey-badge data-count="0"></span></button>
+          <div class="relative">
+            <button type="button" data-inema-appearance-toggle="[data-inema-appearance]" aria-expanded="false" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-neutral-100 hover:bg-dark-700 transition-colors text-sm" title="Appearance"><span aria-hidden="true">◑</span><span class="hidden md:inline">Appearance</span></button>
+            <div data-inema-appearance class="inema-appearance-pop hidden absolute right-0 mt-2 w-72 p-4 rounded-xl bg-dark-800 border border-dark-600 shadow-2xl z-50 space-y-3 text-left">
+              <div><p class="text-xs text-neutral-400 mb-1.5">Theme</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-theme="inema-dark" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Dark</button>
+                <button data-inema-set-theme="claro" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Light</button>
+                <button data-inema-set-theme="sepia" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Sepia</button>
+                <button data-inema-set-theme="foco" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Focus</button>
+                <button data-inema-set-theme="contraste" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">High contrast</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Font</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-font="inter" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Inter</button>
+                <button data-inema-set-font="system" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">System</button>
+                <button data-inema-set-font="leitura" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Reading</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Size</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-fontscale="100" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A</button>
+                <button data-inema-set-fontscale="112" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A+</button>
+                <button data-inema-set-fontscale="125" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">A++</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Line spacing</p><div class="inema-segment flex flex-wrap gap-1.5">
+                <button data-inema-set-leading="1.45" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Compact</button>
+                <button data-inema-set-leading="1.7" class="px-2.5 py-1 rounded-md bg-dark-700 border border-dark-600 text-xs">Comfortable</button>
+              </div></div>
+              <div><p class="text-xs text-neutral-400 mb-1.5">Accent</p><div class="inema-accent-grid flex flex-wrap gap-2">
+                <button data-inema-set-accent="emerald" class="w-6 h-6 rounded-full bg-emerald-500 border border-dark-600" title="Emerald"></button>
+                <button data-inema-set-accent="blue" class="w-6 h-6 rounded-full bg-blue-500 border border-dark-600" title="Blue"></button>
+                <button data-inema-set-accent="purple" class="w-6 h-6 rounded-full bg-purple-500 border border-dark-600" title="Purple"></button>
+                <button data-inema-set-accent="amber" class="w-6 h-6 rounded-full bg-amber-500 border border-dark-600" title="Amber"></button>
+                <button data-inema-set-accent="teal" class="w-6 h-6 rounded-full bg-teal-500 border border-dark-600" title="Teal"></button>
+                <button data-inema-set-accent="rose" class="w-6 h-6 rounded-full bg-rose-500 border border-dark-600" title="Rose"></button>
+              </div></div>
+            </div>
+          </div>
+          <button id="theme-toggle" class="p-2 rounded-lg bg-dark-700 hover:bg-dark-600 transition-colors" title="Toggle light/dark">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-neutral-300" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <main id="conteudo">
+    <header class="bg-gradient-to-br from-purple-900/30 via-dark-800 to-dark-800 py-12 border-b border-dark-600">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <nav class="flex items-center space-x-2 text-sm text-neutral-400 mb-6">
+          <a href="../../index.html" class="hover:text-purple-400">Home</a><span>/</span>
+          <a href="index.html" class="hover:text-purple-400">Track 3</a><span>/</span>
+          <span class="text-purple-400">Project 3.2</span>
+        </nav>
+        <span class="inline-block px-3 py-1 bg-purple-500/20 text-purple-400 text-xs font-semibold rounded-full mb-4">PROJECT 3.2</span>
+        <h1 class="text-3xl sm:text-4xl font-bold mb-4">🔌 Project 2: MCP and hooks between Claude and Codex</h1>
+        <p class="text-lg text-neutral-400 max-w-3xl">Tools travel, events don't. This project registers in Codex the MCP servers that today only Claude can see (magnific, metricool, klingai, cerebro-vip), unlocks the 15 adapter skills that depended on them, and then tackles the part that has <em>no</em> equivalent: hooks. Codex has PostToolUse and Stop, but no SessionStart — and SessionStart is exactly where fable-mindset lives. Whatever can't become an event becomes text to be read, and the 7 subagents become role skills.</p>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 max-w-2xl">
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">6</div><div class="text-xs text-neutral-400">Topics</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">~45</div><div class="text-xs text-neutral-400">Minutes</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Intermediate</div><div class="text-xs text-neutral-400">Level</div></div>
+          <div class="bg-dark-800/50 rounded-lg p-3 border border-dark-600"><div class="text-xl font-bold text-purple-400">Project</div><div class="text-xs text-neutral-400">Type</div></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div class="lg:flex lg:gap-10">
+
+        <aside class="lg:w-56 lg:flex-shrink-0 mb-8 lg:mb-0">
+          <nav data-inema-toc aria-label="Page contents" class="lg:sticky lg:top-20">
+            <p class="text-sm text-neutral-400 mb-2">Section <span class="inema-toc-pos" data-inema-section-counter>1</span> of 6</p>
+            <ol class="space-y-1 text-sm">
+              <li><a href="#topico-1" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">1. MCP inventory</a></li>
+              <li><a href="#topico-2" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">2. codex mcp add without secrets</a></li>
+              <li><a href="#topico-3" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">3. The 15 adapter skills</a></li>
+              <li><a href="#topico-4" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">4. Hooks: what exists</a></li>
+              <li><a href="#topico-5" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">5. fable-mindset becomes text</a></li>
+              <li><a href="#topico-6" class="inema-toc-link block py-1 px-2 rounded text-neutral-400 hover:text-purple-400">6. Subagents become roles</a></li>
+            </ol>
+            <div class="mt-4" data-inema-meter="modulo:3-2" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="Module 3.2 progress">
+              <div class="inema-bar h-1.5 rounded-full bg-dark-700 overflow-hidden mb-1"><div class="inema-bar__fill h-full bg-purple-500" data-inema-meter-fill style="width:0%"></div></div>
+              <span class="text-xs text-neutral-500"><span data-inema-meter-frac>0 of 6</span> · <span data-inema-meter-pct>0%</span></span>
+            </div>
+          </nav>
+        </aside>
+
+        <div class="lg:flex-1 min-w-0 inema-prose">
+
+          <!-- BOX DO PROJETO -->
+          <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-12">
+            <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center"><span class="mr-2">🎯</span> The project on one screen</h2>
+            <div class="grid sm:grid-cols-3 gap-4 text-sm">
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Goal</span><span class="text-neutral-400">Codex gets the same external tools as Claude (MCP), and the behavior Claude got from hooks now exists in Codex as read text and role skills.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">You leave with</span><span class="text-neutral-400">MCP servers registered in Codex with no secret copied, the 15 adapter skills cleared for porting, a "pacing rule" section in <code>~/.codex/AGENTS.md</code> and 7 role skills in <code>.agents/skills/</code>.</span></div>
+              <div class="bg-dark-800/60 rounded-lg border border-dark-600 p-4"><span class="font-semibold text-neutral-100 block mb-1">Acceptance criteria</span><span class="text-neutral-400"><code>codex mcp list</code> shows the servers; an adapter skill runs in Codex; <code>grep -R 'sk-' ~/.codex</code> finds nothing; and a fresh Codex session can take on one of the 7 roles by citing the file.</span></div>
+            </div>
+          </div>
+
+          <!-- TOPICO 1 -->
+          <section id="topico-1" data-inema-topic="modulo-3-2#topico-1" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">1</span>
+              <h2 class="text-2xl font-bold">🧾 Inventory: who has which tool</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t1-p1">Before touching anything, take inventory. The 2026-09-14 diagnosis measured both runtimes side by side, and the result for MCP is short and brutal: <strong class="text-purple-400">Claude has <code>magnific</code> and <code>metricool</code> globally</strong>, plus two MCP servers registered per project — <code>wifi → klingai</code> and <code>2cerebrox → cerebro-vip</code>. <strong class="text-purple-400">Codex has none</strong>. It's not "has fewer": it's zero. Every skill of yours that calls one of these tools simply doesn't exist on the Codex side, no matter how well written it is.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t1-p2">It's worth separating two axes people often confuse. <strong>MCP is a tool</strong>: an external process the agent calls to do something in the world (generate an image, schedule a post, check a metric). <strong>A hook is an event</strong>: a harness trigger that fires on its own at a given point in the session lifecycle. The first is a protocol contract, so it travels between runtimes. The second is a harness implementation detail, so it does <em>not</em> travel — and when it doesn't, the only way out is to turn the hook's effect into something the agent reads.</p>
+<div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Two panels. On the left, MCP travels: the same tool server is reached by Claude and by Codex through the protocol. On the right, hooks do not travel: event hooks are stuck inside each harness and have no bridge between them.">
+                <defs>
+                  <linearGradient id="m32-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m32-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m32-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m32-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                  <marker id="m32-ahc" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#38bdf8"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m32-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <rect x="20" y="16" width="450" height="268" rx="18" fill="#150f25" stroke="#a855f7" stroke-width="1.6" opacity="0.55"/>
+                  <text x="245" y="44" text-anchor="middle" fill="#c084fc" font-size="15" font-weight="700">MCP · tools TRAVEL</text>
+
+                  <rect x="50" y="70" width="150" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="125" y="95" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">Claude Code</text>
+                  <text x="125" y="113" text-anchor="middle" fill="#bfe6ff" font-size="11">2 global + 2 per project</text>
+
+                  <rect x="50" y="180" width="150" height="52" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="125" y="205" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">Codex CLI</text>
+                  <text x="125" y="223" text-anchor="middle" fill="#bfe6ff" font-size="11">today: none</text>
+
+                  <g filter="url(#m32-glow)"><rect x="290" y="118" width="150" height="66" rx="14" fill="#1a1230" stroke="url(#m32-grad)" stroke-width="2.5"/></g>
+                  <text x="365" y="145" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">MCP server</text>
+                  <text x="365" y="165" text-anchor="middle" fill="#e9d5ff" font-size="11">magnific · metricool</text>
+
+                  <g class="wf-a"><path d="M200,96 C250,96 250,140 290,145" fill="none" stroke="#c084fc" stroke-width="2" marker-end="url(#m32-ah)"/></g>
+                  <g class="wf-a"><path d="M200,206 C250,206 250,166 290,158" fill="none" stroke="#c084fc" stroke-width="2" stroke-dasharray="7 6" marker-end="url(#m32-ah)"/></g>
+                  <text x="245" y="258" text-anchor="middle" fill="#e9d5ff" font-size="11">the same process serves both: it's a protocol</text>
+
+                  <rect x="530" y="16" width="450" height="268" rx="18" fill="#221018" stroke="#f87171" stroke-width="1.6" opacity="0.55"/>
+                  <text x="755" y="44" text-anchor="middle" fill="#fca5a5" font-size="15" font-weight="700">HOOKS · events DON'T TRAVEL</text>
+
+                  <rect x="560" y="70" width="180" height="94" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="650" y="94" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">Claude harness</text>
+                  <text x="650" y="116" text-anchor="middle" fill="#bfe6ff" font-size="11">SessionStart ×2</text>
+                  <text x="650" y="134" text-anchor="middle" fill="#bfe6ff" font-size="11">context-mode</text>
+                  <text x="650" y="152" text-anchor="middle" fill="#bfe6ff" font-size="11">fable-mindset</text>
+
+                  <rect x="770" y="70" width="180" height="94" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="860" y="94" text-anchor="middle" fill="#9ad6ff" font-size="13" font-weight="600">Codex harness</text>
+                  <text x="860" y="116" text-anchor="middle" fill="#bfe6ff" font-size="11">PostToolUse</text>
+                  <text x="860" y="134" text-anchor="middle" fill="#bfe6ff" font-size="11">Stop</text>
+                  <text x="860" y="152" text-anchor="middle" fill="#fca5a5" font-size="11">no SessionStart</text>
+
+                  <path d="M745,117 L765,117" fill="none" stroke="#f87171" stroke-width="2.4"/>
+                  <path d="M744,104 L766,130 M766,104 L744,130" stroke="#f87171" stroke-width="3" stroke-linecap="round"/>
+                  <text x="755" y="196" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="600">there is no bridge between harnesses</text>
+
+                  <g filter="url(#m32-glow)"><rect x="600" y="212" width="310" height="52" rx="12" fill="#1a1230" stroke="url(#m32-grad)" stroke-width="2.5"/></g>
+                  <text x="755" y="235" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">way out: the event becomes TEXT in AGENTS.md</text>
+                  <text x="755" y="254" text-anchor="middle" fill="#e9d5ff" font-size="11">read at session start, by instruction</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">The left panel is the good news: MCP is a <span class="text-purple-400">protocol</span>, so the same server serves Claude and Codex without duplicating anything. The right one is the bad news: a hook is an <span class="text-red-400">implementation of the harness</span>, and it dies at the border. The purple block at the bottom is this project's way out — whatever can't be an event has to become required reading.</p>
+            </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">📊</span> The measured inventory</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-neutral-400 border-b border-dark-600"><tr><th class="py-2 pr-4">Scope</th><th class="py-2 pr-4">Claude Code</th><th class="py-2">Codex CLI</th></tr></thead>
+                  <tbody class="text-neutral-300 divide-y divide-dark-600">
+                    <tr><td class="py-2 pr-4">Global MCP</td><td class="py-2 pr-4"><code>magnific</code>, <code>metricool</code></td><td class="py-2 text-red-400">none</td></tr>
+                    <tr><td class="py-2 pr-4">Per-project MCP</td><td class="py-2 pr-4"><code>wifi → klingai</code>, <code>2cerebrox → cerebro-vip</code></td><td class="py-2 text-red-400">none</td></tr>
+                    <tr><td class="py-2 pr-4">Hooks</td><td class="py-2 pr-4">2 SessionStart (context-mode, fable-mindset)</td><td class="py-2">PostToolUse + Stop (impeccable)</td></tr>
+                    <tr><td class="py-2 pr-4">Subagents</td><td class="py-2 pr-4">7 in <code>~/.claude/agents</code></td><td class="py-2 text-red-400">no equivalent</td></tr>
+                    <tr><td class="py-2 pr-4">Skills blocked by this</td><td class="py-2 pr-4">—</td><td class="py-2">15 adapter + 2 native</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> reproduce the inventory on your machine before changing anything, so you have a baseline.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># MCPs that Claude sees (global + per project)</span>
+claude mcp list
+<span class="text-neutral-500"># expected on this machine: magnific, metricool</span>
+
+<span class="text-neutral-500"># per-project MCPs live in each repo's .mcp.json</span>
+ls ~/projetos/wifi/.mcp.json ~/projetos/2cerebrox/.mcp.json 2&gt;/dev/null
+
+<span class="text-neutral-500"># MCPs that Codex sees</span>
+codex mcp list
+<span class="text-neutral-500"># expected TODAY: empty list — this is the project's gap</span>
+
+<span class="text-neutral-500"># hooks on both sides</span>
+grep -rho '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.claude/settings.json ~/.claude/plugins/cache 2&gt;/dev/null | sort | uniq -c
+grep -o '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.codex/hooks.json | sort | uniq -c</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to verify:</strong> write down both lists in <code>context/overview.md</code> of the project you're working on. By the end of this module, <code>codex mcp list</code> must no longer be empty — and that's the only metric that matters in topic 2.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Golden rule of the inventory:</strong> don't trust your memory. An MCP "you swore you had registered" that doesn't show up in <code>list</code> is an MCP that doesn't exist for the agent. The same goes for hooks: if it's not in the settings file, it doesn't fire — and you'll spend an hour debugging behavior that was never turned on.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">MCP</span><p class="text-sm text-neutral-400 mt-1">An external tool spoken to over a protocol; any runtime that speaks the protocol can use it.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Hook</span><p class="text-sm text-neutral-400 mt-1">An event hook of the harness; it's not a protocol, it's a local implementation.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Global vs project scope</span><p class="text-sm text-neutral-400 mt-1">An MCP can apply to the whole machine or only inside one repo.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Baseline</span><p class="text-sm text-neutral-400 mt-1">The state measured before the change; without it there is no "it got better".</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+         </section>
+
+          <!-- TOPICO 2 -->
+          <section id="topico-2" data-inema-topic="modulo-3-2#topico-2" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">2</span>
+              <h2 class="text-2xl font-bold">🔑 <code>codex mcp add</code> without copying a single secret</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t2-p1">The command itself is simple: <code>codex mcp add &lt;nome&gt; -- &lt;comando&gt;</code>. What calls for care is what goes along with it. This machine's global rule is explicit: API keys <strong class="text-purple-400">always live in <code>~/projetos/openpcbotv2/.env</code> or <code>~/projetos/wifi/.env</code></strong>, are loaded at runtime and are never duplicated anywhere else. Registering an MCP by pasting the key into the command argument breaks that rule twice: it creates a second copy of the secret and writes it to a config file you will eventually sync, version or paste into a chat.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t2-p2">The way out is indirection: the registered command is not the server, it is a three-line <strong>wrapper</strong> that loads the <code>.env</code> and only then execs the server. The loading pattern is <code>set -a; source .env; set +a</code> — <code>set -a</code> turns every assigned variable into an exported environment variable, <code>source</code> reads the file, <code>set +a</code> switches it off. The secret passes through process memory and never touches the Codex configuration.</p>
+
+            <div class="space-y-4 mb-6">
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">1</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Find the real command</h4><p class="text-sm text-neutral-400">In Claude, each MCP already has a startup command. Copy the command, not the key.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">2</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Write the wrapper</h4><p class="text-sm text-neutral-400">One <code>.sh</code> per server in <code>~/.local/bin/</code>, with <code>set -a; source ...; set +a</code> and <code>exec</code> at the end.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">3</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Register it pointing to the wrapper</h4><p class="text-sm text-neutral-400"><code>codex mcp add magnific -- ~/.local/bin/mcp-magnific.sh</code>. The configuration stores a path, not a secret.</p></div>
+              </div>
+              <div class="flex items-start space-x-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center"><span class="text-purple-400 font-bold">4</span></div>
+                <div class="flex-1 bg-dark-800 rounded-xl p-5 border border-dark-600"><h4 class="font-semibold text-neutral-100 mb-1">Prove nothing leaked</h4><p class="text-sm text-neutral-400">A <code>grep</code> over the <code>~/.codex</code> tree looking for key prefixes. Zero results is the acceptance test.</p></div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> register <code>magnific</code> and <code>metricool</code> in Codex referencing the keys in <code>.env</code>, without storing any value.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># 1. wrapper that loads the .env at runtime and hands off to the server</span>
+mkdir -p ~/.local/bin
+cat &gt; ~/.local/bin/mcp-magnific.sh &lt;&lt;'SH'
+#!/usr/bin/env bash
+set -euo pipefail
+set -a; . "$HOME/projetos/openpcbotv2/.env"; set +a   <span class="text-neutral-500"># loads, does not copy</span>
+exec npx -y @magnific/mcp-server                      <span class="text-neutral-500"># replace with your MCP's real command</span>
+SH
+chmod 700 ~/.local/bin/mcp-magnific.sh
+
+<span class="text-neutral-500"># 2. register in Codex: the config stores a PATH, never a key</span>
+codex mcp add magnific  -- "$HOME/.local/bin/mcp-magnific.sh"
+codex mcp add metricool -- "$HOME/.local/bin/mcp-metricool.sh"
+
+<span class="text-neutral-500"># 3. check</span>
+codex mcp list</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to verify:</strong> <code>codex mcp list</code> is no longer empty and shows both names. Then open <code>codex</code> in any folder and ask "list the available MCP tools" — the names have to show up in the answer, not just in the file.</p>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> prove that no secret ended up in the configuration — this is the test that closes the topic.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># search for typical key prefixes inside the Codex config</span>
+grep -rIl -e 'sk-' -e 'API_KEY=' -e 'TOKEN=' ~/.codex 2&gt;/dev/null
+<span class="text-neutral-500"># expected: NO output lines</span>
+
+<span class="text-neutral-500"># check that the wrapper is not readable by other users</span>
+stat -c '%a %n' ~/.local/bin/mcp-*.sh
+<span class="text-neutral-500"># expected: 700 on all of them</span>
+
+<span class="text-neutral-500"># check that the .env is still the single source</span>
+grep -c '=' ~/projetos/openpcbotv2/.env   <span class="text-neutral-500"># count only; never print the contents</span></code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to verify:</strong> the first command must return silently. If it prints any path, stop everything: some key was copied. Remove the registration with <code>codex mcp remove &lt;nome&gt;</code>, rotate the key, and redo it through the wrapper.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ The right way to carry the key</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The wrapper runs <code>source</code> on the <code>.env</code> at runtime, on every startup.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The Codex configuration stores only the wrapper's path.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Rotating the key means editing a single file; nothing else has to change.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span><code>chmod 700</code> on the wrapper and <code>.env</code> kept outside any published repo.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ The way that creates debt</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Pasting the key into <code>codex mcp add ... --env KEY=sk-...</code>: it becomes plain text on disk.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Duplicating the <code>.env</code> into <code>~/.codex</code> "just to make it easier".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Exporting the key in <code>.bashrc</code>: it starts leaking to every process on the machine.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Printing the value to "check that it is right" — the terminal ends up in the history and the session log.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">The two per-project MCPs:</strong> <code>klingai</code> (in <code>wifi</code>) and <code>cerebro-vip</code> (in <code>2cerebrox</code>) follow exactly the same pattern, but are registered from inside the repo so they keep a local scope. The question that decides scope is simple: "will any other project want to call this?" If the answer is no, keep it per project — a global MCP is attack surface and context noise in every session.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Startup wrapper</span><p class="text-sm text-neutral-400 mt-1">A short script that loads the environment and runs <code>exec</code> on the real server.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm"><code>set -a</code></span><p class="text-sm text-neutral-400 mt-1">Makes <code>source</code> export everything; <code>set +a</code> switches it off right after.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Reference vs copy</span><p class="text-sm text-neutral-400 mt-1">Point to the source of the secret; never create a second source.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Negative proof</span><p class="text-sm text-neutral-400 mt-1">The acceptance test is a <code>grep</code> that finds nothing — verified absence.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 3 -->
+          <section id="topico-3" data-inema-topic="modulo-3-2#topico-3" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">3</span>
+              <h2 class="text-2xl font-bold">🔓 The 15 adapter skills unlock later</h2>
+           </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t3-p1">The skills audit sorted 89 Claude-only skills into four classes. <strong>72 are reusable</strong> — plain Markdown and scripts that port unchanged. <strong>15 are adapter skills</strong>: they depend on an MCP or a Claude plugin, so they only make sense in Codex <em>after</em> the matching tool is registered. Two are native (they depend on a SessionStart hook) and one has no <code>SKILL.md</code>.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t3-p2">That is why this project comes before the bulk skill migration. Porting an adapter skill while its MCP is missing gives you the worst possible outcome: it gets discovered, it gets picked, and it fails halfway through — after the agent has already promised the user it would generate the video. <strong class="text-purple-400">Tool first, skill second.</strong> The order isn't a preference; it's what separates "not installed" from "installed and broken".</p>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🧩</span> The 15 adapter skills, by dependency</h3>
+              <p class="text-neutral-300 text-sm mb-3">Eight of them are <code>printing-press</code> variants, which count as a single dependency. Solving three MCPs (heygen, comfy and the espiona-ads one) unlocks the whole block.</p>
+              <div class="flex flex-wrap gap-2 text-xs">
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">avatar-heygen-nei</span>
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">heygen-cli</span>
+                <span class="px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-400 font-semibold">heygen-mcp</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">espiona-ads</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">ugc-seedance25</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">website-intelligence</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">comfy-relay</span>
+                <span class="px-2.5 py-1 rounded-full bg-dark-700 text-neutral-300">printing-press (8 variants)</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Ready to port now</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Only reads and writes files, or calls binaries already on the machine.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The <code>SKILL.md</code> doesn't mention any <code>mcp__…</code> in the body of its instructions.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Helper scripts are bash or node with no plugin dependency.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>The whole happy path runs without network access.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Waits for the matching MCP</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>The <code>SKILL.md</code> says "call <code>mcp__magnific__images_generate</code>".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Depends on a Claude plugin (superpowers, context-mode, claude-mem).</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Depends on a subagent: "dispatch to <code>analista-neutro</code>".</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Assumes <code>AskUserQuestion</code> or another Claude-only UI feature.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> automatically sort your skills into "reusable" and "adapter", so you know what to port today.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># adapter = the SKILL.md mentions an MCP, plugin or subagent</span>
+cd ~/.claude/skills
+for d in */; do
+  s="${d%/}"
+  if grep -qE 'mcp__|AskUserQuestion|subagent_type|superpowers:|context-mode:' "$s/SKILL.md" 2&gt;/dev/null; then
+    echo "ADAPTADOR  $s"
+  else
+    echo "portavel   $s"
+  fi
+done | sort | tee ~/classificacao-skills.txt | awk '{print $1}' | uniq -c
+
+<span class="text-neutral-500"># show only the blocked ones, and which dependency blocks them</span>
+grep '^ADAPTADOR' ~/classificacao-skills.txt | awk '{print $2}' | while read s; do
+  echo "== $s"; grep -ohE 'mcp__[a-z0-9_]+' "$s/SKILL.md" | sort -u
+done</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to check:</strong> the count should match the order of magnitude of the diagnosis — dozens of portable skills against about 15 adapters. If you get 80 adapters, your <code>grep</code> is catching mentions inside examples; adjust it to look only at instruction lines.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Sequencing tip:</strong> after registering magnific and metricool in topic 2, come back to this list and move to "portable" only the skills whose <em>only</em> dependency was one of those two. The heygen and comfy ones stay blocked until you register the matching MCPs — and that is a task for another session, not an exception to open now.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Adapter skill</span><p class="text-sm text-neutral-400 mt-1">A skill whose value depends on a registered external tool.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Failing halfway</span><p class="text-sm text-neutral-400 mt-1">Worse than not having it: the skill is picked and breaks after the promise.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Tool before skill</span><p class="text-sm text-neutral-400 mt-1">The order that avoids installing something broken in Codex.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Block by dependency</span><p class="text-sm text-neutral-400 mt-1">8 printing-press variants unlock with a single MCP.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 4 -->
+          <section id="topico-4" data-inema-topic="modulo-3-2#topico-4" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">4</span>
+              <h2 class="text-2xl font-bold">🪝 Hooks: the real mapping between the two</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t4-p1">Here the news is mixed. Claude has <strong class="text-purple-400">two SessionStart hooks</strong> — <code>context-mode</code> and <code>fable-mindset</code> — and a good part of the behavior you think of as "the way Claude works" comes from them. Codex has hooks too, but for other moments: this machine's <code>~/.codex/hooks.json</code> registers a <strong class="text-purple-400">PostToolUse</strong> (matcher <code>Edit|Write|apply_patch</code>, 5s timeout) and a <strong class="text-purple-400">Stop</strong> (30s timeout), both calling the same <code>hook.mjs</code> from <code>impeccable</code>. What doesn't exist is the opening hook: <strong>SessionStart has no equivalent in Codex</strong>.</p>
+
+            <div class="rounded-2xl border border-purple-500/30 bg-dark-900/40 p-3 sm:p-4 mb-6 overflow-hidden">
+              <svg viewBox="0 0 1000 300" class="w-full h-auto" role="img" aria-label="Hook mapping between Claude and Codex across a session's lifecycle: SessionStart exists only in Claude and has no equivalent, PostToolUse exists in both, Stop exists in both. SessionStart is replaced by reading text in AGENTS.md.">
+                <defs>
+                  <linearGradient id="m32b-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c084fc"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+                  <filter id="m32b-glow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                  <pattern id="m32b-grid" width="32" height="32" patternUnits="userSpaceOnUse"><circle cx="1.3" cy="1.3" r="1.3" fill="#a855f7" opacity="0.12"/></pattern>
+                  <marker id="m32b-ah" markerWidth="9" markerHeight="9" refX="6.5" refY="4.5" orient="auto"><path d="M0,0 L8,4.5 L0,9 L2.4,4.5 Z" fill="#c084fc"/></marker>
+                </defs>
+                <rect x="0" y="0" width="1000" height="300" fill="url(#m32b-grid)"/>
+                <g font-family="Inter,sans-serif">
+                  <path d="M120,150 L940,150" fill="none" stroke="#38bdf8" stroke-width="2" opacity="0.45" marker-end="url(#m32b-ah)"/>
+                  <text x="60" y="155" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">session</text>
+                  <text x="930" y="176" text-anchor="end" fill="#9ad6ff" font-size="11">time</text>
+
+                  <circle cx="230" cy="150" r="9" fill="#a855f7"/>
+                  <circle cx="540" cy="150" r="9" fill="#38bdf8"/>
+                  <circle cx="850" cy="150" r="9" fill="#38bdf8"/>
+
+                  <g filter="url(#m32b-glow)"><rect x="120" y="40" width="230" height="78" rx="14" fill="#1a1230" stroke="url(#m32b-grad)" stroke-width="2.5"/></g>
+                  <text x="235" y="66" text-anchor="middle" fill="#c084fc" font-size="14" font-weight="700">SessionStart</text>
+                  <text x="235" y="88" text-anchor="middle" fill="#e9d5ff" font-size="11">Claude: context-mode + fable-mindset</text>
+                  <text x="235" y="107" text-anchor="middle" fill="#fca5a5" font-size="12" font-weight="700">Codex: ✗ doesn't exist</text>
+
+                  <rect x="425" y="40" width="230" height="78" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="540" y="66" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="700">PostToolUse</text>
+                  <text x="540" y="88" text-anchor="middle" fill="#bfe6ff" font-size="11">matcher Edit|Write|apply_patch</text>
+                  <text x="540" y="107" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Codex: ✓ exists (5s)</text>
+
+                  <rect x="735" y="40" width="230" height="78" rx="14" fill="#0e1b26" stroke="#38bdf8" stroke-width="2"/>
+                  <text x="850" y="66" text-anchor="middle" fill="#9ad6ff" font-size="14" font-weight="700">Stop</text>
+                  <text x="850" y="88" text-anchor="middle" fill="#bfe6ff" font-size="11">impeccable · design deep pass</text>
+                  <text x="850" y="107" text-anchor="middle" fill="#6ee7b7" font-size="12" font-weight="700">Codex: ✓ exists (30s)</text>
+
+                  <path d="M235,118 L235,141" stroke="#c084fc" stroke-width="2"/>
+                  <path d="M540,118 L540,141" stroke="#38bdf8" stroke-width="2"/>
+                  <path d="M850,118 L850,141" stroke="#38bdf8" stroke-width="2"/>
+
+                  <g filter="url(#m32b-glow)"><rect x="120" y="196" width="230" height="72" rx="14" fill="#1a1230" stroke="url(#m32b-grad)" stroke-width="2.5"/></g>
+                  <text x="235" y="222" text-anchor="middle" fill="#c084fc" font-size="13" font-weight="700">portable substitute</text>
+                  <text x="235" y="242" text-anchor="middle" fill="#e9d5ff" font-size="11">section in AGENTS.md +</text>
+                  <text x="235" y="259" text-anchor="middle" fill="#e9d5ff" font-size="11">prime skill read at the start</text>
+                  <path d="M235,159 L235,194" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#m32b-ah)"/>
+
+                  <rect x="425" y="200" width="540" height="64" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.6" opacity="0.8"/>
+                  <text x="695" y="226" text-anchor="middle" fill="#bfe6ff" font-size="11">already equivalent: the same impeccable hook.mjs in both</text>
+                  <text x="695" y="248" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">nothing to migrate here — just check the timeouts</text>
+                </g>
+              </svg>
+              <p class="text-xs text-neutral-400 mt-1 px-1">The line is a session's lifecycle. The two cyan dots (<span class="text-sky-400">PostToolUse</span> and <span class="text-sky-400">Stop</span>) already exist in both runtimes and take no work. The purple dot (<span class="text-purple-400">SessionStart</span>) exists only in Claude — and the dashed arrow pointing down is the only possible answer: swap the automatic event for mandatory reading at the start of the session.</p>
+           </div>
+
+            <div class="bg-blue-900/20 rounded-xl border border-blue-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-blue-400 mb-3 flex items-center"><span class="mr-2">🗺️</span> The mapping table</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left">
+                  <thead class="text-neutral-400 border-b border-dark-600"><tr><th class="py-2 pr-4">Event</th><th class="py-2 pr-4">Claude</th><th class="py-2 pr-4">Codex</th><th class="py-2">What to do</th></tr></thead>
+                  <tbody class="text-neutral-300 divide-y divide-dark-600">
+                    <tr><td class="py-2 pr-4"><code>SessionStart</code></td><td class="py-2 pr-4 text-emerald-400">✓ 2 hooks</td><td class="py-2 pr-4 text-red-400">✗ doesn't exist</td><td class="py-2">Turn it into text in AGENTS.md + a prime skill</td></tr>
+                    <tr><td class="py-2 pr-4"><code>PostToolUse</code></td><td class="py-2 pr-4 text-emerald-400">✓</td><td class="py-2 pr-4 text-emerald-400">✓ impeccable</td><td class="py-2">Nothing; check the matcher</td></tr>
+                    <tr><td class="py-2 pr-4"><code>Stop</code></td><td class="py-2 pr-4 text-emerald-400">✓</td><td class="py-2 pr-4 text-emerald-400">✓ impeccable</td><td class="py-2">Nothing; check the 30s timeout</td></tr>
+                    <tr><td class="py-2 pr-4">Plugins</td><td class="py-2 pr-4 text-emerald-400">✓ 7</td><td class="py-2 pr-4 text-red-400">✗ 1 (github)</td><td class="py-2">Claude leftover; doesn't migrate</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> read what is actually registered on both sides, instead of assuming.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># which events Codex has registered on this machine</span>
+python3 -c "import json;print(list(json.load(open('$HOME/.codex/hooks.json'))['hooks']))"
+<span class="text-neutral-500"># expected: ['PostToolUse', 'Stop']</span>
+
+<span class="text-neutral-500"># the matcher and timeout of each one</span>
+grep -E '"matcher"|"timeout"|"statusMessage"' ~/.codex/hooks.json
+
+<span class="text-neutral-500"># does the target of both hooks exist? (the hook is written to fail silently if it doesn't)</span>
+ls -l ~/.agents/skills/impeccable/scripts/hook.mjs
+
+<span class="text-neutral-500"># what Claude fires on SessionStart — this is the one with NO counterpart</span>
+grep -rl '"SessionStart"' ~/.claude/settings.json ~/.claude/plugins/cache 2&gt;/dev/null</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to verify:</strong> the Codex list comes back with two names, and neither is <code>SessionStart</code>. If the <code>ls</code> of <code>hook.mjs</code> fails, the Codex hooks are registered but inert — the <code>[ ! -f ... ] ||</code> at the start of the command makes them exit quietly.</p>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">Why the hook fails silently on purpose:</strong> note the form <code>[ ! -f "…/hook.mjs" ] || node "…/hook.mjs"</code>. If the file disappears, the command returns success and the session carries on. That's desirable for a cosmetic hook like <code>impeccable</code>'s, and terrible for a hook that loads context: you'd think you had read AGENTS.md when you hadn't. It's one more argument against relying on an event for anything that must be guaranteed.</p>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">SessionStart</span><p class="text-sm text-neutral-400 mt-1">Opening hook; exists only in Claude, and it's the one that hurts most to lose.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Matcher</span><p class="text-sm text-neutral-400 mt-1">Filter for which tools trigger PostToolUse.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Silent failure</span><p class="text-sm text-neutral-400 mt-1">A hook written not to break the session when its target disappears.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Event → reading</span><p class="text-sm text-neutral-400 mt-1">The only possible translation when the hook doesn't exist on the other side.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 5 -->
+          <section id="topico-5" data-inema-topic="modulo-3-2#topico-5" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">5</span>
+              <h2 class="text-2xl font-bold">📝 fable-mindset becomes a text section in AGENTS.md</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t5-p1"><code>fable-mindset</code> is one of the two skills classified as <strong>native</strong>: it exists as a SessionStart hook that injects a behavior playbook at the start of every Claude session. Since Codex has no SessionStart, there's nowhere to port the mechanism. But the playbook's <em>content</em> is just text — and text is the most portable thing there is. The conversion is direct: <strong class="text-purple-400">what used to be injected by an event becomes a section of <code>~/.codex/AGENTS.md</code></strong>, read because the file is read.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t5-p2">The playbook distilled from this analysis fits in a few lines, and its core is what you could call the <strong>pacing rule</strong>: <em>think before acting, close the loop by verifying</em>. Two halves that hold each other up. The first prevents the session that starts editing files before understanding the problem; the second prevents the session that declares "done" without running anything. Written like this, without harness jargon, it works in any runtime — including the dsh of the next project, which has no hooks at all.</p>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> add the pacing rule to <code>~/.codex/AGENTS.md</code>, replacing the hook with reading.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code><span class="text-neutral-500"># back up before touching the global base (Project 1 created this file)</span>
+cp ~/.codex/AGENTS.md ~/.codex/AGENTS.md.bak-$(date +%Y%m%d)
+
+cat &gt;&gt; ~/.codex/AGENTS.md &lt;&lt;'MD'
+
+## Pacing rule (was the fable-mindset hook in Claude)
+
+- **Think before acting.** Before the first edit, state in one sentence
+  what the problem is and what the smallest change that solves it is. If
+  you don't know, read more; don't start editing to find out.
+- **Close the loop by verifying.** Every change ends with a command that
+  proves the result (test, `grep`, `status`, readback) and with the output
+  pasted in the answer. "It should work" doesn't close the loop.
+- **One fix at a time.** If the answer was to rewrite everything,
+  a guard was probably missing — record that in FALHAS.md.
+MD
+
+<span class="text-neutral-500"># check that it went in and that the file is still short</span>
+tail -14 ~/.codex/AGENTS.md
+wc -l ~/.codex/AGENTS.md</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to verify:</strong> run <code>codex exec "Before editing any file, what must you say first? Cite the source."</code> from <code>~</code>. The answer must mention the sentence about the problem and the smallest change, <em>citing AGENTS.md</em>. If it answers well without citing the source, that's the model getting lucky, not reading — and it doesn't count as acceptance.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">✓ Translates well into text</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Behavior playbook: pacing, order of work, what to do before declaring done.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Hard prohibitions and style preferences.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Order for reading files at the start of the session.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Acceptance criteria and handoff format.</span></li>
+                </ul>
+              </div>
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">✗ Doesn't translate into text</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>What the hook <em>computes</em>: mining 2.3 GB of JSONL to generate the playbook.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Actually blocking an action — text asks, a hook prevents.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Guaranteed injection: text can be pruned from context in a long session.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">✗</span><span>Automatic routing of calls to a subagent.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="bg-primary/10 rounded-xl border border-primary/30 p-5 mb-6">
+              <p class="text-sm text-neutral-300"><strong class="text-primary">The honest cost of the conversion:</strong> a hook is a guarantee, text is a request. Swapping one for the other costs you determinism — and that's exactly why the pacing rule has to be <em>short</em>. Three bullets the model reads at the start of every session are worth more than forty lines it will skim past without reading. The same logic applies to <code>silver-platter</code>, the other native skill.</p>
+           </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Native skill</span><p class="text-sm text-neutral-400 mt-1">Depends on a harness feature; only the content migrates.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Pacing rule</span><p class="text-sm text-neutral-400 mt-1">Think before you act; close the loop by verifying.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Guarantee vs request</span><p class="text-sm text-neutral-400 mt-1">A hook always runs; text depends on being read and obeyed.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Short wins</span><p class="text-sm text-neutral-400 mt-1">A long instruction isn't stronger, it's more ignored.</p></div>
+            </div>
+
+            <div class="flex justify-start">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+          </section>
+
+          <!-- TOPICO 6 -->
+          <section id="topico-6" data-inema-topic="modulo-3-2#topico-6" class="mb-16">
+            <div class="flex items-center space-x-4 mb-6">
+              <span class="flex items-center justify-center w-12 h-12 rounded-full bg-purple-500/20 text-purple-400 font-bold text-xl flex-shrink-0">6</span>
+              <h2 class="text-2xl font-bold">🎭 The 7 subagents become role skills</h2>
+            </div>
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t6-p1">Claude has <strong class="text-purple-400">7 subagents</strong> in <code>~/.claude/agents</code>: <code>advogado-do-diabo</code>, <code>analista-neutro</code>, <code>estrategista-otimista</code>, <code>mestre-do-conselho</code>, <code>diretor-ecossistema</code>, <code>web-research-assistant</code> and <code>triple-x-responder</code>. Codex has no equivalent — the diagnosis is categorical: subagents stay behind as Claude residue. But each of these files is, at heart, <strong>a role described in prose</strong>: what the agent takes on, what it looks for, the output format. That becomes a skill.</p>
+
+            <p class="text-neutral-300 mb-6 leading-relaxed" data-inema-block="m3-2-t6-p2">The destination is <code>.agents/skills/</code> — the same folder Codex already scans and that <code>sync-skills.sh</code> mirrors at install time. What you lose is <em>parallelism</em>: in Claude, three council members run at the same time in separate contexts. With a role skill, the same agent takes on the roles in sequence, in the same context — cheaper, slower, and with contamination between the voices. It's a real loss, and it's worth saying so in the skill description instead of pretending they're equivalent.</p>
+
+            <div class="mb-6">
+              <p class="text-sm text-neutral-400 mb-2"><strong class="text-neutral-100">Goal:</strong> convert the 7 subagents into role skills, preserving the prompt body and swapping only the header.</p>
+              <pre class="bg-dark-900 border border-dark-600 rounded-lg p-4 text-sm overflow-x-auto"><code>mkdir -p ~/.agents/skills
+for a in advogado-do-diabo analista-neutro estrategista-otimista \
+         mestre-do-conselho diretor-ecossistema web-research-assistant \
+         triple-x-responder; do
+  src=~/.claude/agents/$a.md
+  [ -f "$src" ] || { echo "missing: $a"; continue; }
+  mkdir -p ~/.agents/skills/papel-$a
+  {
+    echo "---"
+    echo "name: papel-$a"
+    echo "description: Takes on the role of $a. Use when the task explicitly asks for that voice."
+    echo "---"
+    echo
+    echo "&gt; Role derived from the Claude Code subagent \`$a\`."
+    echo "&gt; There is NO parallel execution here: take on the role in the current context and"
+    echo "&gt; make it clear in the response when you are speaking for it."
+    echo
+    sed '1{/^---$/!b}; 1,/^---$/d' "$src"   <span class="text-neutral-500"># strip only the old front-matter</span>
+  } &gt; ~/.agents/skills/papel-$a/SKILL.md
+  echo "papel-$a"
+done</code></pre>
+              <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">How to verify:</strong> <code>ls ~/.agents/skills | grep -c '^papel-'</code> returns <code>7</code>. Then, <code>codex exec "Use papel-advogado-do-diabo to attack this decision: migrate everything at once."</code> — the response must cite the skill file and hold the devil's-advocate voice from start to finish.</p>
+            </div>
+
+            <div class="bg-gradient-to-br from-purple-900/30 to-dark-800 rounded-xl border border-purple-500/30 p-6 mb-6">
+              <h3 class="text-lg font-semibold text-purple-400 mb-3 flex items-center"><span class="mr-2">✅</span> Acceptance criteria (check off with evidence)</h3>
+              <ul class="space-y-2 text-neutral-300 text-sm">
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span><code>codex mcp list</code> shows magnific and metricool. <em>Evidence:</em> command output.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span><code>grep -rIl -e 'sk-' -e 'API_KEY=' ~/.codex</code> returns nothing. <em>Evidence:</em> empty output pasted into the handoff.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>An adapter skill that depended only on magnific runs end to end in Codex. <em>Evidence:</em> the generated artifact.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>The pacing rule is in <code>~/.codex/AGENTS.md</code> and is cited in a <code>codex exec</code>. <em>Evidence:</em> the response with the citation.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>7 <code>papel-*</code> skills in <code>~/.agents/skills</code>, and one of them was exercised. <em>Evidence:</em> <code>ls</code> + the role's response.</span></li>
+                <li class="flex items-start gap-2"><span class="text-purple-400 mt-0.5">☐</span><span>Nothing broke in Claude: <code>claude mcp list</code> and the SessionStart hooks remain the same. <em>Evidence:</em> comparison with the baseline from topic 1.</span></li>
+              </ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <div class="bg-red-900/20 rounded-xl border border-red-500/30 p-6">
+                <h4 class="font-bold text-red-400 mb-4">⚠️ Risks of this project</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>A key copied into <code>~/.codex</code> in a hurry — the costliest risk on this page.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>MCP registered globally when it should be per project: context noise in every session.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Adapter skill ported before the MCP: fails mid-execution.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>Assuming a role skill equals a subagent: you lose parallelism and context isolation.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-red-400">•</span><span>MCP server fetched via <code>npx</code> without a pinned version changing under you.</span></li>
+                </ul>
+              </div>
+              <div class="bg-emerald-900/20 rounded-xl border border-emerald-500/30 p-6">
+                <h4 class="font-bold text-emerald-400 mb-4">↩️ Rollback in one command</h4>
+                <ul class="space-y-3 text-neutral-300 text-sm">
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>MCP: <code>codex mcp remove magnific</code> (and metricool) brings the list back to empty.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Wrappers: <code>rm ~/.local/bin/mcp-*.sh</code>; the <code>.env</code> was never touched.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>AGENTS.md: <code>mv ~/.codex/AGENTS.md.bak-AAAAMMDD ~/.codex/AGENTS.md</code>.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>Roles: <code>rm -rf ~/.agents/skills/papel-*</code>; the originals in <code>~/.claude/agents</code> stay intact.</span></li>
+                  <li class="flex items-start gap-2"><span class="text-emerald-400">✓</span><span>If a key leaked, rollback isn't enough: rotate the key before anything else.</span></li>
+                </ul>
+              </div>
+            </div>
+
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wide mb-3">Key concepts</h3>
+            <div class="grid sm:grid-cols-2 gap-3 mb-6">
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Role skill</span><p class="text-sm text-neutral-400 mt-1">The subagent's prompt turned into an instruction the agent takes on.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Loss of parallelism</span><p class="text-sm text-neutral-400 mt-1">Roles in sequence in the same context, not in separate contexts.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm"><code>.agents/skills/</code></span><p class="text-sm text-neutral-400 mt-1">Folder that Codex scans and sync-skills mirrors.</p></div>
+              <div class="bg-dark-800 rounded-lg border border-dark-600 p-4"><span class="text-purple-400 font-semibold text-sm">Honest equivalence</span><p class="text-sm text-neutral-400 mt-1">Documenting what you lose is worth more than pretending parity.</p></div>
+            </div>
+
+            <div data-inema-check="modulo-3-2#q1" class="inema-check mt-8 bg-dark-800 border border-dark-600 rounded-xl p-6">
+              <p class="font-medium mb-4">Self-check (optional): you want Codex to register the <code>magnific</code> MCP, which needs an API key stored in <code>~/projetos/openpcbotv2/.env</code>. What's the right approach?</p>
+              <div class="inema-check-options space-y-2">
+                <button type="button" data-inema-check-option="0" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">I open the <code>.env</code>, copy the key value and pass it in <code>codex mcp add magnific --env MAGNIFIC_KEY=&lt;value&gt;</code>.</button>
+                <button type="button" data-inema-check-option="1" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">I create a wrapper that does <code>set -a; . ~/projetos/openpcbotv2/.env; set +a</code> and <code>exec</code>s the server, and I register the wrapper's path.</button>
+                <button type="button" data-inema-check-option="2" class="block w-full text-left px-4 py-2 rounded-lg bg-dark-700 border border-dark-600 hover:bg-dark-600 transition-colors text-sm">I copy the whole <code>.env</code> to <code>~/.codex/.env</code>, so Codex finds it on its own.</button>
+              </div>
+              <div data-inema-check-feedback class="mt-4 text-sm" role="status" aria-live="polite"></div>
+            </div>
+
+            <div class="flex justify-start mt-6">
+              <button type="button" data-inema-read-toggle aria-pressed="false" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/20 border border-purple-500/30 text-purple-400 hover:bg-purple-500/30 transition-colors">
+                <span class="inema-ico-todo" aria-hidden="true">○</span><span class="inema-ico-done" aria-hidden="true">●</span>
+                <span class="inema-label-todo">Mark as read</span><span class="inema-label-done">Read ✓</span>
+              </button>
+            </div>
+         </section>
+
+          <!-- RESUMO -->
+          <section class="mb-8">
+            <div class="bg-gradient-to-br from-purple-900/40 via-dark-800 to-dark-800 rounded-xl border border-purple-500/30 p-8">
+              <h2 class="text-2xl font-bold mb-6 flex items-center"><span class="mr-3">🎯</span> Project summary</h2>
+              <div class="space-y-4 mb-8">
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Tools travel</strong><span class="text-neutral-400"> — MCP is a protocol: magnific, metricool, klingai and cerebro-vip now exist in Codex too.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">The secret stays at the source</strong><span class="text-neutral-400"> — a wrapper with <code>set -a; source .env; set +a</code>; the config stores a path, never a key.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Events don't travel</strong><span class="text-neutral-400"> — PostToolUse and Stop already exist in both; SessionStart doesn't exist in Codex and becomes text that gets read.</span></div></div>
+                <div class="flex items-start space-x-3"><span class="text-purple-400 mt-1">✓</span><div><strong class="text-neutral-100">Behavior becomes content</strong><span class="text-neutral-400"> — fable-mindset becomes the pacing rule in AGENTS.md; the 7 subagents become role skills.</span></div></div>
+              </div>
+              <div class="bg-dark-800/50 rounded-lg p-4 mb-8">
+                <h3 class="font-semibold text-purple-400 mb-2">Next project:</h3>
+                <p class="text-neutral-300">3.3 — Curated memory: the agent proposes, you approve</p>
+              </div>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <a href="index.html" class="flex-1 text-center px-6 py-3 bg-dark-700 text-neutral-300 rounded-lg font-semibold hover:bg-dark-600 transition-colors">← Back to the Track</a>
+                <a href="modulo-3-3.html" class="flex-1 text-center px-6 py-3 bg-purple-600 text-white rounded-lg font-semibold hover:bg-purple-500 transition-colors">Next project →</a>
+              </div>
+            </div>
+          </section>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-dark-600 py-8 mt-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-neutral-500 text-sm space-y-2">
+      <p>🧠 Claude → Codex — Migrate or stay agnostic</p>
+      <p>Project 3.2 · Track 3 · <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300">INEMA.CLUB</a> · <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200">PRO</a> · 2026</p>
+    </div>
+  </footer>
+
+  <script>
+    function toggleTopic(button){
+      const item = button.closest('.topic-item');
+      const exp = item.querySelector('.topic-explanation');
+      const card = button.closest('.bg-dark-800');
+      if (card) card.querySelectorAll('.topic-explanation.active').forEach(e=>{ if(e!==exp) e.classList.remove('active'); });
+      const open = exp.classList.toggle('active');
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    (function(){
+      const tt=document.getElementById('theme-toggle'), di=document.getElementById('theme-toggle-dark-icon'), li=document.getElementById('theme-toggle-light-icon'), html=document.documentElement;
+      function sync(){ if(html.classList.contains('dark')){ li.classList.remove('hidden'); di.classList.add('hidden'); } else { di.classList.remove('hidden'); li.classList.add('hidden'); } }
+      sync();
+      if(tt) tt.addEventListener('click', ()=>{ html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark')?'dark':'light'); if(window.INEMA&&INEMA.setPref){ INEMA.setPref('theme', html.classList.contains('dark')?'inema-dark':'claro'); } sync(); });
+    })();
+    function openModal(id){ const m=document.getElementById(id); if(m){ const f=m.querySelector('iframe'); if(f && !f.src && f.dataset.src){ f.src=f.dataset.src; } m.classList.remove('hidden'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ document.querySelectorAll('.modal').forEach(m=>m.classList.add('hidden')); document.body.style.overflow='auto'; }
+    document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModal(); });
+  </script>
+  <script src="../../assets/learn.js"></script>
+  <script>
+    if (window.INEMA && typeof window.INEMA.init === 'function') { window.INEMA.init({ autoResume: false }); }
+    document.addEventListener('DOMContentLoaded', function(){
+      if (window.INEMA && INEMA.registerCheck) {
+        INEMA.registerCheck('modulo-3-2#q1', {
+          answer: 1,
+          explain: {
+            0: 'No: the key becomes plain text on disk in the Codex config, creating a second copy of the secret. The rule is reference, never copy.',
+            1: 'Right. The wrapper loads the .env at runtime and execs the server; the config stores only a path. Rotating the key comes down to editing a single file.',
+            2: 'No: duplicating the .env is exactly creating the second source the rule forbids — and now you have two files to rotate and forget.'
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

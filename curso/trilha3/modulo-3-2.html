@@ -167,7 +167,7 @@
           <span class="text-neutral-600">|</span>
           <a href="https://inema.club" target="_blank" rel="noopener" class="text-sky-400 hover:text-sky-300 text-sm font-medium">INEMA.CLUB</a>
           <span class="text-neutral-600">-</span>
-          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a>
+          <a href="https://inema.pro" target="_blank" rel="noopener" class="text-amber-700 hover:text-amber-600 dark:text-slate-300 dark:hover:text-slate-200 text-sm font-medium">PRO</a><span class="text-neutral-600">|</span><span class="inline-flex items-center gap-1.5" data-lang-switch><a href="../../curso/trilha3/modulo-3-2.html" class="text-yellow-400 text-xs font-semibold" title="Português">PT</a><span class="text-neutral-600">/</span><a href="../../en/curso/trilha3/modulo-3-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="English">EN</a><span class="text-neutral-600">/</span><a href="../../es/curso/trilha3/modulo-3-2.html" class="text-neutral-400 hover:text-neutral-100 text-xs font-semibold" title="Español">ES</a></span>
         </div>
         <div class="flex items-center space-x-1 sm:space-x-2">
           <a href="../trilha1/index.html" class="px-3 py-1.5 rounded-lg text-sm font-semibold text-neutral-400 hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"><span class="sm:hidden">T1</span><span class="hidden sm:inline">Fundamentos</span></a>
@@ -368,7 +368,7 @@ codex mcp list
 <span class="text-neutral-500"># esperado HOJE: lista vazia — este é o gap do projeto</span>
 
 <span class="text-neutral-500"># hooks dos dois lados</span>
-grep -o '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.claude/settings.json | sort | uniq -c
+grep -rho '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.claude/settings.json ~/.claude/plugins/cache 2&gt;/dev/null | sort | uniq -c
 grep -o '"SessionStart"\|"PostToolUse"\|"Stop"' ~/.codex/hooks.json | sort | uniq -c</code></pre>
               <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> anote as duas listas em <code>context/overview.md</code> do projeto onde você está trabalhando. No fim deste módulo, <code>codex mcp list</code> tem que deixar de ser vazio — e essa é a única métrica que importa no tópico 2.</p>
             </div>
@@ -637,7 +637,7 @@ done</code></pre>
                   <path d="M235,159 L235,194" stroke="#c084fc" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#m32b-ah)"/>
 
                   <rect x="425" y="200" width="540" height="64" rx="12" fill="#0e1b26" stroke="#38bdf8" stroke-width="1.6" opacity="0.8"/>
-                  <text x="695" y="226" text-anchor="middle" fill="#bfe6ff" font-size="12">estes dois já são equivalentes: o mesmo hook.mjs do impeccable roda nos dois runtimes</text>
+                  <text x="695" y="226" text-anchor="middle" fill="#bfe6ff" font-size="11">já equivalentes: o mesmo hook.mjs do impeccable nos dois</text>
                   <text x="695" y="248" text-anchor="middle" fill="#9ad6ff" font-size="12" font-weight="600">nada a migrar aqui — só conferir os timeouts</text>
                 </g>
               </svg>
@@ -672,7 +672,7 @@ grep -E '"matcher"|"timeout"|"statusMessage"' ~/.codex/hooks.json
 ls -l ~/.agents/skills/impeccable/scripts/hook.mjs
 
 <span class="text-neutral-500"># o que o Claude dispara no SessionStart — este é o que NÃO tem par</span>
-grep -A4 '"SessionStart"' ~/.claude/settings.json</code></pre>
+grep -rl '"SessionStart"' ~/.claude/settings.json ~/.claude/plugins/cache 2&gt;/dev/null</code></pre>
               <p class="text-sm text-neutral-400 mt-2"><strong class="text-neutral-100">Como verificar:</strong> a lista do Codex sai com dois nomes e nenhum deles é <code>SessionStart</code>. Se o <code>ls</code> do <code>hook.mjs</code> falhar, os hooks do Codex estão registrados mas inertes — o <code>[ ! -f ... ] ||</code> no começo do comando faz eles saírem calados.</p>
             </div>
 
@@ -801,7 +801,7 @@ for a in advogado-do-diabo analista-neutro estrategista-otimista \
     echo "&gt; Aqui NÃO há execução paralela: assuma o papel no contexto atual e"
     echo "&gt; deixe claro na resposta quando estiver falando por ele."
     echo
-    sed '1{/^---$/!q}; 1,/^---$/d' "$src"   <span class="text-neutral-500"># tira só o front-matter antigo</span>
+    sed '1{/^---$/!b}; 1,/^---$/d' "$src"   <span class="text-neutral-500"># tira só o front-matter antigo</span>
   } &gt; ~/.agents/skills/papel-$a/SKILL.md
   echo "papel-$a"
 done</code></pre>
